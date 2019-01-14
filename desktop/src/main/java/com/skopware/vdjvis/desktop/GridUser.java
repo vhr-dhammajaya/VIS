@@ -4,8 +4,8 @@ import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.layout.FormLayout;
 import com.skopware.javautils.ObjectHelper;
-import com.skopware.javautils.swing.BaseCrudInternalFrame;
 import com.skopware.javautils.swing.BaseCrudTableModel;
+import com.skopware.javautils.swing.grid.JDataGrid;
 import com.skopware.vdjvis.api.User;
 
 import javax.swing.*;
@@ -13,8 +13,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class FrameMasterUser extends BaseCrudInternalFrame<User> {
-    public static FrameMasterUser create() {
+public class GridUser extends JDataGrid<User> {
+    public static GridUser create() {
         List<BaseCrudTableModel.ColumnConfig> columnConfigs = Arrays.asList(
                 ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
                     x.fieldName = x.dbColumnName = "username";
@@ -30,11 +30,11 @@ public class FrameMasterUser extends BaseCrudInternalFrame<User> {
                 })
         );
 
-        return new FrameMasterUser(columnConfigs);
+        return new GridUser(columnConfigs);
     }
 
-    public FrameMasterUser(List<BaseCrudTableModel.ColumnConfig> columnConfigs) {
-        super("Master User", columnConfigs, User.class, App.config);
+    public GridUser(List<BaseCrudTableModel.ColumnConfig> columnConfigs) {
+        super(columnConfigs, User.class, App.config);
 
         controllerUrl = App.config.url("/user");
     }
@@ -73,26 +73,7 @@ public class FrameMasterUser extends BaseCrudInternalFrame<User> {
                     User.Type.UMAT
             });
 
-            String layoutSpec;
-
-            if (isCreateNew) {
-                txtPassword = new JPasswordField(45);
-
-                layoutSpec = "right:pref, 4dlu, left:pref:grow," +
-                        "4dlu," +
-                        "right:pref, 4dlu, left:pref:grow," +
-                        "4dlu," +
-                        "right:pref, 4dlu, left:pref:grow," +
-                        "4dlu," +
-                        "right:pref, 4dlu, left:pref:grow";
-            }
-            else {
-                layoutSpec = "right:pref, 4dlu, left:pref:grow," +
-                        "4dlu," +
-                        "right:pref, 4dlu, left:pref:grow," +
-                        "4dlu," +
-                        "right:pref, 4dlu, left:pref:grow";
-            }
+            String layoutSpec = "right:pref, 4dlu, left:pref:grow";
 
             FormLayout layout = new FormLayout(layoutSpec);
             DefaultFormBuilder builder = new DefaultFormBuilder(layout);
@@ -102,6 +83,7 @@ public class FrameMasterUser extends BaseCrudInternalFrame<User> {
             builder.nextLine();
 
             if (isCreateNew) {
+                txtPassword = new JPasswordField(45);
                 builder.append("Password", txtPassword);
                 builder.nextLine();
             }

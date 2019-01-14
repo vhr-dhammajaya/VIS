@@ -4,9 +4,11 @@ import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.layout.FormLayout;
 import com.skopware.javautils.ObjectHelper;
-import com.skopware.javautils.swing.BaseCrudInternalFrame;
+import com.skopware.javautils.Tuple2;
 import com.skopware.javautils.swing.BaseCrudTableModel;
 import com.skopware.javautils.swing.JDatePicker;
+import com.skopware.javautils.swing.SwingHelper;
+import com.skopware.javautils.swing.grid.JDataGrid;
 import com.skopware.vdjvis.api.Umat;
 
 import javax.swing.*;
@@ -15,8 +17,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class FrameMasterUmat extends BaseCrudInternalFrame<Umat> {
-    public static FrameMasterUmat create() {
+public class GridUmat extends JDataGrid<Umat> {
+    public static GridUmat create() {
         List<BaseCrudTableModel.ColumnConfig> columnConfigs = Arrays.asList(
                 ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
                     x.fieldName = x.dbColumnName = ("nama");
@@ -133,23 +135,13 @@ public class FrameMasterUmat extends BaseCrudInternalFrame<Umat> {
                 })
         );
 
-        return new FrameMasterUmat(columnConfigs);
+        return new GridUmat(columnConfigs);
     }
 
-    public FrameMasterUmat(List<BaseCrudTableModel.ColumnConfig> columnConfigs) {
-        super("Master Umat", columnConfigs, Umat.class, App.config);
+    public GridUmat(List<BaseCrudTableModel.ColumnConfig> columnConfigs) {
+        super(columnConfigs, Umat.class, App.config);
 
         controllerUrl = App.config.url("/umat");
-    }
-
-    @Override
-    protected void addAdditionalButtons() {
-        JButton btnAddLeluhur = new JButton("Daftarkan leluhur (samanagara)");
-        btnAddLeluhur.addActionListener(event -> {
-
-        });
-
-        pnlButton.add(btnAddLeluhur);
     }
 
     @Override
@@ -234,7 +226,7 @@ public class FrameMasterUmat extends BaseCrudInternalFrame<Umat> {
             grpJenisKelamin.add(btnJenisKelaminPria);
             grpJenisKelamin.add(btnJenisKelaminWanita);
 
-            cmbStatusNikah = new JComboBox<>(new String[] {"Single", "Menikah", "Lainnya"});
+            cmbStatusNikah = new JComboBox<>(new String[]{"Single", "Menikah", "Lainnya"});
 
             txtPendidikanTerakhir = new JTextField(45);
             txtJurusan = new JTextField(45);
@@ -382,27 +374,11 @@ public class FrameMasterUmat extends BaseCrudInternalFrame<Umat> {
 
         @Override
         protected boolean validateFormFields() {
-            List<String> errors = new ArrayList<>();
-
-            if (txtNama.getText().isEmpty()) {
-                errors.add("Nama tidak boleh kosong");
-            }
-
-            if (txtAlamat.getText().isEmpty() || txtKota.getText().isEmpty()) {
-                errors.add("Alamat & kota tidak boleh kosong");
-            }
-
-            if (txtNoTelpon.getText().isEmpty()) {
-                errors.add("No. telpon tidak boleh kosong");
-            }
-
-            String errMsg = String.join("\n", errors);
-
-            if (!errors.isEmpty()) {
-                JOptionPane.showMessageDialog(getOwner(), errMsg, "Error", JOptionPane.ERROR_MESSAGE);
-            }
-
-            return errors.isEmpty();
+            return SwingHelper.validateFormFields(
+                    this,
+                    new Tuple2<>(txtNama.getText().isEmpty(), "Nama tidak boleh kosong"),
+                    new Tuple2<>(txtAlamat.getText().isEmpty() || txtKota.getText().isEmpty(), "Alamat & kota tidak boleh kosong"),
+                    new Tuple2<>(txtNoTelpon.getText().isEmpty(), "No. telpon tidak boleh kosong"));
         }
 
         @Override
@@ -419,8 +395,8 @@ public class FrameMasterUmat extends BaseCrudInternalFrame<Umat> {
             r.namaUpasaka = txtNamaUpasaka.getText();
             r.penahbis = txtNamaPenahbis.getText();
             r.tglPenahbisan = txtTglPenahbisan.getDate();
-            r.golDarah = btnGolDarahO.isSelected()? "O" : btnGolDarahA.isSelected()? "A": btnGolDarahB.isSelected()? "B" : btnGolDarahAB.isSelected()? "AB": null;
-            r.jenisKelamin = btnJenisKelaminPria.isSelected()? "L" : btnJenisKelaminWanita.isSelected()? "P" : null;
+            r.golDarah = btnGolDarahO.isSelected() ? "O" : btnGolDarahA.isSelected() ? "A" : btnGolDarahB.isSelected() ? "B" : btnGolDarahAB.isSelected() ? "AB" : null;
+            r.jenisKelamin = btnJenisKelaminPria.isSelected() ? "L" : btnJenisKelaminWanita.isSelected() ? "P" : null;
             r.statusNikah = (String) cmbStatusNikah.getSelectedItem();
             r.pendidikanTerakhir = txtPendidikanTerakhir.getText();
             r.jurusan = txtJurusan.getText();

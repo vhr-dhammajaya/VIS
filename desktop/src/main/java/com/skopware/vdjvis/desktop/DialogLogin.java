@@ -28,9 +28,7 @@ public class DialogLogin extends JFrame {
         txtUsername = new JTextField(45);
         txtPassword = new JPasswordField(45);
 
-        FormLayout layout = new FormLayout("right:pref, 4dlu, left:pref:grow," +
-                "4dlu," +
-                "right:pref, 4dlu, left:pref:grow");
+        FormLayout layout = new FormLayout("right:pref, 4dlu, left:pref:grow");
         DefaultFormBuilder builder = new DefaultFormBuilder(layout);
         builder.border(Borders.DIALOG);
 

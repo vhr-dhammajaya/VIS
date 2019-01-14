@@ -25,9 +25,7 @@ public class FrameGantiPassword extends JInternalFrame {
         txtPassword1 = new JPasswordField(50);
         txtPassword2 = new JPasswordField(50);
 
-        FormLayout layout = new FormLayout("right:pref, 4dlu, left:pref:grow," +
-                "4dlu," +
-                "right:pref, 4dlu, left:pref:grow");
+        FormLayout layout = new FormLayout("right:pref, 4dlu, left:pref:grow");
         DefaultFormBuilder builder = new DefaultFormBuilder(layout);
 
         builder.border(Borders.DIALOG);

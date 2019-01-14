@@ -37,6 +37,9 @@ public class Leluhur extends BaseRecord<Leluhur> {
     @NotNull
     public LocalDate tglDaftar;
 
+    @JsonProperty
+    public String umatId;
+
     public String getNama() {
         return nama;
     }
@@ -91,5 +94,13 @@ public class Leluhur extends BaseRecord<Leluhur> {
 
     public void setTglDaftar(LocalDate tglDaftar) {
         this.tglDaftar = tglDaftar;
+    }
+
+    public String getUmatId() {
+        return umatId;
+    }
+
+    public void setUmatId(String umatId) {
+        this.umatId = umatId;
     }
 }

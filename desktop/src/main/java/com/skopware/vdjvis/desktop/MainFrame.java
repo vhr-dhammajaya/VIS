@@ -1,9 +1,12 @@
 package com.skopware.vdjvis.desktop;
 
-import com.skopware.javautils.swing.BaseCrudAppConfig;
-import com.skopware.javautils.swing.BaseCrudInternalFrame;
-import com.skopware.javautils.swing.JDatePicker;
+import com.skopware.javautils.swing.BaseCrudFrame;
+import com.skopware.javautils.swing.BasicCrudFrame;
+import com.skopware.javautils.swing.MasterDetailFrame;
 import com.skopware.javautils.swing.SwingHelper;
+import com.skopware.vdjvis.api.Acara;
+import com.skopware.vdjvis.api.Umat;
+import com.skopware.vdjvis.api.User;
 
 import javax.swing.*;
 import javax.swing.event.InternalFrameAdapter;
@@ -35,9 +38,10 @@ public class MainFrame extends JFrame {
     private JMenu menuLaporan;
 
     private JDesktopPane desktopPane;
-    private FrameMasterAcara frameMasterAcara;
-    private FrameMasterUmat frameMasterUmat;
-    private FrameMasterUser frameMasterUser;
+    private BaseCrudFrame frameMasterAcara;
+    private BaseCrudFrame frameMasterUmat;
+    private BaseCrudFrame frameMasterUser;
+    private BaseCrudFrame frameMasterLeluhur;
 
     public MainFrame() {
         super("VIS VDJ");
@@ -70,15 +74,15 @@ public class MainFrame extends JFrame {
 
         menuMasterUmat = new JMenuItem("Umat");
         menuMasterUmat.addActionListener((event) -> {
-            showWindow("frameMasterUmat", FrameMasterUmat::create);
+            showWindow("frameMasterUmat", () -> new BasicCrudFrame<>("Master Umat", GridUmat.create()));
         });
         menuMasterAcara = new JMenuItem("Acara");
         menuMasterAcara.addActionListener((event) -> {
-            showWindow("frameMasterAcara", FrameMasterAcara::create);
+            showWindow("frameMasterAcara", () -> new BasicCrudFrame<>("Master Acara", GridAcara.create()));
         });
         menuMasterUser = new JMenuItem("User");
         menuMasterUser.addActionListener((event) -> {
-            showWindow("frameMasterUser", FrameMasterUser::create);
+            showWindow("frameMasterUser", () -> new BasicCrudFrame<>("Master User", GridUser.create()));
         });
 
         menuMaster.add(menuMasterUmat);
@@ -88,6 +92,9 @@ public class MainFrame extends JFrame {
         menuSamanagara = new JMenu("Samanagara");
         menuBar.add(menuSamanagara);
         menuPendaftaranSamanagara = new JMenuItem("Pendaftaran samanagara");
+        menuPendaftaranSamanagara.addActionListener(event -> {
+            showWindow("frameMasterLeluhur", () -> new MasterDetailFrame<>("Pendaftaran leluhur Samanagara", GridUmat.create(), GridLeluhur.create()));
+        });
         menuDaftarLeluhur = new JMenuItem("Daftar leluhur");
         menuLokasiFoto = new JMenuItem("Lokasi foto");
         menuSettingBiayaSamanagara = new JMenuItem("Setting biaya samanagara");
@@ -115,13 +122,14 @@ public class MainFrame extends JFrame {
         setContentPane(desktopPane);
     }
 
-    private <T extends BaseCrudInternalFrame> void showWindow(String fieldName, Supplier<T> fnCreateWindow) {
+    private <T extends BaseCrudFrame> void showWindow(String fieldName, Supplier<T> fnCreateWindow) {
         try {
             Field windowField = this.getClass().getDeclaredField(fieldName);
             windowField.setAccessible(true);
             T windowObj = (T) windowField.get(this);
+            boolean needToCreate = windowObj == null;
 
-            if (windowObj == null) {
+            if (needToCreate) {
                 windowObj = fnCreateWindow.get();
                 windowField.set(this, windowObj);
 
@@ -145,6 +153,10 @@ public class MainFrame extends JFrame {
             }
 
             SwingHelper.moveToFrontAndMaximize(windowObj);
+
+            if (needToCreate) {
+                windowObj.refreshData();
+            }
         }
         catch (Exception e) {
             if (e instanceof RuntimeException) {
