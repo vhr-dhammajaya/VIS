@@ -42,6 +42,7 @@ public class MainFrame extends JFrame {
     private BaseCrudFrame frameMasterUmat;
     private BaseCrudFrame frameMasterUser;
     private BaseCrudFrame frameMasterLeluhur;
+    private BaseCrudFrame frameSettingIuranSamanagara;
 
     public MainFrame() {
         super("VIS VDJ");
@@ -98,8 +99,12 @@ public class MainFrame extends JFrame {
         menuDaftarLeluhur = new JMenuItem("Daftar leluhur");
         menuLokasiFoto = new JMenuItem("Lokasi foto");
         menuSettingBiayaSamanagara = new JMenuItem("Setting biaya samanagara");
+        menuSettingBiayaSamanagara.addActionListener(event -> {
+            showWindow("frameSettingIuranSamanagara", () -> new BasicCrudFrame<>("Setting Iuran Samanagara", GridSettingTarifSamanagara.create()));
+        });
+
         menuSamanagara.add(menuPendaftaranSamanagara);
-        menuSamanagara.add(menuDaftarLeluhur);
+//        menuSamanagara.add(menuDaftarLeluhur);
         menuSamanagara.add(menuLokasiFoto);
         menuSamanagara.add(menuSettingBiayaSamanagara);
 

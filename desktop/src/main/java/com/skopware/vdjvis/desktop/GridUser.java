@@ -15,7 +15,9 @@ import java.util.List;
 
 public class GridUser extends JDataGrid<User> {
     public static GridUser create() {
-        List<BaseCrudTableModel.ColumnConfig> columnConfigs = Arrays.asList(
+        JDataGridOptions<User> options = new JDataGridOptions<>();
+
+        options.columnConfigs = Arrays.asList(
                 ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
                     x.fieldName = x.dbColumnName = "username";
                     x.label = "Username";
@@ -30,13 +32,15 @@ public class GridUser extends JDataGrid<User> {
                 })
         );
 
-        return new GridUser(columnConfigs);
+        options.recordType = User.class;
+        options.appConfig = App.config;
+        options.shortControllerUrl = "/user";
+
+        return new GridUser(options);
     }
 
-    public GridUser(List<BaseCrudTableModel.ColumnConfig> columnConfigs) {
-        super(columnConfigs, User.class, App.config);
-
-        controllerUrl = App.config.url("/user");
+    public GridUser(JDataGridOptions<User> options) {
+        super(options);
     }
 
     @Override

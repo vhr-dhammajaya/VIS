@@ -17,19 +17,24 @@ import javax.swing.*;
 
 public class GridAcara extends JDataGrid<Acara> {
     public static GridAcara create() {
-        List<BaseCrudTableModel.ColumnConfig> columnConfigs = Arrays.asList(
+        JDataGridOptions<Acara> options = new JDataGridOptions<>();
+
+        options.columnConfigs = Arrays.asList(
                 ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
                     x.fieldName = x.dbColumnName = ("nama");
                     x.label = ("Nama acara");
                 })
         );
-        return new GridAcara(columnConfigs);
+
+        options.recordType = Acara.class;
+        options.appConfig = App.config;
+        options.shortControllerUrl = "/acara";
+
+        return new GridAcara(options);
     }
 
-    public GridAcara(List<BaseCrudTableModel.ColumnConfig> columnConfigs) {
-        super(columnConfigs, Acara.class, App.config);
-
-        controllerUrl = App.config.url("/acara");
+    public GridAcara(JDataGridOptions<Acara> options) {
+        super(options);
     }
 
     protected void showCreateForm() {

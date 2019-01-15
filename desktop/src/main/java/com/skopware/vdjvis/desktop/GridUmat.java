@@ -13,13 +13,13 @@ import com.skopware.vdjvis.api.Umat;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class GridUmat extends JDataGrid<Umat> {
     public static GridUmat create() {
-        List<BaseCrudTableModel.ColumnConfig> columnConfigs = Arrays.asList(
+        JDataGridOptions<Umat> options = new JDataGridOptions<>();
+
+        options.columnConfigs = Arrays.asList(
                 ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
                     x.fieldName = x.dbColumnName = ("nama");
                     x.label = ("Nama");
@@ -135,13 +135,15 @@ public class GridUmat extends JDataGrid<Umat> {
                 })
         );
 
-        return new GridUmat(columnConfigs);
+        options.recordType = Umat.class;
+        options.appConfig = App.config;
+        options.shortControllerUrl = "/umat";
+
+        return new GridUmat(options);
     }
 
-    public GridUmat(List<BaseCrudTableModel.ColumnConfig> columnConfigs) {
-        super(columnConfigs, Umat.class, App.config);
-
-        controllerUrl = App.config.url("/umat");
+    public GridUmat(JDataGridOptions<Umat> options) {
+        super(options);
     }
 
     @Override

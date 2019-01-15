@@ -14,13 +14,13 @@ import com.skopware.vdjvis.api.Leluhur;
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class GridLeluhur extends JDataGrid<Leluhur> {
     public static GridLeluhur create() {
-        List<BaseCrudTableModel.ColumnConfig> columnConfigs = Arrays.asList(
+        JDataGridOptions<Leluhur> options = new JDataGridOptions<>();
+
+        options.columnConfigs = Arrays.asList(
                 ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
                     x.fieldName = x.dbColumnName = "nama";
                     x.label = "Nama";
@@ -57,14 +57,17 @@ public class GridLeluhur extends JDataGrid<Leluhur> {
                 })
         );
 
-        return new GridLeluhur(columnConfigs);
+        options.recordType = Leluhur.class;
+        options.appConfig = App.config;
+        options.shortControllerUrl = "/leluhur";
+
+        return new GridLeluhur(options);
     }
 
-    public GridLeluhur(List<BaseCrudTableModel.ColumnConfig> columnConfigs) {
-        super(columnConfigs, Leluhur.class, App.config);
+    public GridLeluhur(JDataGridOptions<Leluhur> options) {
+        super(options);
 
         gridConfig.parentColumnName = "umat_id";
-        controllerUrl = App.config.url("/leluhur");
     }
 
     @Override
@@ -110,18 +113,12 @@ public class GridLeluhur extends JDataGrid<Leluhur> {
             txtHubunganDgnUmat = new JComboBox<>(hubungan);
             txtHubunganDgnUmat.setEditable(true);
 
-            FormLayout layout = new FormLayout("right:pref, 4dlu, left:pref:grow," +
-                    "4dlu," +
-                    "right:pref, 4dlu, left:pref:grow");
-            DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-            builder.border(Borders.DIALOG);
-         
-            SwingHelper.addNewFormFields(builder, new Tuple2<>("Nama Mendiang", txtNama));
-            SwingHelper.addNewFormFields(builder, new Tuple2<>("Tempat Lahir", txtTempatLahir), new Tuple2<>("Tgl Lahir", txtTglLahir));
-            SwingHelper.addNewFormFields(builder, new Tuple2<>("Meninggal di", txtTempatMati), new Tuple2<>("Tgl Meninggal", txtTglMati));
-            SwingHelper.addNewFormFields(builder, false, new Tuple2<>("Hubungan dgn penanggung jawab", txtHubunganDgnUmat));
-            
-            pnlFormFields = builder.build();
+            pnlFormFields = SwingHelper.buildForm(2, Arrays.asList(
+                    Arrays.asList(new Tuple2<>("Nama Mendiang", txtNama)),
+                    Arrays.asList(new Tuple2<>("Tempat Lahir", txtTempatLahir), new Tuple2<>("Tgl Lahir", txtTglLahir)),
+                    Arrays.asList(new Tuple2<>("Meninggal di", txtTempatMati), new Tuple2<>("Tgl Meninggal", txtTglMati)),
+                    Arrays.asList(new Tuple2<>("Hubungan dgn penanggung jawab", txtHubunganDgnUmat))
+            ));
         }
 
         @Override
