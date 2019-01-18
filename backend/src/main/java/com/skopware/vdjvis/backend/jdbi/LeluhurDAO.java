@@ -18,7 +18,7 @@ public interface LeluhurDAO extends BaseCrudDAO<Leluhur> {
             "umat_id) " +
             "values(:uuid, :nama," +
             ":tempatLahir, :tglLahir, :tempatMati, :tglMati," +
-            ":hubunganDgnUmat, :tglDaftar, :umatId)")
+            ":hubunganDgnUmat, :tglDaftar, :penanggungJawabId)")
     @Override
     void create(@BindBean Leluhur x);
 

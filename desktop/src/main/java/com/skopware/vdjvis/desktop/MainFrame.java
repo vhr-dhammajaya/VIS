@@ -42,6 +42,7 @@ public class MainFrame extends JFrame {
     private BaseCrudFrame frameMasterUmat;
     private BaseCrudFrame frameMasterUser;
     private BaseCrudFrame frameMasterLeluhur;
+    private BaseCrudFrame frameSetLokasiFoto;
     private BaseCrudFrame frameSettingIuranSamanagara;
 
     public MainFrame() {
@@ -51,24 +52,6 @@ public class MainFrame extends JFrame {
 
         menuBar = new JMenuBar();
         setJMenuBar(menuBar);
-
-        menuAccount = new JMenu("Akun");
-        menuBar.add(menuAccount);
-        menuGantiPassword = new JMenuItem("Ganti password");
-        menuGantiPassword.addActionListener(event -> {
-            FrameGantiPassword frame = new FrameGantiPassword();
-            desktopPane.add(frame);
-            frame.setVisible(true);
-            frame.pack();
-        });
-
-        menuLogout = new JMenuItem("Logout");
-        menuLogout.addActionListener(event -> {
-            App.logout();
-        });
-
-        menuAccount.add(menuGantiPassword);
-        menuAccount.add(menuLogout);
 
         menuMaster = new JMenu("Master");
         menuBar.add(menuMaster);
@@ -97,7 +80,12 @@ public class MainFrame extends JFrame {
             showWindow("frameMasterLeluhur", () -> new MasterDetailFrame<>("Pendaftaran leluhur Samanagara", GridUmat.create(), GridLeluhur.create()));
         });
         menuDaftarLeluhur = new JMenuItem("Daftar leluhur");
+
         menuLokasiFoto = new JMenuItem("Lokasi foto");
+        menuLokasiFoto.addActionListener(event -> {
+            showWindow("frameSetLokasiFoto", () -> new FrameSetLokasiFoto());
+        });
+
         menuSettingBiayaSamanagara = new JMenuItem("Setting biaya samanagara");
         menuSettingBiayaSamanagara.addActionListener(event -> {
             showWindow("frameSettingIuranSamanagara", () -> new BasicCrudFrame<>("Setting Iuran Samanagara", GridSettingTarifSamanagara.create()));
@@ -122,6 +110,26 @@ public class MainFrame extends JFrame {
 
         menuLaporan = new JMenu("Laporan");
         menuBar.add(menuLaporan);
+
+        menuBar.add(Box.createHorizontalGlue());
+
+        menuAccount = new JMenu("Akun");
+        menuBar.add(menuAccount);
+        menuGantiPassword = new JMenuItem("Ganti password");
+        menuGantiPassword.addActionListener(event -> {
+            FrameGantiPassword frame = new FrameGantiPassword();
+            desktopPane.add(frame);
+            frame.setVisible(true);
+            frame.pack();
+        });
+
+        menuLogout = new JMenuItem("Logout");
+        menuLogout.addActionListener(event -> {
+            App.logout();
+        });
+
+        menuAccount.add(menuGantiPassword);
+        menuAccount.add(menuLogout);
 
         desktopPane = new JDesktopPane();
         setContentPane(desktopPane);

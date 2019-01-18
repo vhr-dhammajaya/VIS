@@ -20,7 +20,8 @@ public class LeluhurRowMapper implements RowMapper<Leluhur> {
         x.tglMati = DateTimeHelper.toLocalDate(rs.getDate("tgl_mati"));
         x.hubunganDgnUmat = rs.getString("hubungan_dgn_umat");
         x.tglDaftar = DateTimeHelper.toLocalDate(rs.getDate("tgl_daftar"));
-        x.umatId = rs.getString("umat_id");
+        x.penanggungJawabId = rs.getString("umat_id");
+        x.cellFotoId = rs.getString("cell_papan_id");
         return x;
     }
 }

@@ -1,8 +1,5 @@
 package com.skopware.vdjvis.desktop;
 
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.factories.Borders;
-import com.jgoodies.forms.layout.FormLayout;
 import com.skopware.javautils.ObjectHelper;
 import com.skopware.javautils.Tuple2;
 import com.skopware.javautils.swing.BaseCrudTableModel;
@@ -149,7 +146,7 @@ public class GridLeluhur extends JDataGrid<Leluhur> {
             r.tglMati = txtTglMati.getDate();
             r.hubunganDgnUmat = (String) txtHubunganDgnUmat.getSelectedItem();
             r.tglDaftar = LocalDate.now();
-            r.umatId = GridLeluhur.this.parentRecordId;
+            r.penanggungJawabId = GridLeluhur.this.parentRecordId;
         }
     }
 }

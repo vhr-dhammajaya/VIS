@@ -64,7 +64,7 @@ public class GridSettingTarifSamanagara extends JDataGrid<TarifSamanagara> {
     }
 
     @Override
-    protected void addAdditionalButtons() {
+    protected void addAdditionalToolbarButtons() {
         JButton btnUpdateHarga = new JButton("Update nominal");
         btnUpdateHarga.addActionListener(e -> {
             new FormUpdateTarif(App.mainFrame, 10_000);

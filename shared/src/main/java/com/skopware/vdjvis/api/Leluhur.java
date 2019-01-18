@@ -1,44 +1,25 @@
 package com.skopware.vdjvis.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.skopware.javautils.db.BaseRecord;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import javax.validation.constraints.Null;
 import java.time.LocalDate;
 
 public class Leluhur extends BaseRecord<Leluhur> {
-    @JsonProperty
-    @NotNull
-    public String nama;
+    @JsonProperty public String nama;
+    @JsonProperty public String tempatLahir;
+    @JsonProperty public LocalDate tglLahir;
+    @JsonProperty public String tempatMati;
+    @JsonProperty public LocalDate tglMati;
+    @JsonProperty public String hubunganDgnUmat;
+    @JsonProperty public LocalDate tglDaftar;
+    @JsonProperty public String penanggungJawabId;
+    @JsonProperty public String cellFotoId;
 
-    @JsonProperty
-    @Nullable
-    public String tempatLahir;
+    @JsonProperty public Umat penanggungJawab;
 
-    @JsonProperty
-    @Nullable
-    public LocalDate tglLahir;
-
-    @JsonProperty
-    @Nullable
-    public String tempatMati;
-
-    @JsonProperty
-    @Nullable
-    public LocalDate tglMati;
-
-    @JsonProperty
-    @NotNull
-    public String hubunganDgnUmat;
-
-    @JsonProperty
-    @NotNull
-    public LocalDate tglDaftar;
-
-    @JsonProperty
-    public String umatId;
+    @JsonIgnore public CellFoto cellFoto;
 
     public String getNama() {
         return nama;
@@ -96,11 +77,19 @@ public class Leluhur extends BaseRecord<Leluhur> {
         this.tglDaftar = tglDaftar;
     }
 
-    public String getUmatId() {
-        return umatId;
+    public String getPenanggungJawabId() {
+        return penanggungJawabId;
     }
 
-    public void setUmatId(String umatId) {
-        this.umatId = umatId;
+    public void setPenanggungJawabId(String penanggungJawabId) {
+        this.penanggungJawabId = penanggungJawabId;
+    }
+
+    public Umat getPenanggungJawab() {
+        return penanggungJawab;
+    }
+
+    public void setPenanggungJawab(Umat penanggungJawab) {
+        this.penanggungJawab = penanggungJawab;
     }
 }
