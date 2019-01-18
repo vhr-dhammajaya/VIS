@@ -6,6 +6,7 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.skopware.javautils.ObjectHelper;
 import com.skopware.javautils.Tuple2;
 import com.skopware.javautils.swing.BaseCrudTableModel;
+import com.skopware.javautils.swing.EnumFormFieldMapper;
 import com.skopware.javautils.swing.JDatePicker;
 import com.skopware.javautils.swing.SwingHelper;
 import com.skopware.javautils.swing.grid.JDataGrid;
@@ -16,7 +17,7 @@ import java.awt.*;
 import java.util.Arrays;
 
 public class GridUmat extends JDataGrid<Umat> {
-    public static GridUmat create() {
+    public static JDataGridOptions<Umat> createDefaultOptions() {
         JDataGridOptions<Umat> options = new JDataGridOptions<>();
 
         options.columnConfigs = Arrays.asList(
@@ -139,7 +140,7 @@ public class GridUmat extends JDataGrid<Umat> {
         options.appConfig = App.config;
         options.shortControllerUrl = "/umat";
 
-        return new GridUmat(options);
+        return options;
     }
 
     public GridUmat(JDataGridOptions<Umat> options) {
@@ -171,10 +172,12 @@ public class GridUmat extends JDataGrid<Umat> {
         private JRadioButton btnGolDarahA;
         private JRadioButton btnGolDarahB;
         private JRadioButton btnGolDarahAB;
+        private EnumFormFieldMapper<String> mapperGolDarah;
 
         private ButtonGroup grpJenisKelamin;
         private JRadioButton btnJenisKelaminPria;
         private JRadioButton btnJenisKelaminWanita;
+        private EnumFormFieldMapper<String> mapperJenisKelamin;
 
         private JComboBox<String> cmbStatusNikah;
 
@@ -221,14 +224,21 @@ public class GridUmat extends JDataGrid<Umat> {
             grpGolDarah.add(btnGolDarahA);
             grpGolDarah.add(btnGolDarahB);
             grpGolDarah.add(btnGolDarahAB);
+            mapperGolDarah = new EnumFormFieldMapper<>(
+                    new Tuple2<>("O", btnGolDarahO),
+                    new Tuple2<>("A", btnGolDarahA),
+                    new Tuple2<>("B", btnGolDarahB),
+                    new Tuple2<>("AB", btnGolDarahAB));
 
             btnJenisKelaminPria = new JRadioButton("Laki-2");
             btnJenisKelaminWanita = new JRadioButton("Perempuan");
             grpJenisKelamin = new ButtonGroup();
             grpJenisKelamin.add(btnJenisKelaminPria);
             grpJenisKelamin.add(btnJenisKelaminWanita);
+            mapperJenisKelamin = new EnumFormFieldMapper<>(new Tuple2<>("L", btnJenisKelaminPria), new Tuple2<>("P", btnJenisKelaminWanita));
 
-            cmbStatusNikah = new JComboBox<>(new String[]{"Single", "Menikah", "Lainnya"});
+            cmbStatusNikah = new JComboBox<>(new String[]{"Single", "Menikah"});
+            cmbStatusNikah.setEditable(true);
 
             txtPendidikanTerakhir = new JTextField(45);
             txtJurusan = new JTextField(45);
@@ -328,38 +338,13 @@ public class GridUmat extends JDataGrid<Umat> {
             txtEmail.setText(r.email);
             txtTempatLahir.setText(r.tempatLahir);
             txtTglLahir.setDate(r.tglLahir);
+
             txtNamaUpasaka.setText(r.namaUpasaka);
             txtNamaPenahbis.setText(r.penahbis);
             txtTglPenahbisan.setDate(r.tglPenahbisan);
 
-            if (r.golDarah != null) {
-                switch (r.golDarah) {
-                    case "O":
-                        btnGolDarahO.setSelected(true);
-                        break;
-                    case "A":
-                        btnGolDarahA.setSelected(true);
-                        break;
-                    case "B":
-                        btnGolDarahB.setSelected(true);
-                        break;
-                    case "AB":
-                        btnGolDarahAB.setSelected(true);
-                        break;
-                }
-            }
-
-            if (r.jenisKelamin != null) {
-                switch (r.jenisKelamin) {
-                    case "L":
-                        btnJenisKelaminPria.setSelected(true);
-                        break;
-                    case "P":
-                        btnJenisKelaminWanita.setSelected(true);
-                        break;
-                }
-            }
-
+            mapperGolDarah.modelToGui(r.golDarah);
+            mapperJenisKelamin.modelToGui(r.jenisKelamin);
             cmbStatusNikah.setSelectedItem(r.statusNikah);
 
             txtPendidikanTerakhir.setText(r.pendidikanTerakhir);
@@ -397,8 +382,8 @@ public class GridUmat extends JDataGrid<Umat> {
             r.namaUpasaka = txtNamaUpasaka.getText();
             r.penahbis = txtNamaPenahbis.getText();
             r.tglPenahbisan = txtTglPenahbisan.getDate();
-            r.golDarah = btnGolDarahO.isSelected() ? "O" : btnGolDarahA.isSelected() ? "A" : btnGolDarahB.isSelected() ? "B" : btnGolDarahAB.isSelected() ? "AB" : null;
-            r.jenisKelamin = btnJenisKelaminPria.isSelected() ? "L" : btnJenisKelaminWanita.isSelected() ? "P" : null;
+            r.golDarah = mapperGolDarah.guiToModel();
+            r.jenisKelamin = mapperJenisKelamin.guiToModel();
             r.statusNikah = (String) cmbStatusNikah.getSelectedItem();
             r.pendidikanTerakhir = txtPendidikanTerakhir.getText();
             r.jurusan = txtJurusan.getText();

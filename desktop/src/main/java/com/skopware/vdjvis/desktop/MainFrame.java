@@ -4,9 +4,8 @@ import com.skopware.javautils.swing.BaseCrudFrame;
 import com.skopware.javautils.swing.BasicCrudFrame;
 import com.skopware.javautils.swing.MasterDetailFrame;
 import com.skopware.javautils.swing.SwingHelper;
-import com.skopware.vdjvis.api.Acara;
+import com.skopware.javautils.swing.grid.JDataGrid;
 import com.skopware.vdjvis.api.Umat;
-import com.skopware.vdjvis.api.User;
 
 import javax.swing.*;
 import javax.swing.event.InternalFrameAdapter;
@@ -44,6 +43,7 @@ public class MainFrame extends JFrame {
     private BaseCrudFrame frameMasterLeluhur;
     private BaseCrudFrame frameSetLokasiFoto;
     private BaseCrudFrame frameSettingIuranSamanagara;
+    private BaseCrudFrame framePendaftaranDanaRutin;
 
     public MainFrame() {
         super("VIS VDJ");
@@ -51,34 +51,40 @@ public class MainFrame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         menuBar = new JMenuBar();
-        setJMenuBar(menuBar);
 
         menuMaster = new JMenu("Master");
-        menuBar.add(menuMaster);
+        menuSamanagara = new JMenu("Samanagara");
+        menuPendapatanPengeluaran = new JMenu("Pendapatan & Pengeluaran");
+        menuAbsensi = new JMenu("Absensi");
+        menuLaporan = new JMenu("Laporan");
+        menuAccount = new JMenu("Akun");
 
+        //#region menuMaster child
         menuMasterUmat = new JMenuItem("Umat");
         menuMasterUmat.addActionListener((event) -> {
-            showWindow("frameMasterUmat", () -> new BasicCrudFrame<>("Master Umat", GridUmat.create()));
+            showWindow("frameMasterUmat", () -> new BasicCrudFrame<>("Master Umat", new GridUmat(GridUmat.createDefaultOptions())));
         });
+
         menuMasterAcara = new JMenuItem("Acara");
         menuMasterAcara.addActionListener((event) -> {
             showWindow("frameMasterAcara", () -> new BasicCrudFrame<>("Master Acara", GridAcara.create()));
         });
+
         menuMasterUser = new JMenuItem("User");
         menuMasterUser.addActionListener((event) -> {
             showWindow("frameMasterUser", () -> new BasicCrudFrame<>("Master User", GridUser.create()));
         });
+        //#endregion
 
-        menuMaster.add(menuMasterUmat);
-        menuMaster.add(menuMasterAcara);
-        menuMaster.add(menuMasterUser);
-
-        menuSamanagara = new JMenu("Samanagara");
-        menuBar.add(menuSamanagara);
+        //#region menuSamanagara child
         menuPendaftaranSamanagara = new JMenuItem("Pendaftaran samanagara");
         menuPendaftaranSamanagara.addActionListener(event -> {
-            showWindow("frameMasterLeluhur", () -> new MasterDetailFrame<>("Pendaftaran leluhur Samanagara", GridUmat.create(), GridLeluhur.create()));
+            JDataGrid.JDataGridOptions<Umat> options = GridUmat.createDefaultOptions();
+            options.enableAdd = options.enableEdit = options.enableDelete = false;
+
+            showWindow("frameMasterLeluhur", () -> new MasterDetailFrame<>("Pendaftaran leluhur Samanagara", "Pilih umat", "Daftar leluhur untuk umat yg dipilih", new GridUmat(options), GridLeluhur.create(), "umat_id"));
         });
+
         menuDaftarLeluhur = new JMenuItem("Daftar leluhur");
 
         menuLokasiFoto = new JMenuItem("Lokasi foto");
@@ -90,31 +96,22 @@ public class MainFrame extends JFrame {
         menuSettingBiayaSamanagara.addActionListener(event -> {
             showWindow("frameSettingIuranSamanagara", () -> new BasicCrudFrame<>("Setting Iuran Samanagara", GridSettingTarifSamanagara.create()));
         });
+        //#endregion
 
-        menuSamanagara.add(menuPendaftaranSamanagara);
-//        menuSamanagara.add(menuDaftarLeluhur);
-        menuSamanagara.add(menuLokasiFoto);
-        menuSamanagara.add(menuSettingBiayaSamanagara);
-
-        menuPendapatanPengeluaran = new JMenu("Pendapatan & Pengeluaran");
+        //#region menuPendapatanPengeluaran child
         menuPendaftaranDanaRutin = new JMenuItem("Pendaftaran dana sosial & tetap");
+        menuPendaftaranDanaRutin.addActionListener(e -> {
+            JDataGrid.JDataGridOptions<Umat> options = GridUmat.createDefaultOptions();
+            options.enableAdd = options.enableEdit = options.enableDelete = false;
+
+            showWindow("framePendaftaranDanaRutin", () -> new MasterDetailFrame<>("Pendaftaran dana sosial / tetap", "Pilih umat", "Daftar dana sosial & tetap untuk umat yg dipilih", new GridUmat(options), new GridPendaftaranDanaRutin(GridPendaftaranDanaRutin.createDefaultOptions()), "umat_id"));
+        });
+
         menuCatatDana = new JMenuItem("Catat dana masuk");
         menuCatatPengeluaran = new JMenuItem("Catat pengeluaran");
-        menuPendapatanPengeluaran.add(menuPendaftaranDanaRutin);
-        menuPendapatanPengeluaran.add(menuCatatDana);
-        menuPendapatanPengeluaran.add(menuCatatPengeluaran);
-        menuBar.add(menuPendapatanPengeluaran);
+        //#endregion
 
-        menuAbsensi = new JMenu("Absensi");
-        menuBar.add(menuAbsensi);
-
-        menuLaporan = new JMenu("Laporan");
-        menuBar.add(menuLaporan);
-
-        menuBar.add(Box.createHorizontalGlue());
-
-        menuAccount = new JMenu("Akun");
-        menuBar.add(menuAccount);
+        //#region menuAccount child
         menuGantiPassword = new JMenuItem("Ganti password");
         menuGantiPassword.addActionListener(event -> {
             FrameGantiPassword frame = new FrameGantiPassword();
@@ -127,9 +124,32 @@ public class MainFrame extends JFrame {
         menuLogout.addActionListener(event -> {
             App.logout();
         });
+        //#endregion
+
+        menuMaster.add(menuMasterUmat);
+        menuMaster.add(menuMasterAcara);
+        menuMaster.add(menuMasterUser);
+
+        menuSamanagara.add(menuPendaftaranSamanagara);
+        menuSamanagara.add(menuLokasiFoto);
+        menuSamanagara.add(menuSettingBiayaSamanagara);
+
+        menuPendapatanPengeluaran.add(menuPendaftaranDanaRutin);
+        menuPendapatanPengeluaran.add(menuCatatDana);
+        menuPendapatanPengeluaran.add(menuCatatPengeluaran);
 
         menuAccount.add(menuGantiPassword);
         menuAccount.add(menuLogout);
+
+        menuBar.add(menuMaster);
+        menuBar.add(menuSamanagara);
+        menuBar.add(menuPendapatanPengeluaran);
+        menuBar.add(menuAbsensi);
+        menuBar.add(menuLaporan);
+        menuBar.add(Box.createHorizontalGlue());
+        menuBar.add(menuAccount);
+
+        setJMenuBar(menuBar);
 
         desktopPane = new JDesktopPane();
         setContentPane(desktopPane);

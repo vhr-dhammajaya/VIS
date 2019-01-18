@@ -1,6 +1,6 @@
 package com.skopware.vdjvis.backend.jdbi;
 
-import com.skopware.vdjvis.api.Acara;
+import com.skopware.vdjvis.backend.jdbi.dao.AcaraDAO;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;

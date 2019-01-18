@@ -2,7 +2,7 @@ package com.skopware.vdjvis.backend.controllers;
 
 import com.skopware.javautils.dropwizard.BaseCrudController;
 import com.skopware.vdjvis.api.Leluhur;
-import com.skopware.vdjvis.backend.jdbi.LeluhurDAO;
+import com.skopware.vdjvis.backend.jdbi.dao.LeluhurDAO;
 import org.jdbi.v3.core.Jdbi;
 
 import javax.ws.rs.Consumes;

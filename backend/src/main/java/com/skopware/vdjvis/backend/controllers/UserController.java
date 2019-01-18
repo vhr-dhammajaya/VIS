@@ -1,24 +1,13 @@
 package com.skopware.vdjvis.backend.controllers;
 
-import com.skopware.javautils.db.DbHelper;
-import com.skopware.javautils.db.PageData;
 import com.skopware.javautils.dropwizard.BaseCrudController;
-import com.skopware.javautils.swing.grid.GridConfig;
-import com.skopware.vdjvis.api.Umat;
 import com.skopware.vdjvis.api.User;
-import com.skopware.vdjvis.backend.jdbi.UmatDAO;
-import com.skopware.vdjvis.backend.jdbi.UserDAO;
-import org.hibernate.validator.constraints.NotEmpty;
-import org.jdbi.v3.core.Handle;
+import com.skopware.vdjvis.backend.jdbi.dao.UserDAO;
 import org.jdbi.v3.core.Jdbi;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.awt.*;
-import java.util.List;
-import java.util.Optional;
 
 @Path("/user")
 @Produces(MediaType.APPLICATION_JSON)

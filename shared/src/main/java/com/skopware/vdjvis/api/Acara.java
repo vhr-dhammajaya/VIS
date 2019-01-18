@@ -8,16 +8,11 @@ import org.hibernate.validator.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 
 public class Acara extends BaseRecord<Acara> {
-    @JsonProperty
     @NotEmpty
     @Size(min = 1, max = 45) // error message is "<fieldName> size must be between <min> and <max>"
-    public String nama;
-
-    @JsonProperty
-    public int noUrut;
-
-    @JsonProperty
-    public boolean active;
+    @JsonProperty public String nama;
+    @JsonProperty public int noUrut;
+    @JsonProperty public boolean active;
 
     public String getNama() {
         return nama;

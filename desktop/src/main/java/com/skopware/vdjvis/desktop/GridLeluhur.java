@@ -63,8 +63,6 @@ public class GridLeluhur extends JDataGrid<Leluhur> {
 
     public GridLeluhur(JDataGridOptions<Leluhur> options) {
         super(options);
-
-        gridConfig.parentColumnName = "umat_id";
     }
 
     @Override
