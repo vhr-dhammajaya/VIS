@@ -1,3 +1,5 @@
+drop view v_pendapatan;
+
 create view v_pendapatan as
 select
     p.*,

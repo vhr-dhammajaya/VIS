@@ -99,7 +99,7 @@ public class GridLeluhur {
             txtHubunganDgnUmat = new JComboBox<>(hubungan);
             txtHubunganDgnUmat.setEditable(true);
 
-            pnlFormFields = SwingHelper.buildForm(Arrays.asList(
+            pnlFormFields = SwingHelper.buildForm2(Arrays.asList(
                     Arrays.asList(new Tuple2<>("Nama Mendiang", txtNama)),
                     Arrays.asList(new Tuple2<>("Tempat Lahir", txtTempatLahir), new Tuple2<>("Tgl Lahir", txtTglLahir)),
                     Arrays.asList(new Tuple2<>("Meninggal di", txtTempatMati), new Tuple2<>("Tgl Meninggal", txtTglMati)),

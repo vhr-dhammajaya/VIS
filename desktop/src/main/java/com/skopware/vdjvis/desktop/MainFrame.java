@@ -45,6 +45,7 @@ public class MainFrame extends JFrame {
     private BaseCrudFrame frameSettingIuranSamanagara;
     private BaseCrudFrame framePendaftaranDanaRutin;
     private BaseCrudFrame framePendapatan;
+    private BaseCrudFrame framePengeluaran;
 
     public MainFrame() {
         super("VIS VDJ");
@@ -108,6 +109,9 @@ public class MainFrame extends JFrame {
         });
 
         menuCatatPengeluaran = new JMenuItem("Catat pengeluaran");
+        menuCatatPengeluaran.addActionListener(e -> {
+            showWindow("framePengeluaran", () -> new BasicCrudFrame<>("Pengeluaran", GridPengeluaran.create()));
+        });
         //#endregion
 
         //#region menuAccount child

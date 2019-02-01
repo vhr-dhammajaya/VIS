@@ -95,7 +95,7 @@ public class GridPendapatan {
             edKeterangan = new JTextArea(10, 20);
             edAcara = new JForeignKeyPicker<>(App.mainFrame, GridAcara.createNoAddEditDelete());
 
-            pnlFormFields = SwingHelper.buildForm(Arrays.asList(
+            pnlFormFields = SwingHelper.buildForm2(Arrays.asList(
                     Arrays.asList(new Tuple2<>("Umat yg berdana", edUmat)),
                     Arrays.asList(new Tuple2<>("Tgl dana", edTglTrans), new Tuple2<>("Nominal", edNominal)),
                     Arrays.asList(new Tuple2<>("Cara dana", edChannel), new Tuple2<>("Jenis dana", edJenisDana)),

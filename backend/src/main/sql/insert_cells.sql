@@ -1,3 +1,5 @@
+drop procedure insert_cells;
+
 delimiter $$
 
 create procedure insert_cells(nama_papan char(1), width int, height int)

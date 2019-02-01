@@ -77,10 +77,10 @@ public class GridPendaftaranDanaRutin {
                     new Tuple2<>(PendaftaranDanaRutin.Type.sosial, btnTipeSosial),
                     new Tuple2<>(PendaftaranDanaRutin.Type.tetap, btnTipeTetap));
 
-            pnlFormFields = SwingHelper.buildForm(Arrays.asList(
-                    Arrays.asList(new Tuple2<>("Jenis", pnlTipe)),
-                    Arrays.asList(new Tuple2<>("Nominal", txtNominal)),
-                    Arrays.asList(new Tuple2<>("Tgl daftar", txtTglDaftar))
+            pnlFormFields = SwingHelper.buildForm1(Arrays.asList(
+                    new Tuple2<>("Jenis", pnlTipe),
+                    new Tuple2<>("Nominal", txtNominal),
+                    new Tuple2<>("Tgl daftar", txtTglDaftar)
             ));
         }
 
