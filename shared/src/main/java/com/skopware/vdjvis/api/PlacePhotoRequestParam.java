@@ -1,9 +1,11 @@
 package com.skopware.vdjvis.api;
 
-public class PlacePhotoRequestParam {
-    public String idMendiang;
-    public String destCellId;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-    public String originCellId;
-    public String destCellExistingIdMendiang;
+public class PlacePhotoRequestParam {
+    @JsonProperty public String idMendiang;
+    @JsonProperty public String destCellId;
+
+    @JsonProperty public String originCellId;
+    @JsonProperty public String destCellExistingIdMendiang;
 }

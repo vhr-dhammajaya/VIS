@@ -16,7 +16,7 @@ public class PendaftaranDanaRutinRowMapper implements RowMapper<PendaftaranDanaR
         x.uuid = rs.getString("id");
         x.umat = new Umat();
         x.umatId = x.umat.uuid = rs.getString("umat_id");
-        x.tipe = rs.getString("tipe");
+        x.tipe = PendaftaranDanaRutin.Type.valueOf(rs.getString("tipe"));
         x.nominal = rs.getInt("nominal");
         x.tglDaftar = DateTimeHelper.toLocalDate(rs.getDate("tgl_daftar"));
         return x;

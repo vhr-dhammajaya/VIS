@@ -5,22 +5,30 @@ import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.layout.FormLayout;
 import com.skopware.javautils.ObjectHelper;
 import com.skopware.javautils.Tuple2;
-import com.skopware.javautils.swing.BaseCrudTableModel;
-import com.skopware.javautils.swing.EnumFormFieldMapper;
-import com.skopware.javautils.swing.JDatePicker;
-import com.skopware.javautils.swing.SwingHelper;
+import com.skopware.javautils.swing.*;
 import com.skopware.javautils.swing.grid.JDataGrid;
+import com.skopware.javautils.swing.grid.JDataGridOptions;
 import com.skopware.vdjvis.api.Umat;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.Arrays;
 
-public class GridUmat extends JDataGrid<Umat> {
-    public static JDataGridOptions<Umat> createDefaultOptions() {
-        JDataGridOptions<Umat> options = new JDataGridOptions<>();
+public class GridUmat {
+    public static JDataGrid<Umat> createDefault() {
+        return new JDataGrid<>(createDefaultOptions());
+    }
 
-        options.columnConfigs = Arrays.asList(
+    public static JDataGrid<Umat> createNoAddEditDelete() {
+        JDataGridOptions<Umat> o = createDefaultOptions();
+        o.enableAdd = o.enableEdit = o.enableDelete = false;
+        return new JDataGrid<>(o);
+    }
+
+    public static JDataGridOptions<Umat> createDefaultOptions() {
+        JDataGridOptions<Umat> o = new JDataGridOptions<>();
+
+        o.columnConfigs = Arrays.asList(
                 ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
                     x.fieldName = x.dbColumnName = ("nama");
                     x.label = ("Nama");
@@ -136,28 +144,17 @@ public class GridUmat extends JDataGrid<Umat> {
                 })
         );
 
-        options.recordType = Umat.class;
-        options.appConfig = App.config;
-        options.shortControllerUrl = "/umat";
+        o.recordType = Umat.class;
+        o.appConfig = App.config;
+        o.shortControllerUrl = "/umat";
 
-        return options;
+        o.fnShowCreateForm = () -> new FormUmat(App.mainFrame);
+        o.fnShowEditForm = (record, modelIdx) -> new FormUmat(App.mainFrame, record, modelIdx);
+
+        return o;
     }
 
-    public GridUmat(JDataGridOptions<Umat> options) {
-        super(options);
-    }
-
-    @Override
-    protected void showCreateForm() {
-        new FormUmat(App.mainFrame, "Buat Umat");
-    }
-
-    @Override
-    protected void showEditForm(Umat record, int modelIdx) {
-        new FormUmat(App.mainFrame, "Edit Umat", record, modelIdx);
-    }
-
-    public class FormUmat extends BaseCrudForm {
+    public static class FormUmat extends BaseCrudForm<Umat> {
         private JTextField txtNama;
         private JTextArea txtAlamat;
         private JTextField txtKota;
@@ -181,7 +178,7 @@ public class GridUmat extends JDataGrid<Umat> {
 
         private JComboBox<String> cmbStatusNikah;
 
-        private JTextField txtPendidikanTerakhir;
+        private JComboBox<String> txtPendidikanTerakhir;
         private JTextField txtJurusan;
         private JTextField txtPekerjaan;
         private JTextField txtBidangUsaha;
@@ -196,12 +193,12 @@ public class GridUmat extends JDataGrid<Umat> {
         private JTextField txtNamaPenahbis;
         private JDatePicker txtTglPenahbisan;
 
-        public FormUmat(Frame owner, String title) {
-            super(owner, title);
+        public FormUmat(Frame owner) {
+            super(owner, "Buat umat", Umat.class);
         }
 
-        public FormUmat(Frame owner, String title, Umat record, int modelIdx) {
-            super(owner, title, record, modelIdx);
+        public FormUmat(Frame owner, Umat record, int modelIdx) {
+            super(owner, "Edit umat", Umat.class, record, modelIdx);
         }
 
         @Override
@@ -240,7 +237,9 @@ public class GridUmat extends JDataGrid<Umat> {
             cmbStatusNikah = new JComboBox<>(new String[]{"Single", "Menikah"});
             cmbStatusNikah.setEditable(true);
 
-            txtPendidikanTerakhir = new JTextField(45);
+            txtPendidikanTerakhir = new JComboBox<>(new String[]{"S1", "S2", "S3", "D3", "SMA", "Lainnya (ketik)"});
+            txtPendidikanTerakhir.setEditable(true);
+
             txtJurusan = new JTextField(45);
             txtPekerjaan = new JTextField(45);
             txtBidangUsaha = new JTextField(45);
@@ -347,7 +346,7 @@ public class GridUmat extends JDataGrid<Umat> {
             mapperJenisKelamin.modelToGui(r.jenisKelamin);
             cmbStatusNikah.setSelectedItem(r.statusNikah);
 
-            txtPendidikanTerakhir.setText(r.pendidikanTerakhir);
+            txtPendidikanTerakhir.setSelectedItem(r.pendidikanTerakhir);
             txtJurusan.setText(r.jurusan);
             txtPekerjaan.setText(r.pekerjaan);
             txtBidangUsaha.setText(r.bidangUsaha);
@@ -385,7 +384,7 @@ public class GridUmat extends JDataGrid<Umat> {
             r.golDarah = mapperGolDarah.guiToModel();
             r.jenisKelamin = mapperJenisKelamin.guiToModel();
             r.statusNikah = (String) cmbStatusNikah.getSelectedItem();
-            r.pendidikanTerakhir = txtPendidikanTerakhir.getText();
+            r.pendidikanTerakhir = (String) txtPendidikanTerakhir.getSelectedItem();
             r.jurusan = txtJurusan.getText();
             r.pekerjaan = txtPekerjaan.getText();
             r.bidangUsaha = txtBidangUsaha.getText();

@@ -35,6 +35,7 @@ public class App extends BaseApp<Config> {
         jdbi.registerRowMapper(PapanFoto.class, new PapanFotoRowMapper());
         jdbi.registerRowMapper(CellFoto.class, new CellFotoRowMapper());
         jdbi.registerRowMapper(PendaftaranDanaRutin.class, new PendaftaranDanaRutinRowMapper());
+        jdbi.registerRowMapper(Pendapatan.class, new PendapatanRowMapper());
     }
 
     @Override
@@ -46,7 +47,7 @@ public class App extends BaseApp<Config> {
         jersey.register(new LeluhurController(jdbi));
         jersey.register(new TarifSamanagaraController(jdbi));
         jersey.register(new LokasiFotoController(jdbi));
-        jersey.register(new LeluhurController2(jdbi));
         jersey.register(new PendaftaranDanaRutinController(jdbi));
+        jersey.register(new PendapatanController(jdbi));
     }
 }

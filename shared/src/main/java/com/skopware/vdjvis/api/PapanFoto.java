@@ -15,6 +15,11 @@ public class PapanFoto extends BaseRecord<PapanFoto> {
     @JsonIgnore public CellFoto[][] arrCellFoto;
     @JsonIgnore public JTable jTable;
 
+    @Override
+    public String toUiString() {
+        return "";
+    }
+
     public void initCells() {
         arrCellFoto = new CellFoto[height][width];
     }

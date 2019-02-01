@@ -7,7 +7,7 @@ import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 
 public interface LeluhurDAO extends BaseCrudDAO<Leluhur> {
-    @SqlQuery("select * from leluhur_smngr where uuid=?")
+    @SqlQuery("select * from v_leluhur where uuid=?")
     @Override
     Leluhur get(String uuid);
 

@@ -10,11 +10,11 @@ import com.skopware.javautils.swing.BaseCrudSwingWorker;
 import com.skopware.javautils.swing.BaseCrudTableModel;
 import com.skopware.javautils.swing.SwingHelper;
 import com.skopware.javautils.swing.grid.JDataGrid;
+import com.skopware.javautils.swing.grid.JDataGridOptions;
 import com.skopware.vdjvis.api.CellFoto;
 import com.skopware.vdjvis.api.Leluhur;
 import com.skopware.vdjvis.api.PapanFoto;
 import com.skopware.vdjvis.api.PlacePhotoRequestParam;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.http.client.methods.HttpPost;
 
 import javax.swing.*;
@@ -39,7 +39,7 @@ public class FrameSetLokasiFoto extends BaseCrudFrame {
     public FrameSetLokasiFoto() {
         super("Set lokasi foto");
 
-        JDataGrid.JDataGridOptions<Leluhur> options = new JDataGrid.JDataGridOptions<>();
+        JDataGridOptions<Leluhur> options = new JDataGridOptions<>();
         options.enableAdd = options.enableEdit = options.enableDelete = false;
 
         options.columnConfigs = Arrays.asList(
@@ -86,9 +86,9 @@ public class FrameSetLokasiFoto extends BaseCrudFrame {
 
         options.recordType = Leluhur.class;
         options.appConfig = App.config;
-        options.shortControllerUrl = "/leluhur2";
+        options.shortControllerUrl = "/leluhur";
 
-        gridMendiang = new GridLeluhur(options); // fixme add popup menu to place umat to board cell
+        gridMendiang = new JDataGrid<>(options); // fixme add popup menu to place umat to board cell
         gridMendiang.glassPane = progressGlassPane;
 
         panelSemuaPapanFoto = new PanelSemuaPapanFoto();
@@ -130,7 +130,7 @@ public class FrameSetLokasiFoto extends BaseCrudFrame {
                 Map<String, CellFoto>>> worker = new BaseCrudSwingWorker<>(progressGlassPane);
 
         worker.onDoInBackground = () -> {
-            PageData<Leluhur> leluhurList = HttpHelper.makeHttpRequest(App.config.url("/leluhur2"), HttpGetWithBody::new, gridMendiang.gridConfig, PageData.class, Leluhur.class);
+            PageData<Leluhur> leluhurList = HttpHelper.makeHttpRequest(App.config.url("/leluhur"), HttpGetWithBody::new, gridMendiang.gridConfig, PageData.class, Leluhur.class);
 
             List<PapanFoto> papanFotoList = HttpHelper.makeHttpRequest(App.config.url("/lokasi_foto/list_papan"), HttpGetWithBody::new, null, List.class, PapanFoto.class);
             List<CellFoto> cellFotoList = HttpHelper.makeHttpRequest(App.config.url("/lokasi_foto/list_cell"), HttpGetWithBody::new, null, List.class, CellFoto.class);

@@ -2,19 +2,17 @@ package com.skopware.vdjvis.desktop;
 
 import com.skopware.javautils.ObjectHelper;
 import com.skopware.javautils.Tuple2;
-import com.skopware.javautils.swing.BaseCrudTableModel;
-import com.skopware.javautils.swing.EnumFormFieldMapper;
-import com.skopware.javautils.swing.JDatePicker;
-import com.skopware.javautils.swing.SwingHelper;
+import com.skopware.javautils.swing.*;
 import com.skopware.javautils.swing.grid.JDataGrid;
+import com.skopware.javautils.swing.grid.JDataGridOptions;
 import com.skopware.vdjvis.api.PendaftaranDanaRutin;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.Arrays;
 
-public class GridPendaftaranDanaRutin extends JDataGrid<PendaftaranDanaRutin> {
-    public static JDataGridOptions<PendaftaranDanaRutin> createDefaultOptions() {
+public class GridPendaftaranDanaRutin {
+    public static JDataGrid<PendaftaranDanaRutin> createDefault() {
         JDataGridOptions<PendaftaranDanaRutin> o = new JDataGridOptions<>();
 
         o.enableEdit = false;
@@ -38,36 +36,25 @@ public class GridPendaftaranDanaRutin extends JDataGrid<PendaftaranDanaRutin> {
         o.appConfig = App.config;
         o.shortControllerUrl = "/pendaftaran_dana_rutin";
 
-        return o;
+        o.fnShowCreateForm = () -> new FormPendaftaranDanaRutin(App.mainFrame);
+        o.fnShowEditForm = (record, modelIdx) -> new FormPendaftaranDanaRutin(App.mainFrame, record, modelIdx);
+
+        return new JDataGrid<>(o);
     }
 
-    public GridPendaftaranDanaRutin(JDataGridOptions<PendaftaranDanaRutin> options) {
-        super(options);
-    }
-
-    @Override
-    protected void showCreateForm() {
-        new FormPendaftaranDanaRutin(App.mainFrame, "Pendaftaran dana sosial / tetap baru");
-    }
-
-    @Override
-    protected void showEditForm(PendaftaranDanaRutin record, int modelIdx) {
-
-    }
-
-    public class FormPendaftaranDanaRutin extends BaseCrudForm {
+    public static class FormPendaftaranDanaRutin extends BaseCrudForm<PendaftaranDanaRutin> {
         private JDatePicker txtTglDaftar;
         private JSpinner txtNominal;
         private JRadioButton btnTipeSosial;
         private JRadioButton btnTipeTetap;
-        private EnumFormFieldMapper<String> mapperTipe;
+        private EnumFormFieldMapper<PendaftaranDanaRutin.Type> mapperTipe;
 
-        public FormPendaftaranDanaRutin(Frame owner, String title) {
-            super(owner, title);
+        public FormPendaftaranDanaRutin(Frame owner) {
+            super(owner, "Pendaftaran dana sosial/tetap", PendaftaranDanaRutin.class);
         }
 
-        public FormPendaftaranDanaRutin(Frame owner, String title, PendaftaranDanaRutin record, int modelIdx) {
-            super(owner, title, record, modelIdx);
+        public FormPendaftaranDanaRutin(Frame owner, PendaftaranDanaRutin record, int modelIdx) {
+            super(owner, "", PendaftaranDanaRutin.class, record, modelIdx);
         }
 
         @Override
@@ -87,10 +74,10 @@ public class GridPendaftaranDanaRutin extends JDataGrid<PendaftaranDanaRutin> {
             pnlTipe.add(btnTipeTetap);
 
             mapperTipe = new EnumFormFieldMapper<>(
-                    new Tuple2<>("sosial", btnTipeSosial),
-                    new Tuple2<>("tetap", btnTipeTetap));
+                    new Tuple2<>(PendaftaranDanaRutin.Type.sosial, btnTipeSosial),
+                    new Tuple2<>(PendaftaranDanaRutin.Type.tetap, btnTipeTetap));
 
-            pnlFormFields = SwingHelper.buildForm(1, Arrays.asList(
+            pnlFormFields = SwingHelper.buildForm(Arrays.asList(
                     Arrays.asList(new Tuple2<>("Jenis", pnlTipe)),
                     Arrays.asList(new Tuple2<>("Nominal", txtNominal)),
                     Arrays.asList(new Tuple2<>("Tgl daftar", txtTglDaftar))
@@ -117,7 +104,7 @@ public class GridPendaftaranDanaRutin extends JDataGrid<PendaftaranDanaRutin> {
             r.nominal = (int) txtNominal.getValue();
             r.tglDaftar = txtTglDaftar.getDate();
             r.tipe = mapperTipe.guiToModel();
-            r.umatId = GridPendaftaranDanaRutin.this.parentRecordId;
+            r.umatId = jDataGrid.parentRecordId;
         }
     }
 }

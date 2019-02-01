@@ -2,10 +2,12 @@ package com.skopware.vdjvis.desktop;
 
 import com.skopware.javautils.ObjectHelper;
 import com.skopware.javautils.Tuple2;
+import com.skopware.javautils.swing.BaseCrudForm;
 import com.skopware.javautils.swing.BaseCrudTableModel;
 import com.skopware.javautils.swing.JDatePicker;
 import com.skopware.javautils.swing.SwingHelper;
 import com.skopware.javautils.swing.grid.JDataGrid;
+import com.skopware.javautils.swing.grid.JDataGridOptions;
 import com.skopware.vdjvis.api.Leluhur;
 
 import javax.swing.*;
@@ -13,11 +15,11 @@ import java.awt.*;
 import java.time.LocalDate;
 import java.util.Arrays;
 
-public class GridLeluhur extends JDataGrid<Leluhur> {
-    public static GridLeluhur create() {
-        JDataGridOptions<Leluhur> options = new JDataGridOptions<>();
+public class GridLeluhur {
+    public static JDataGrid<Leluhur> createDefault() {
+        JDataGridOptions<Leluhur> o = new JDataGridOptions<>();
 
-        options.columnConfigs = Arrays.asList(
+        o.columnConfigs = Arrays.asList(
                 ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
                     x.fieldName = x.dbColumnName = "nama";
                     x.label = "Nama";
@@ -54,28 +56,17 @@ public class GridLeluhur extends JDataGrid<Leluhur> {
                 })
         );
 
-        options.recordType = Leluhur.class;
-        options.appConfig = App.config;
-        options.shortControllerUrl = "/leluhur";
+        o.recordType = Leluhur.class;
+        o.appConfig = App.config;
+        o.shortControllerUrl = "/leluhur";
 
-        return new GridLeluhur(options);
+        o.fnShowCreateForm = () -> new FormLeluhur(App.mainFrame);
+        o.fnShowEditForm = (record, modelIdx) -> new FormLeluhur(App.mainFrame, record, modelIdx);
+
+        return new JDataGrid<>(o);
     }
 
-    public GridLeluhur(JDataGridOptions<Leluhur> options) {
-        super(options);
-    }
-
-    @Override
-    protected void showCreateForm() {
-        new FormLeluhur(App.mainFrame, "Daftarkan leluhur");
-    }
-
-    @Override
-    protected void showEditForm(Leluhur record, int modelIdx) {
-        new FormLeluhur(App.mainFrame, "Edit leluhur", record, modelIdx);
-    }
-
-    public class FormLeluhur extends BaseCrudForm {
+    public static class FormLeluhur extends BaseCrudForm<Leluhur> {
         private JTextField txtNama;
         private JTextField txtTempatLahir;
         private JDatePicker txtTglLahir;
@@ -83,12 +74,12 @@ public class GridLeluhur extends JDataGrid<Leluhur> {
         private JDatePicker txtTglMati;
         private JComboBox<String> txtHubunganDgnUmat;
 
-        public FormLeluhur(Frame owner, String title) {
-            super(owner, title);
+        public FormLeluhur(Frame owner) {
+            super(owner, "Daftarkan leluhur", Leluhur.class);
         }
 
-        public FormLeluhur(Frame owner, String title, Leluhur record, int modelIdx) {
-            super(owner, title, record, modelIdx);
+        public FormLeluhur(Frame owner, Leluhur record, int modelIdx) {
+            super(owner, "Edit leluhur", Leluhur.class, record, modelIdx);
         }
 
         @Override
@@ -108,7 +99,7 @@ public class GridLeluhur extends JDataGrid<Leluhur> {
             txtHubunganDgnUmat = new JComboBox<>(hubungan);
             txtHubunganDgnUmat.setEditable(true);
 
-            pnlFormFields = SwingHelper.buildForm(2, Arrays.asList(
+            pnlFormFields = SwingHelper.buildForm(Arrays.asList(
                     Arrays.asList(new Tuple2<>("Nama Mendiang", txtNama)),
                     Arrays.asList(new Tuple2<>("Tempat Lahir", txtTempatLahir), new Tuple2<>("Tgl Lahir", txtTglLahir)),
                     Arrays.asList(new Tuple2<>("Meninggal di", txtTempatMati), new Tuple2<>("Tgl Meninggal", txtTglMati)),
@@ -144,7 +135,7 @@ public class GridLeluhur extends JDataGrid<Leluhur> {
             r.tglMati = txtTglMati.getDate();
             r.hubunganDgnUmat = (String) txtHubunganDgnUmat.getSelectedItem();
             r.tglDaftar = LocalDate.now();
-            r.penanggungJawabId = GridLeluhur.this.parentRecordId;
+            r.penanggungJawabId = jDataGrid.parentRecordId;
         }
     }
 }

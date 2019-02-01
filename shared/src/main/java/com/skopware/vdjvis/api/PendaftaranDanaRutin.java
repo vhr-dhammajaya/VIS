@@ -8,9 +8,18 @@ import java.time.LocalDate;
 public class PendaftaranDanaRutin extends BaseRecord<PendaftaranDanaRutin> {
     @JsonProperty public LocalDate tglDaftar = LocalDate.now();
     @JsonProperty public int nominal;
-    @JsonProperty public String tipe;
+    @JsonProperty public Type tipe;
     @JsonProperty public String umatId;
     @JsonProperty public Umat umat;
+
+    @Override
+    public String toUiString() {
+        return "";
+    }
+
+    public enum Type {
+        sosial(), tetap();
+    }
 
     public LocalDate getTglDaftar() {
         return tglDaftar;
@@ -28,11 +37,11 @@ public class PendaftaranDanaRutin extends BaseRecord<PendaftaranDanaRutin> {
         this.nominal = nominal;
     }
 
-    public String getTipe() {
+    public Type getTipe() {
         return tipe;
     }
 
-    public void setTipe(String tipe) {
+    public void setTipe(Type tipe) {
         this.tipe = tipe;
     }
 

@@ -1,32 +1,28 @@
 package com.skopware.vdjvis.desktop;
 
-import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.skopware.javautils.ObjectHelper;
-import com.skopware.javautils.Tuple2;
 import com.skopware.javautils.httpclient.HttpHelper;
 import com.skopware.javautils.swing.BaseCrudSwingWorker;
 import com.skopware.javautils.swing.BaseCrudTableModel;
-import com.skopware.javautils.swing.JDatePicker;
 import com.skopware.javautils.swing.SwingHelper;
 import com.skopware.javautils.swing.grid.JDataGrid;
+import com.skopware.javautils.swing.grid.JDataGridOptions;
 import com.skopware.javautils.swing.grid.SortConfig;
 import com.skopware.vdjvis.api.TarifSamanagara;
 import org.apache.http.client.methods.HttpPost;
 
 import javax.swing.*;
 import java.awt.*;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
-public class GridSettingTarifSamanagara extends JDataGrid<TarifSamanagara> {
-    public static GridSettingTarifSamanagara create() {
-        JDataGridOptions<TarifSamanagara> options = new JDataGridOptions<>();
+public class GridSettingTarifSamanagara {
+    public static JDataGrid<TarifSamanagara> create() {
+        JDataGridOptions<TarifSamanagara> o = new JDataGridOptions<>();
 
-        options.enableAdd = options.enableEdit = options.enableDelete = options.enableFilter = options.enablePaging = false;
+        o.enableAdd = o.enableEdit = o.enableDelete = o.enableFilter = o.enablePaging = false;
 
-        options.columnConfigs = Arrays.asList(
+        o.columnConfigs = Arrays.asList(
                 ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
                     x.fieldName = "startDate";
                     x.dbColumnName = "start_date";
@@ -46,43 +42,32 @@ public class GridSettingTarifSamanagara extends JDataGrid<TarifSamanagara> {
                 })
         );
 
-        options.recordType = TarifSamanagara.class;
-        options.appConfig = App.config;
-        options.shortControllerUrl = "/tarif_samanagara";
-        options.initialSortConfig = ObjectHelper.apply(new ArrayList<>(), list -> {
+        o.recordType = TarifSamanagara.class;
+        o.appConfig = App.config;
+        o.shortControllerUrl = "/tarif_samanagara";
+        o.initialSortConfig = ObjectHelper.apply(new ArrayList<>(), list -> {
             list.add(ObjectHelper.apply(new SortConfig(), x -> {
                 x.field = "start_date";
                 x.dir = SortConfig.SortDir.DESC;
             }));
         });
 
-        return new GridSettingTarifSamanagara(options);
-    }
+        JButton btnUpdateNominal = new JButton("Update nominal");
+        o.additionalToolbarButtons = Arrays.asList(btnUpdateNominal);
 
-    public GridSettingTarifSamanagara(JDataGridOptions<TarifSamanagara> options) {
-        super(options);
-    }
+        JDataGrid<TarifSamanagara> grid = new JDataGrid<TarifSamanagara>(o);
 
-    @Override
-    protected void addAdditionalToolbarButtons() {
-        JButton btnUpdateHarga = new JButton("Update nominal");
-        btnUpdateHarga.addActionListener(e -> {
-            new FormUpdateTarif(App.mainFrame, 10_000);
+        btnUpdateNominal.addActionListener(e -> {
+            FormUpdateTarif form = new FormUpdateTarif(App.mainFrame, 10_000);
+            form.jDataGrid = grid;
         });
 
-        pnlButton.add(btnUpdateHarga);
+        return grid;
     }
 
-    @Override
-    protected void showCreateForm() {
-    }
-
-    @Override
-    protected void showEditForm(TarifSamanagara record, int modelIdx) {
-    }
-
-    private class FormUpdateTarif extends JDialog {
+    private static class FormUpdateTarif extends JDialog {
         private JSpinner txtNominal;
+        public JDataGrid<TarifSamanagara> jDataGrid;
 
         public FormUpdateTarif(Frame owner, int initialValue) {
             super(owner, "Update nominal iuran", false);
@@ -102,16 +87,16 @@ public class GridSettingTarifSamanagara extends JDataGrid<TarifSamanagara> {
 
                 int nominal = (int)txtNominal.getValue();
 
-                glassPane.setVisible(true);
-                BaseCrudSwingWorker<Boolean> worker = new BaseCrudSwingWorker<>(glassPane);
+                jDataGrid.glassPane.setVisible(true);
+                BaseCrudSwingWorker<Boolean> worker = new BaseCrudSwingWorker<>(jDataGrid.glassPane);
 
                 worker.onDoInBackground = () -> {
-                    return HttpHelper.makeHttpRequest(GridSettingTarifSamanagara.this.controllerUrl, HttpPost::new, nominal, Boolean.class);
+                    return HttpHelper.makeHttpRequest(jDataGrid.controllerUrl, HttpPost::new, nominal, Boolean.class);
                 };
 
                 worker.onSuccess = dummy -> {
                     // refresh grid
-                    GridSettingTarifSamanagara.this.refreshData();
+                    jDataGrid.refreshData();
                     this.dispose();
                 };
 

@@ -61,6 +61,11 @@ public class Umat extends BaseRecord<Umat> {
     @JsonProperty
     public boolean active;
 
+    @Override
+    public String toUiString() {
+        return nama;
+    }
+
     public String getNama() {
         return nama;
     }

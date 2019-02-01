@@ -4,8 +4,10 @@ import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.layout.FormLayout;
 import com.skopware.javautils.ObjectHelper;
+import com.skopware.javautils.swing.BaseCrudForm;
 import com.skopware.javautils.swing.BaseCrudTableModel;
 import com.skopware.javautils.swing.grid.JDataGrid;
+import com.skopware.javautils.swing.grid.JDataGridOptions;
 import com.skopware.vdjvis.api.User;
 
 import javax.swing.*;
@@ -13,11 +15,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class GridUser extends JDataGrid<User> {
-    public static GridUser create() {
-        JDataGridOptions<User> options = new JDataGridOptions<>();
+public class GridUser {
+    public static JDataGrid<User> createDefault() {
+        JDataGridOptions<User> o = new JDataGridOptions<>();
 
-        options.columnConfigs = Arrays.asList(
+        o.columnConfigs = Arrays.asList(
                 ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
                     x.fieldName = x.dbColumnName = "username";
                     x.label = "Username";
@@ -32,39 +34,28 @@ public class GridUser extends JDataGrid<User> {
                 })
         );
 
-        options.recordType = User.class;
-        options.appConfig = App.config;
-        options.shortControllerUrl = "/user";
+        o.recordType = User.class;
+        o.appConfig = App.config;
+        o.shortControllerUrl = "/user";
 
-        return new GridUser(options);
+        o.fnShowCreateForm = () -> new FormUser(App.mainFrame);
+        o.fnShowEditForm = (record, modelIdx) -> new FormUser(App.mainFrame, record, modelIdx);
+
+        return new JDataGrid<>(o);
     }
 
-    public GridUser(JDataGridOptions<User> options) {
-        super(options);
-    }
-
-    @Override
-    protected void showCreateForm() {
-        new FormUser(App.mainFrame, "Buat User");
-    }
-
-    @Override
-    protected void showEditForm(User record, int modelIdx) {
-        new FormUser(App.mainFrame, "Edit User", record, modelIdx);
-    }
-
-    public class FormUser extends BaseCrudForm {
+    public static class FormUser extends BaseCrudForm<User> {
         private JTextField txtUsername;
         private JPasswordField txtPassword;
         private JTextField txtNama;
         private JComboBox<User.Type> cmbTipeUser;
 
-        public FormUser(JFrame frame, String title) {
-            super(frame, title);
+        public FormUser(JFrame frame) {
+            super(frame, "Buat user", User.class);
         }
 
-        public FormUser(JFrame frame, String title, User record, int modelIdx) {
-            super(frame, title, record, modelIdx);
+        public FormUser(JFrame frame, User record, int modelIdx) {
+            super(frame, "Edit user", User.class, record, modelIdx);
         }
 
         @Override

@@ -40,6 +40,11 @@ public class User extends BaseRecord<User> {
         }
     }
 
+    @Override
+    public String toUiString() {
+        return username;
+    }
+
     public String getUsername() {
         return username;
     }

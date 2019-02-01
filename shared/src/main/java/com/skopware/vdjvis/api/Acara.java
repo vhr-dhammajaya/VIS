@@ -14,6 +14,11 @@ public class Acara extends BaseRecord<Acara> {
     @JsonProperty public int noUrut;
     @JsonProperty public boolean active;
 
+    @Override
+    public String toUiString() {
+        return nama;
+    }
+
     public String getNama() {
         return nama;
     }

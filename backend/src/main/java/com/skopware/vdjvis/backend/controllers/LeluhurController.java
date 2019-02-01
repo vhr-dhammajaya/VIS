@@ -15,6 +15,6 @@ import javax.ws.rs.core.MediaType;
 @Consumes(MediaType.APPLICATION_JSON)
 public class LeluhurController extends BaseCrudController<Leluhur, LeluhurDAO> {
     public LeluhurController(Jdbi jdbi) {
-        super(jdbi, "leluhur_smngr", Leluhur.class, LeluhurDAO.class);
+        super(jdbi, "v_leluhur", Leluhur.class, LeluhurDAO.class);
     }
 }

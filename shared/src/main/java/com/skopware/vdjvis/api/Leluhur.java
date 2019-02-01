@@ -14,12 +14,18 @@ public class Leluhur extends BaseRecord<Leluhur> {
     @JsonProperty public LocalDate tglMati;
     @JsonProperty public String hubunganDgnUmat;
     @JsonProperty public LocalDate tglDaftar;
-    @JsonProperty public String penanggungJawabId;
-    @JsonProperty public String cellFotoId;
 
+    @JsonProperty public String penanggungJawabId;
     @JsonProperty public Umat penanggungJawab;
 
+    @JsonProperty public String cellFotoId;
+
     @JsonIgnore public CellFoto cellFoto;
+
+    @Override
+    public String toUiString() {
+        return "";
+    }
 
     public String getNama() {
         return nama;

@@ -4,7 +4,7 @@ import com.skopware.javautils.swing.BaseCrudFrame;
 import com.skopware.javautils.swing.BasicCrudFrame;
 import com.skopware.javautils.swing.MasterDetailFrame;
 import com.skopware.javautils.swing.SwingHelper;
-import com.skopware.javautils.swing.grid.JDataGrid;
+import com.skopware.javautils.swing.grid.JDataGridOptions;
 import com.skopware.vdjvis.api.Umat;
 
 import javax.swing.*;
@@ -44,6 +44,7 @@ public class MainFrame extends JFrame {
     private BaseCrudFrame frameSetLokasiFoto;
     private BaseCrudFrame frameSettingIuranSamanagara;
     private BaseCrudFrame framePendaftaranDanaRutin;
+    private BaseCrudFrame framePendapatan;
 
     public MainFrame() {
         super("VIS VDJ");
@@ -62,27 +63,24 @@ public class MainFrame extends JFrame {
         //#region menuMaster child
         menuMasterUmat = new JMenuItem("Umat");
         menuMasterUmat.addActionListener((event) -> {
-            showWindow("frameMasterUmat", () -> new BasicCrudFrame<>("Master Umat", new GridUmat(GridUmat.createDefaultOptions())));
+            showWindow("frameMasterUmat", () -> new BasicCrudFrame<>("Master Umat", GridUmat.createDefault()));
         });
 
         menuMasterAcara = new JMenuItem("Acara");
         menuMasterAcara.addActionListener((event) -> {
-            showWindow("frameMasterAcara", () -> new BasicCrudFrame<>("Master Acara", GridAcara.create()));
+            showWindow("frameMasterAcara", () -> new BasicCrudFrame<>("Master Acara", GridAcara.createDefault()));
         });
 
         menuMasterUser = new JMenuItem("User");
         menuMasterUser.addActionListener((event) -> {
-            showWindow("frameMasterUser", () -> new BasicCrudFrame<>("Master User", GridUser.create()));
+            showWindow("frameMasterUser", () -> new BasicCrudFrame<>("Master User", GridUser.createDefault()));
         });
         //#endregion
 
         //#region menuSamanagara child
         menuPendaftaranSamanagara = new JMenuItem("Pendaftaran samanagara");
         menuPendaftaranSamanagara.addActionListener(event -> {
-            JDataGrid.JDataGridOptions<Umat> options = GridUmat.createDefaultOptions();
-            options.enableAdd = options.enableEdit = options.enableDelete = false;
-
-            showWindow("frameMasterLeluhur", () -> new MasterDetailFrame<>("Pendaftaran leluhur Samanagara", "Pilih umat", "Daftar leluhur untuk umat yg dipilih", new GridUmat(options), GridLeluhur.create(), "umat_id"));
+            showWindow("frameMasterLeluhur", () -> new MasterDetailFrame<>("Pendaftaran leluhur Samanagara", "Pilih umat", "Daftar leluhur untuk umat yg dipilih", GridUmat.createNoAddEditDelete(), GridLeluhur.createDefault(), "umat_id"));
         });
 
         menuDaftarLeluhur = new JMenuItem("Daftar leluhur");
@@ -101,13 +99,14 @@ public class MainFrame extends JFrame {
         //#region menuPendapatanPengeluaran child
         menuPendaftaranDanaRutin = new JMenuItem("Pendaftaran dana sosial & tetap");
         menuPendaftaranDanaRutin.addActionListener(e -> {
-            JDataGrid.JDataGridOptions<Umat> options = GridUmat.createDefaultOptions();
-            options.enableAdd = options.enableEdit = options.enableDelete = false;
-
-            showWindow("framePendaftaranDanaRutin", () -> new MasterDetailFrame<>("Pendaftaran dana sosial / tetap", "Pilih umat", "Daftar dana sosial & tetap untuk umat yg dipilih", new GridUmat(options), new GridPendaftaranDanaRutin(GridPendaftaranDanaRutin.createDefaultOptions()), "umat_id"));
+            showWindow("framePendaftaranDanaRutin", () -> new MasterDetailFrame<>("Pendaftaran dana sosial / tetap", "Pilih umat", "Daftar dana sosial & tetap untuk umat yg dipilih", GridUmat.createNoAddEditDelete(), GridPendaftaranDanaRutin.createDefault(), "umat_id"));
         });
 
         menuCatatDana = new JMenuItem("Catat dana masuk");
+        menuCatatDana.addActionListener(e -> {
+            showWindow("framePendapatan", () -> new BasicCrudFrame<>("Dana masuk / pendapatan", GridPendapatan.create()));
+        });
+
         menuCatatPengeluaran = new JMenuItem("Catat pengeluaran");
         //#endregion
 

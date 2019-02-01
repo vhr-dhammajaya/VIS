@@ -4,8 +4,10 @@ import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.layout.FormLayout;
 import com.skopware.javautils.*;
+import com.skopware.javautils.swing.BaseCrudForm;
 import com.skopware.javautils.swing.BaseCrudTableModel;
 import com.skopware.javautils.swing.grid.JDataGrid;
+import com.skopware.javautils.swing.grid.JDataGridOptions;
 import com.skopware.vdjvis.api.Acara;
 
 import java.awt.*;
@@ -15,46 +17,47 @@ import java.util.List;
 
 import javax.swing.*;
 
-public class GridAcara extends JDataGrid<Acara> {
-    public static GridAcara create() {
-        JDataGridOptions<Acara> options = new JDataGridOptions<>();
+public class GridAcara {
+    public static JDataGrid<Acara> createDefault() {
+        JDataGridOptions<Acara> o = createDefaultOptions();
 
-        options.columnConfigs = Arrays.asList(
+        return new JDataGrid<>(o);
+    }
+
+    public static JDataGrid<Acara> createNoAddEditDelete() {
+        JDataGridOptions<Acara> o = createDefaultOptions();
+        o.enableAdd = o.enableEdit = o.enableDelete = false;
+        return new JDataGrid<>(o);
+    }
+
+    public static JDataGridOptions<Acara> createDefaultOptions() {
+        JDataGridOptions<Acara> o = new JDataGridOptions<>();
+
+        o.columnConfigs = Arrays.asList(
                 ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
                     x.fieldName = x.dbColumnName = ("nama");
                     x.label = ("Nama acara");
                 })
         );
 
-        options.recordType = Acara.class;
-        options.appConfig = App.config;
-        options.shortControllerUrl = "/acara";
+        o.recordType = Acara.class;
+        o.appConfig = App.config;
+        o.shortControllerUrl = "/acara";
 
-        return new GridAcara(options);
+        o.fnShowCreateForm = () -> new FormAcara(App.mainFrame);
+        o.fnShowEditForm = (record, modelIdx) -> new FormAcara(App.mainFrame, record, modelIdx);
+        return o;
     }
 
-    public GridAcara(JDataGridOptions<Acara> options) {
-        super(options);
-    }
-
-    protected void showCreateForm() {
-        new FormAcara(App.mainFrame, "Buat acara");
-        // lines below executed after dialog closed
-    }
-
-    protected void showEditForm(Acara record, int modelIdx) {
-        new FormAcara(App.mainFrame, "Edit acara", record, modelIdx);
-    }
-
-    public class FormAcara extends BaseCrudForm {
+    public static class FormAcara extends BaseCrudForm<Acara> {
         private JTextField txtNama;
 
-        public FormAcara(Frame owner, String title) {
-            super(owner, title);
+        public FormAcara(Frame owner) {
+            super(owner, "Buat acara", Acara.class);
         }
 
-        public FormAcara(Frame owner, String title, Acara editedRecord, int modelIdx) {
-            super(owner, title, editedRecord, modelIdx);
+        public FormAcara(Frame owner, Acara record, int modelIdx) {
+            super(owner, "Edit acara", Acara.class, record, modelIdx);
         }
 
         @Override

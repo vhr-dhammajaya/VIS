@@ -13,7 +13,8 @@ public class CellFoto extends BaseRecord<CellFoto> {
 
     @JsonIgnore public PapanFoto papan;
 
-//    public String computeLabel() {
-//        return String.format("%s %02d", papan.nama, col*papan.width + col + 1);
-//    }
+    @Override
+    public String toUiString() {
+        return "";
+    }
 }

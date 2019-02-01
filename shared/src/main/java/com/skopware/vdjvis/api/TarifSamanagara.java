@@ -16,6 +16,11 @@ public class TarifSamanagara extends BaseRecord<TarifSamanagara> {
     @JsonProperty
     public int nominal;
 
+    @Override
+    public String toUiString() {
+        return "";
+    }
+
     public LocalDate getStartDate() {
         return startDate;
     }
