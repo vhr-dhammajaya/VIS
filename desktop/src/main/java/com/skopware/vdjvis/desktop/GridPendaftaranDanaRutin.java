@@ -13,6 +13,16 @@ import java.util.Arrays;
 
 public class GridPendaftaranDanaRutin {
     public static JDataGrid<PendaftaranDanaRutin> createDefault() {
+        return new JDataGrid<>(createDefaultOptions());
+    }
+
+    public static JDataGrid<PendaftaranDanaRutin> createNoAddEditDelete() {
+        JDataGridOptions<PendaftaranDanaRutin> o = createDefaultOptions();
+        o.enableAdd = o.enableEdit = o.enableDelete = false;
+        return new JDataGrid<>(o);
+    }
+
+    private static JDataGridOptions<PendaftaranDanaRutin> createDefaultOptions() {
         JDataGridOptions<PendaftaranDanaRutin> o = new JDataGridOptions<>();
 
         o.enableEdit = false;
@@ -39,7 +49,21 @@ public class GridPendaftaranDanaRutin {
         o.fnShowCreateForm = () -> new FormPendaftaranDanaRutin(App.mainFrame);
         o.fnShowEditForm = (record, modelIdx) -> new FormPendaftaranDanaRutin(App.mainFrame, record, modelIdx);
 
-        return new JDataGrid<>(o);
+        JButton btnBayar = new JButton("Bayar dana sosial/tetap");
+        btnBayar.addActionListener(e -> {
+            PendaftaranDanaRutin selectedRecord = o.grid.getSelectedRecord();
+            if (selectedRecord == null) {
+                SwingHelper.showErrorMessage(App.mainFrame, "Anda harus memilih satu baris dana sosial/tetap");
+                return;
+            }
+
+            JDialog d = new DialogBayarDanaSosialTetap(selectedRecord);
+            d.setVisible(true);
+            d.pack();
+        });
+        o.additionalToolbarButtons.add(btnBayar);
+
+        return o;
     }
 
     public static class FormPendaftaranDanaRutin extends BaseCrudForm<PendaftaranDanaRutin> {

@@ -18,7 +18,7 @@ public class PendaftaranDanaRutin extends BaseRecord<PendaftaranDanaRutin> {
     }
 
     public enum Type {
-        sosial(), tetap();
+        sosial(), tetap(), samanagara;
     }
 
     public LocalDate getTglDaftar() {

@@ -13,7 +13,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.Arrays;
 
-public class GridPendapatan {
+public class GridPendapatanNonRutin {
     public static JDataGrid<Pendapatan> create() {
         JDataGridOptions<Pendapatan> o = new JDataGridOptions<>();
 
@@ -83,9 +83,9 @@ public class GridPendapatan {
             edNominal = new JSpinner(new SpinnerNumberModel(1000, 1000, Integer.MAX_VALUE, 1000));
             edChannel = new JComboBox<>(new String[]{"Tunai", "EDC", "Transfer ke rek. BCA"});
             edJenisDana = new JComboBox<>(new Pendapatan.JenisDana[] {
-                Pendapatan.JenisDana.IURAN_SAMANAGARA,
-                Pendapatan.JenisDana.DANA_SOSIAL,
-                Pendapatan.JenisDana.DANA_TETAP,
+//                Pendapatan.JenisDana.IURAN_SAMANAGARA,
+//                Pendapatan.JenisDana.DANA_SOSIAL,
+//                Pendapatan.JenisDana.DANA_TETAP,
                 Pendapatan.JenisDana.DANA_SUKARELA,
                 Pendapatan.JenisDana.DANA_PARAMITTA,
                 Pendapatan.JenisDana.HAPPY_SUNDAY,

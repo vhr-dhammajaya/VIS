@@ -4,8 +4,6 @@ import com.skopware.javautils.swing.BaseCrudFrame;
 import com.skopware.javautils.swing.BasicCrudFrame;
 import com.skopware.javautils.swing.MasterDetailFrame;
 import com.skopware.javautils.swing.SwingHelper;
-import com.skopware.javautils.swing.grid.JDataGridOptions;
-import com.skopware.vdjvis.api.Umat;
 
 import javax.swing.*;
 import javax.swing.event.InternalFrameAdapter;
@@ -31,21 +29,24 @@ public class MainFrame extends JFrame {
     private JMenuItem menuSettingBiayaSamanagara;
     private JMenu menuPendapatanPengeluaran;
     private JMenuItem menuPendaftaranDanaRutin;
-    private JMenuItem menuCatatDana;
+    private JMenuItem menuCatatDanaLain;
     private JMenuItem menuCatatPengeluaran;
     private JMenu menuAbsensi;
     private JMenu menuLaporan;
+    private JMenuItem menuLaporanDanaRutin;
 
     private JDesktopPane desktopPane;
-    private BaseCrudFrame frameMasterAcara;
-    private BaseCrudFrame frameMasterUmat;
-    private BaseCrudFrame frameMasterUser;
-    private BaseCrudFrame frameMasterLeluhur;
-    private BaseCrudFrame frameSetLokasiFoto;
-    private BaseCrudFrame frameSettingIuranSamanagara;
-    private BaseCrudFrame framePendaftaranDanaRutin;
-    private BaseCrudFrame framePendapatan;
-    private BaseCrudFrame framePengeluaran;
+    private JInternalFrame frameMasterAcara;
+    private JInternalFrame frameMasterUmat;
+    private JInternalFrame frameMasterUser;
+    private JInternalFrame frameMasterLeluhur;
+    private JInternalFrame frameSetLokasiFoto;
+    private JInternalFrame frameSettingIuranSamanagara;
+    private JInternalFrame framePendaftaranDanaRutin;
+    private JInternalFrame framePembayaranDanaSosialTetap;
+    private JInternalFrame framePendapatanNonRutin;
+    private JInternalFrame framePengeluaran;
+    private JInternalFrame frameLaporanDanaRutin;
 
     public MainFrame() {
         super("VIS VDJ");
@@ -98,19 +99,26 @@ public class MainFrame extends JFrame {
         //#endregion
 
         //#region menuPendapatanPengeluaran child
-        menuPendaftaranDanaRutin = new JMenuItem("Pendaftaran dana sosial & tetap");
+        menuPendaftaranDanaRutin = new JMenuItem("Dana sosial & tetap");
         menuPendaftaranDanaRutin.addActionListener(e -> {
-            showWindow("framePendaftaranDanaRutin", () -> new MasterDetailFrame<>("Pendaftaran dana sosial / tetap", "Pilih umat", "Daftar dana sosial & tetap untuk umat yg dipilih", GridUmat.createNoAddEditDelete(), GridPendaftaranDanaRutin.createDefault(), "umat_id"));
+            showWindow("framePendaftaranDanaRutin", () -> new MasterDetailFrame<>("Dana sosial / tetap", "Pilih umat", "Daftar dana sosial & tetap untuk umat yg dipilih", GridUmat.createNoAddEditDelete(), GridPendaftaranDanaRutin.createDefault(), "umat_id"));
         });
 
-        menuCatatDana = new JMenuItem("Catat dana masuk");
-        menuCatatDana.addActionListener(e -> {
-            showWindow("framePendapatan", () -> new BasicCrudFrame<>("Dana masuk / pendapatan", GridPendapatan.create()));
+        menuCatatDanaLain = new JMenuItem("Catat dana masuk lainnya");
+        menuCatatDanaLain.addActionListener(e -> {
+            showWindow("framePendapatanNonRutin", () -> new BasicCrudFrame<>("Dana masuk / pendapatan", GridPendapatanNonRutin.create()));
         });
 
         menuCatatPengeluaran = new JMenuItem("Catat pengeluaran");
         menuCatatPengeluaran.addActionListener(e -> {
             showWindow("framePengeluaran", () -> new BasicCrudFrame<>("Pengeluaran", GridPengeluaran.create()));
+        });
+        //#endregion
+
+        //#region menuLaporan child
+        menuLaporanDanaRutin = new JMenuItem("Status iuran samanagara, dana sosial & tetap");
+        menuLaporanDanaRutin.addActionListener(e -> {
+            showWindow("frameLaporanDanaRutin", () -> new FrameLaporanDanaRutin());
         });
         //#endregion
 
@@ -138,8 +146,10 @@ public class MainFrame extends JFrame {
         menuSamanagara.add(menuSettingBiayaSamanagara);
 
         menuPendapatanPengeluaran.add(menuPendaftaranDanaRutin);
-        menuPendapatanPengeluaran.add(menuCatatDana);
+        menuPendapatanPengeluaran.add(menuCatatDanaLain);
         menuPendapatanPengeluaran.add(menuCatatPengeluaran);
+
+        menuLaporan.add(menuLaporanDanaRutin);
 
         menuAccount.add(menuGantiPassword);
         menuAccount.add(menuLogout);
@@ -158,7 +168,7 @@ public class MainFrame extends JFrame {
         setContentPane(desktopPane);
     }
 
-    private <T extends BaseCrudFrame> void showWindow(String fieldName, Supplier<T> fnCreateWindow) {
+    private <T extends JInternalFrame> void showWindow(String fieldName, Supplier<T> fnCreateWindow) {
         try {
             Field windowField = this.getClass().getDeclaredField(fieldName);
             windowField.setAccessible(true);
@@ -190,8 +200,8 @@ public class MainFrame extends JFrame {
 
             SwingHelper.moveToFrontAndMaximize(windowObj);
 
-            if (needToCreate) {
-                windowObj.refreshData();
+            if (needToCreate && windowObj instanceof BaseCrudFrame) {
+                ((BaseCrudFrame) windowObj).refreshData();
             }
         }
         catch (Exception e) {
