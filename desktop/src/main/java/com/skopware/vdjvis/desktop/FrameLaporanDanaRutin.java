@@ -4,23 +4,28 @@ import com.skopware.javautils.ObjectHelper;
 import com.skopware.javautils.httpclient.HttpGetWithBody;
 import com.skopware.javautils.httpclient.HttpHelper;
 import com.skopware.javautils.swing.JForeignKeyPicker;
+import com.skopware.vdjvis.api.dto.DtoInputLaporanStatusDanaRutin;
+import com.skopware.vdjvis.api.dto.DtoOutputLaporanStatusDanaRutin;
 import com.skopware.vdjvis.api.entities.Umat;
-import com.skopware.vdjvis.api.dto.DtoLaporanStatusDanaRutin;
 
 import javax.swing.*;
+import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class FrameLaporanDanaRutin extends JInternalFrame {
     private static final String TABLE_CL_ID = "TABLE_CL_ID";
 
     private JForeignKeyPicker<Umat> edUmat;
     private JTable table;
-    private DefaultTableModel tableModel;
+    private TableModel tableModel;
 
     public FrameLaporanDanaRutin() {
         super("Laporan status iuran samanagara, dana sosial & tetap", true, true, true, true);
@@ -35,17 +40,8 @@ public class FrameLaporanDanaRutin extends JInternalFrame {
         pnlFilter.add(edUmat);
         pnlFilter.add(btnRefresh);
 
-        table = new JTable(new Vector(), ObjectHelper.apply(new Vector<String>(), columnNames -> {
-            columnNames.add("Nama umat");
-            columnNames.add("No. telpon");
-            columnNames.add("Alamat");
-
-            columnNames.add("Jenis dana");
-            columnNames.add("Status");
-            columnNames.add("Berapa bulan");
-            columnNames.add("Jumlah (Rp)");
-        }));
-        tableModel = (DefaultTableModel) table.getModel();
+        tableModel = new TableModel();
+        table = new JTable(tableModel);
 
         JScrollPane pnlTable = new JScrollPane(table);
 
@@ -62,23 +58,68 @@ public class FrameLaporanDanaRutin extends JInternalFrame {
     private void onRefresh(ActionEvent event) {
         Umat record = edUmat.getRecord();
 
-        DtoLaporanStatusDanaRutin rq = new DtoLaporanStatusDanaRutin();
-        rq.idUmat = record == null? null : record.uuid;
+        String idUmat = record == null? null : record.uuid;
+        DtoInputLaporanStatusDanaRutin rq = new DtoInputLaporanStatusDanaRutin();
+        rq.idUmat = idUmat;
 
-        List<Map<String, Object>> result = HttpHelper.makeHttpRequest(App.config.url("/laporan/status_dana_rutin"), HttpGetWithBody::new, rq, List.class);
+        List<DtoOutputLaporanStatusDanaRutin> result = HttpHelper.makeHttpRequest(App.config.url("/laporan/status_dana_rutin"), HttpGetWithBody::new, rq, List.class, DtoOutputLaporanStatusDanaRutin.class);
+        tableModel.setData(result);
+    }
 
-        tableModel.setRowCount(0);
-        for (Map<String, Object> row : result) {
-            tableModel.addRow(new Object[] {
-                    row.get("namaUmat"),
-                    row.get("noTelpon"),
-                    row.get("alamat"),
-                    row.get("jenisDana"),
-                    row.get("status"),
-                    row.get("months"),
-                    row.get("totalRp"),
-            });
+    public static class TableModel extends AbstractTableModel {
+        private static String[] columnLabels = {"Nama umat", "No. telpon", "Alamat", "Jenis dana", "Nama leluhur (ut Samanagara)", "Status bayar", "Berapa bulan", "Kurang bayar (Rp)"};
+        private static Class[] columnClasses = {String.class, String.class, String.class, String.class, String.class, String.class, Long.class, Long.class};
+
+        private List<DtoOutputLaporanStatusDanaRutin> data = new ArrayList<>();
+
+        public void setData(List<DtoOutputLaporanStatusDanaRutin> data) {
+            this.data = data;
+            this.fireTableDataChanged();
         }
-        tableModel.fireTableDataChanged();
+
+        @Override
+        public int getRowCount() {
+            return data.size();
+        }
+
+        @Override
+        public int getColumnCount() {
+            return columnLabels.length;
+        }
+
+        @Override
+        public String getColumnName(int column) {
+            return columnLabels[column];
+        }
+
+        @Override
+        public Class<?> getColumnClass(int columnIndex) {
+            return columnClasses[columnIndex];
+        }
+
+        @Override
+        public Object getValueAt(int rowIndex, int columnIndex) {
+            DtoOutputLaporanStatusDanaRutin row = data.get(rowIndex);
+            switch (columnIndex) {
+                case 0:
+                    return row.namaUmat;
+                case 1:
+                    return row.noTelpon;
+                case 2:
+                    return row.alamat;
+                case 3:
+                    return row.jenisDana;
+                case 4:
+                    return row.namaLeluhur;
+                case 5:
+                    return row.strStatusBayar;
+                case 6:
+                    return row.diffInMonths;
+                case 7:
+                    return row.nominal;
+                default:
+                    throw new IllegalArgumentException("columnIndex: " + columnIndex);
+            }
+        }
     }
 }

@@ -42,6 +42,21 @@ public class LeluhurController extends BaseCrudController<Leluhur, LeluhurDAO> {
         return result;
     }
 
+    public static long hitungTotalHutangIuranSamanagara(long berapaBulan, YearMonth lastPaymentMonth, LocalDate tglDaftar, List<Tuple3<LocalDate, LocalDate, Integer>> listTarifSamanagara) {
+        long totalRp = 0;
+
+        for (int i = 1; i <= berapaBulan; i++) {
+            YearMonth currYm = lastPaymentMonth.plusMonths(i);
+            LocalDate currDate = tglDaftar.withYear(currYm.getYear()).withMonth(currYm.getMonthValue());
+
+            // hitung jumlah yg harus dibayarkan bulan ini (lihat listTarifSamanagara)
+            int nominalBulanIni = DateTimeHelper.findValueInDateRange(currDate, listTarifSamanagara).get();
+            totalRp += nominalBulanIni;
+        }
+
+        return totalRp;
+    }
+
     @Path("/status_bayar")
     @GET
     public List<DtoStatusBayarLeluhur> computeStatusBayarLeluhur(@NotNull Umat umat) {
@@ -56,7 +71,7 @@ public class LeluhurController extends BaseCrudController<Leluhur, LeluhurDAO> {
         YearMonth todayMonth = YearMonth.now();
 
         try (Handle handle = jdbi.open()) {
-            List<Leluhur2> listLeluhur = handle.select("select l.uuid, l.nama, l.tgl_daftar from leluhur_smngr l where l.umat_id=?", umat.uuid)
+            List<Leluhur2> listLeluhur = handle.select("select l.uuid, l.nama, l.tgl_daftar from leluhur_smngr l where l.active=1 and l.umat_id=?", umat.uuid)
                     .map((rs, ctx) -> {
                         Leluhur2 x = new Leluhur2();
                         x.uuid = rs.getString("uuid");
@@ -91,16 +106,7 @@ public class LeluhurController extends BaseCrudController<Leluhur, LeluhurDAO> {
                     diffInMonths = lastPaymentMonth.until(todayMonth, ChronoUnit.MONTHS);
 
                     // hitung jumlah kurang bayar
-                    totalRp = 0;
-
-                    for (int i = 1; i <= diffInMonths; i++) {
-                        YearMonth currYm = lastPaymentMonth.plusMonths(i);
-                        LocalDate currDate = leluhur.tglDaftar.withYear(currYm.getYear()).withMonth(currYm.getMonthValue());
-
-                        // hitung jumlah yg harus dibayarkan bulan ini (lihat listTarifSamanagara)
-                        int nominalBulanIni = DateTimeHelper.findValueInDateRange(currDate, listTarifSamanagara).get();
-                        totalRp += nominalBulanIni;
-                    }
+                    totalRp = hitungTotalHutangIuranSamanagara(diffInMonths, lastPaymentMonth, leluhur.tglDaftar, listTarifSamanagara);
                 }
                 else if (statusBayar == 0) {
                     strStatusBayar = "Tepat waktu";
