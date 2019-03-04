@@ -4,8 +4,8 @@ import com.skopware.javautils.Tuple2;
 import com.skopware.javautils.httpclient.HttpHelper;
 import com.skopware.javautils.swing.JDatePicker;
 import com.skopware.javautils.swing.SwingHelper;
-import com.skopware.vdjvis.api.PembayaranDanaSosialDanTetap;
-import com.skopware.vdjvis.api.PendaftaranDanaRutin;
+import com.skopware.vdjvis.api.requestparams.RqBayarDanaSosialDanTetap;
+import com.skopware.vdjvis.api.entities.PendaftaranDanaRutin;
 import org.apache.http.client.methods.HttpPost;
 
 import javax.swing.*;
@@ -59,7 +59,7 @@ public class DialogBayarDanaSosialTetap extends JDialog {
 
         btnOk.addActionListener(e -> {
             // fixme don't block ui thread
-            PembayaranDanaSosialDanTetap requestParam = new PembayaranDanaSosialDanTetap();
+            RqBayarDanaSosialDanTetap requestParam = new RqBayarDanaSosialDanTetap();
             requestParam.idPendaftaran = danaRutin.uuid;
             requestParam.tglTrans = edTglTrans.getDate();
             requestParam.countBulan = (int) edCountBulan.getValue();

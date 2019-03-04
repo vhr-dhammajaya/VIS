@@ -1,12 +1,11 @@
 package com.skopware.vdjvis.backend.jdbi.dao;
 
 import com.skopware.javautils.db.BaseCrudDAO;
-import com.skopware.vdjvis.api.Umat;
+import com.skopware.vdjvis.api.entities.Umat;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
+import org.jdbi.v3.sqlobject.customizer.BindFields;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-
-import java.util.List;
 
 public interface UmatDAO extends BaseCrudDAO<Umat> {
     @SqlQuery("select * from umat where uuid=?")
@@ -33,7 +32,7 @@ public interface UmatDAO extends BaseCrudDAO<Umat> {
             ":namaUpasaka, :penahbis, :tglPenahbisan" +
             ")")
     @Override
-    void create(@BindBean Umat x);
+    void create(@BindFields Umat x);
 
     @SqlUpdate("update umat set nama=:nama, alamat=:alamat, kota=:kota, kode_pos=:kodePos, no_telpon=:noTelpon," +
             "email=:email, tempat_lahir=:tempatLahir, tgl_lahir=:tglLahir, gol_darah=:golDarah," +
@@ -44,7 +43,7 @@ public interface UmatDAO extends BaseCrudDAO<Umat> {
             "tgl_penahbisan=:tglPenahbisan" +
             " where uuid=:uuid")
     @Override
-    void update(@BindBean Umat x);
+    void update(@BindFields Umat x);
 
     @SqlUpdate("update umat set active = 0 where uuid = ?")
     @Override

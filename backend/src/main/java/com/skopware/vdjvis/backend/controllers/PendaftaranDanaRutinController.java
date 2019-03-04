@@ -1,8 +1,8 @@
 package com.skopware.vdjvis.backend.controllers;
 
 import com.skopware.javautils.dropwizard.BaseCrudController;
-import com.skopware.vdjvis.api.PembayaranDanaSosialDanTetap;
-import com.skopware.vdjvis.api.PendaftaranDanaRutin;
+import com.skopware.vdjvis.api.requestparams.RqBayarDanaSosialDanTetap;
+import com.skopware.vdjvis.api.entities.PendaftaranDanaRutin;
 import com.skopware.vdjvis.backend.jdbi.dao.PendaftaranDanaRutinDAO;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
@@ -28,13 +28,13 @@ public class PendaftaranDanaRutinController extends BaseCrudController<Pendaftar
 
     @Path("/bayar_dana_sosial_tetap")
     @POST
-    public boolean bayarDanaRutin(@NotNull @Valid PembayaranDanaSosialDanTetap x) {
+    public boolean bayarDanaRutin(@NotNull @Valid RqBayarDanaSosialDanTetap x) {
         try (Handle h = jdbi.open()) {
             PendaftaranDanaRutinDAO pendaftaranDanaRutinDAO = h.attach(PendaftaranDanaRutinDAO.class);
             PendaftaranDanaRutin pendaftaranDanaRutin = pendaftaranDanaRutinDAO.get(x.idPendaftaran);
 
             Optional<LocalDate> lastPaidMonth = h.select("select max(ut_thn_bln) from pembayaran_dana_rutin" +
-                    " where umat_id=? and dana_rutin_id=?", pendaftaranDanaRutin.umatId, x.idPendaftaran)
+                    " where umat_id=? and dana_rutin_id=?", pendaftaranDanaRutin.umat.uuid, x.idPendaftaran)
                     .mapTo(LocalDate.class)
                     .findFirst();
             LocalDate current;
@@ -50,7 +50,7 @@ public class PendaftaranDanaRutinController extends BaseCrudController<Pendaftar
                 h.createUpdate("insert into pembayaran_dana_rutin(uuid, umat_id, jenis, dana_rutin_id, ut_thn_bln, nominal, tgl, channel, keterangan)" +
                         " values(:uuid, :umat_id, :jenis, :dana_rutin_id, :ut_thn_bln, :nominal, :tgl, :channel, :keterangan)")
                         .bind("uuid", UUID.randomUUID().toString())
-                        .bind("umat_id", pendaftaranDanaRutin.umatId)
+                        .bind("umat_id", pendaftaranDanaRutin.umat.uuid)
                         .bind("jenis", pendaftaranDanaRutin.tipe.name())
                         .bind("dana_rutin_id", x.idPendaftaran)
                         .bind("ut_thn_bln", current)

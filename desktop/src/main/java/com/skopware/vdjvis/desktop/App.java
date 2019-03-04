@@ -2,7 +2,7 @@ package com.skopware.vdjvis.desktop;
 
 import com.skopware.javautils.swing.BaseCrudAppConfig;
 import com.skopware.javautils.swing.JDatePicker;
-import com.skopware.vdjvis.api.User;
+import com.skopware.vdjvis.api.entities.User;
 
 import javax.swing.*;
 import java.awt.*;

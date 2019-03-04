@@ -1,7 +1,7 @@
 package com.skopware.vdjvis.backend.controllers;
 
 import com.skopware.javautils.dropwizard.BaseCrudController;
-import com.skopware.vdjvis.api.Acara;
+import com.skopware.vdjvis.api.entities.Acara;
 import com.skopware.vdjvis.backend.jdbi.dao.AcaraDAO;
 import org.jdbi.v3.core.Jdbi;
 

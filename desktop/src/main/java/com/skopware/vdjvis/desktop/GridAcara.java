@@ -8,7 +8,7 @@ import com.skopware.javautils.swing.BaseCrudForm;
 import com.skopware.javautils.swing.BaseCrudTableModel;
 import com.skopware.javautils.swing.grid.JDataGrid;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
-import com.skopware.vdjvis.api.Acara;
+import com.skopware.vdjvis.api.entities.Acara;
 
 import java.awt.*;
 import java.util.ArrayList;

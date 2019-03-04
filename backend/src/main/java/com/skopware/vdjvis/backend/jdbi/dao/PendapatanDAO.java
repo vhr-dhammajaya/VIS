@@ -1,9 +1,9 @@
 package com.skopware.vdjvis.backend.jdbi.dao;
 
 import com.skopware.javautils.db.BaseCrudDAO;
-import com.skopware.vdjvis.api.Pendapatan;
-import com.skopware.vdjvis.api.Umat;
+import com.skopware.vdjvis.api.entities.Pendapatan;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
+import org.jdbi.v3.sqlobject.customizer.BindFields;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 
@@ -13,14 +13,14 @@ public interface PendapatanDAO extends BaseCrudDAO<Pendapatan> {
     Pendapatan get(String id);
 
     @SqlUpdate("insert into pendapatan(id, umat_id, tgl_trx, nominal, channel, jenis_dana, keterangan, acara_id)" +
-            " values(:uuid, :umatId, :tglTransaksi, :nominal, :channel, :jenisDana, :keterangan, :acaraId)")
+            " values(:uuid, :umat.uuid, :tglTransaksi, :nominal, :channel, :jenisDana, :keterangan, :acara.uuid)")
     @Override
-    void create(@BindBean Pendapatan x);
+    void create(@BindFields Pendapatan x);
 
-    @SqlUpdate("update pendapatan set umat_id=:umatId, tgl_trx=:tglTransaksi, nominal=:nominal, channel=:channel," +
-            "jenis_dana=:jenisDana, keterangan=:keterangan, acara_id=:acaraId where id=:uuid")
+    @SqlUpdate("update pendapatan set umat_id=:umat.uuid, tgl_trx=:tglTransaksi, nominal=:nominal, channel=:channel," +
+            "jenis_dana=:jenisDana, keterangan=:keterangan, acara_id=:acara.uuid where id=:uuid")
     @Override
-    void update(@BindBean Pendapatan x);
+    void update(@BindFields Pendapatan x);
 
     @SqlUpdate("update pendapatan set active = 0 where id = ?")
     @Override

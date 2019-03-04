@@ -1,9 +1,7 @@
 package com.skopware.vdjvis.backend.controllers;
 
 import com.skopware.javautils.dropwizard.BaseCrudController;
-import com.skopware.vdjvis.api.Pendapatan;
-import com.skopware.vdjvis.api.Pengeluaran;
-import com.skopware.vdjvis.backend.jdbi.dao.PendapatanDAO;
+import com.skopware.vdjvis.api.entities.Pengeluaran;
 import com.skopware.vdjvis.backend.jdbi.dao.PengeluaranDAO;
 import org.jdbi.v3.core.Jdbi;
 

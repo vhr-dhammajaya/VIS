@@ -4,9 +4,8 @@ import com.skopware.javautils.ObjectHelper;
 import com.skopware.javautils.httpclient.HttpGetWithBody;
 import com.skopware.javautils.httpclient.HttpHelper;
 import com.skopware.javautils.swing.JForeignKeyPicker;
-import com.skopware.javautils.swing.SwingHelper;
-import com.skopware.vdjvis.api.Laporan;
-import com.skopware.vdjvis.api.Umat;
+import com.skopware.vdjvis.api.entities.Umat;
+import com.skopware.vdjvis.api.requestparams.RqLaporanStatusDanaRutin;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -64,9 +63,10 @@ public class FrameLaporanDanaRutin extends JInternalFrame {
     private void onRefresh(ActionEvent event) {
         Umat record = edUmat.getRecord();
 
-        List<Map<String, Object>> result = HttpHelper.makeHttpRequest(App.config.url("/laporan/status_dana_rutin"), HttpGetWithBody::new, ObjectHelper.apply(new HashMap<String, String>(), x -> {
-            x.put(Laporan.UMAT_ID, record == null? null : record.uuid);
-        }), List.class);
+        RqLaporanStatusDanaRutin rq = new RqLaporanStatusDanaRutin();
+        rq.idUmat = record == null? null : record.uuid;
+
+        List<Map<String, Object>> result = HttpHelper.makeHttpRequest(App.config.url("/laporan/status_dana_rutin"), HttpGetWithBody::new, rq, List.class);
 
         tableModel.setRowCount(0);
         for (Map<String, Object> row : result) {

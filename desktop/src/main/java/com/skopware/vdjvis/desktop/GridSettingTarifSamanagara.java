@@ -8,7 +8,7 @@ import com.skopware.javautils.swing.SwingHelper;
 import com.skopware.javautils.swing.grid.JDataGrid;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
 import com.skopware.javautils.swing.grid.SortConfig;
-import com.skopware.vdjvis.api.TarifSamanagara;
+import com.skopware.vdjvis.api.entities.TarifSamanagara;
 import org.apache.http.client.methods.HttpPost;
 
 import javax.swing.*;

@@ -1,8 +1,6 @@
 package com.skopware.vdjvis.backend.jdbi.rowmappers;
 
-import com.skopware.javautils.DateTimeHelper;
-import com.skopware.vdjvis.api.Umat;
-import com.skopware.vdjvis.api.User;
+import com.skopware.vdjvis.api.entities.User;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.statement.StatementContext;
 

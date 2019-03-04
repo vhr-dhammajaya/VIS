@@ -3,18 +3,14 @@ package com.skopware.vdjvis.desktop;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.layout.FormLayout;
-import com.skopware.javautils.JsonHelper;
 import com.skopware.javautils.httpclient.HttpHelper;
 import com.skopware.javautils.swing.BaseSwingWorker;
 import com.skopware.javautils.swing.SwingHelper;
-import com.skopware.vdjvis.api.User;
-import org.apache.http.client.methods.CloseableHttpResponse;
+import com.skopware.vdjvis.api.entities.User;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
 
 import javax.swing.*;
 import java.awt.event.ActionListener;
-import java.util.Optional;
 
 public class DialogLogin extends JFrame {
     private JTextField txtUsername;

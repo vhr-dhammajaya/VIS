@@ -5,15 +5,15 @@ import com.skopware.javautils.Tuple2;
 import com.skopware.javautils.swing.*;
 import com.skopware.javautils.swing.grid.JDataGrid;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
-import com.skopware.vdjvis.api.Acara;
-import com.skopware.vdjvis.api.Pendapatan;
-import com.skopware.vdjvis.api.Umat;
+import com.skopware.vdjvis.api.entities.Acara;
+import com.skopware.vdjvis.api.entities.Pendapatan;
+import com.skopware.vdjvis.api.entities.Umat;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.Arrays;
 
-public class GridPendapatanNonRutin {
+public class GridPendapatan {
     public static JDataGrid<Pendapatan> create() {
         JDataGridOptions<Pendapatan> o = new JDataGridOptions<>();
 
@@ -129,7 +129,11 @@ public class GridPendapatanNonRutin {
         protected void syncGuiToModel() {
             Pendapatan r = this.editedRecord;
 
-            r.setUmat(edUmat.getRecord());
+            Umat umat = edUmat.getRecord();
+            r.umat = new Umat();
+            if (umat != null) {
+                r.umat.uuid = umat.uuid;
+            }
 
             r.tglTransaksi = edTglTrans.getDate();
             r.nominal = (int) edNominal.getValue();
@@ -137,7 +141,11 @@ public class GridPendapatanNonRutin {
             r.jenisDana = (Pendapatan.JenisDana) edJenisDana.getSelectedItem();
             r.keterangan = edKeterangan.getText();
 
-            r.setAcara(edAcara.getRecord());
+            Acara acara = edAcara.getRecord();
+            r.acara = new Acara();
+            if (acara != null) {
+                r.acara.uuid = acara.uuid;
+            }
         }
     }
 }

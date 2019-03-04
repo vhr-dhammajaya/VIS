@@ -2,12 +2,10 @@ package com.skopware.vdjvis.backend.controllers;
 
 import com.skopware.javautils.db.DbHelper;
 import com.skopware.javautils.db.PageData;
-import com.skopware.javautils.dropwizard.BaseCrudController;
 import com.skopware.javautils.swing.grid.GridConfig;
-import com.skopware.vdjvis.api.TarifSamanagara;
+import com.skopware.vdjvis.api.entities.TarifSamanagara;
 import org.jdbi.v3.core.Jdbi;
 
-import javax.management.Query;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -65,7 +63,7 @@ public class TarifSamanagaraController {
                 r.nominal = nominal;
 
                 h.createUpdate("insert into hist_biaya_smngr(id, start_date, end_date, nominal) values(:uuid, :startDate, :endDate, :nominal)")
-                        .bindBean(r)
+                        .bindFields(r)
                         .execute();
             }
 

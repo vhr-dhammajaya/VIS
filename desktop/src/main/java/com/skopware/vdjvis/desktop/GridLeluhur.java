@@ -8,7 +8,8 @@ import com.skopware.javautils.swing.JDatePicker;
 import com.skopware.javautils.swing.SwingHelper;
 import com.skopware.javautils.swing.grid.JDataGrid;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
-import com.skopware.vdjvis.api.Leluhur;
+import com.skopware.vdjvis.api.entities.Leluhur;
+import com.skopware.vdjvis.api.entities.Umat;
 
 import javax.swing.*;
 import java.awt.*;
@@ -135,7 +136,8 @@ public class GridLeluhur {
             r.tglMati = txtTglMati.getDate();
             r.hubunganDgnUmat = (String) txtHubunganDgnUmat.getSelectedItem();
             r.tglDaftar = LocalDate.now();
-            r.penanggungJawabId = jDataGrid.parentRecordId;
+            r.penanggungJawab = new Umat();
+            r.penanggungJawab.uuid = jDataGrid.parentRecordId;
         }
     }
 }

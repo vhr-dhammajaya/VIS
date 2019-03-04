@@ -1,16 +1,18 @@
 package com.skopware.vdjvis.backend.controllers;
 
-import com.skopware.vdjvis.api.CellFoto;
-import com.skopware.vdjvis.api.PapanFoto;
-import com.skopware.vdjvis.api.PlacePhotoRequestParam;
+import com.skopware.javautils.ObjectHelper;
+import com.skopware.vdjvis.api.entities.CellFoto;
+import com.skopware.vdjvis.api.entities.Leluhur;
+import com.skopware.vdjvis.api.entities.PapanFoto;
+import com.skopware.vdjvis.api.requestparams.RqPlacePhoto;
+import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.result.ResultIterable;
-import org.jdbi.v3.core.statement.Query;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
+import java.util.Map;
 
 @Path("/lokasi_foto")
 @Produces(MediaType.APPLICATION_JSON)
@@ -25,35 +27,64 @@ public class LokasiFotoController {
     @GET
     @Path("/list_papan")
     public List<PapanFoto> getListPapan() {
-        return jdbi.withHandle(h -> {
-            return h.select("select * from papan_smngr")
-                    .mapTo(PapanFoto.class)
+        try (Handle handle = jdbi.open()) {
+            List<PapanFoto> listPapan = handle.select("select * from papan_smngr order by nama")
+                    .map((rs, ctx) -> {
+                        PapanFoto x = new PapanFoto();
+                        x.uuid = rs.getString("id");
+                        x.nama = rs.getString("nama");
+                        int width = rs.getInt("width");
+                        int height = rs.getInt("height");
+                        x.setDimension(width, height);
+                        return x;
+                    })
                     .list();
-        });
-    }
 
-    @GET
-    @Path("/list_cell")
-    public List<CellFoto> getListCellFoto() {
-        return jdbi.withHandle(h -> {
-            Query select = h.select("select c.id, c.row, c.col, c.papan_smngr_id, c.leluhur_smngr_id, l.nama as leluhur_nama from cell_papan c" +
-                    " left join leluhur_smngr l on l.uuid = c.leluhur_smngr_id");
-            ResultIterable<CellFoto> rs = select.mapTo(CellFoto.class);
-            List<CellFoto> list = rs.list();
-            return list;
-        });
+            Map<String, PapanFoto> mapPapanById = ObjectHelper.groupListById(listPapan, papanFoto -> papanFoto.uuid);
+
+            List<CellFoto> listCellFoto = handle.select("select c.*, l.nama as leluhur_nama" +
+                    " from cell_papan c" +
+                    " left join leluhur_smngr l on l.uuid=c.leluhur_smngr_id")
+                    .map((rs, ctx) -> {
+                        CellFoto x = new CellFoto();
+                        x.uuid = rs.getString("id");
+                        x.row = rs.getInt("row");
+                        x.col = rs.getInt("col");
+
+                        String leluhur_smngr_id = rs.getString("leluhur_smngr_id");
+                        if (leluhur_smngr_id != null) {
+                            x.leluhur = new Leluhur();
+                            x.leluhur.uuid = leluhur_smngr_id;
+                            x.leluhur.nama = rs.getString("leluhur_nama");
+                            x.leluhur.cellFoto = new CellFoto();
+                            x.leluhur.cellFoto.uuid = x.uuid;
+                        }
+
+                        x.papan = new PapanFoto();
+                        x.papan.uuid = rs.getString("papan_smngr_id");
+                        return x;
+                    })
+                    .list();
+
+            for (CellFoto cell : listCellFoto) {
+                PapanFoto papan = mapPapanById.get(cell.papan.uuid);
+                papan.arrCellFoto[cell.row][cell.col] = cell;
+            }
+
+            return listPapan;
+        }
     }
 
     @POST
-    public boolean placePhoto(@NotNull PlacePhotoRequestParam param) {
+    public boolean placePhoto(@NotNull RqPlacePhoto param) {
         jdbi.useHandle(h -> {
             h.useTransaction(h2 -> {
-                if (param.originCellId != null) {
-                    h.createUpdate("update cell_papan set leluhur_smngr_id = null where id = ?").bind(0, param.originCellId).execute();
+                if (param.mendiangOriginCellId != null) {
+                    h.createUpdate("update cell_papan set leluhur_smngr_id = null where id = ?").bind(0, param.mendiangOriginCellId).execute();
                 }
 
-                if (param.destCellExistingIdMendiang != null) {
-                    h.createUpdate("update leluhur_smngr set cell_papan_id = null where uuid = ?").bind(0, param.destCellExistingIdMendiang).execute();
+                if (param.existingIdMendiangInDestCell != null) {
+                    h.createUpdate("update leluhur_smngr set cell_papan_id = null where uuid = ?").bind(0, param.existingIdMendiangInDestCell).execute();
                 }
 
                 String leluhurId = param.idMendiang;

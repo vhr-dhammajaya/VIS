@@ -3,8 +3,8 @@ package com.skopware.vdjvis.backend.controllers;
 import com.skopware.javautils.DateTimeHelper;
 import com.skopware.javautils.ObjectHelper;
 import com.skopware.javautils.db.BaseRecord;
-import com.skopware.vdjvis.api.Laporan;
-import com.skopware.vdjvis.api.PendaftaranDanaRutin;
+import com.skopware.vdjvis.api.entities.PendaftaranDanaRutin;
+import com.skopware.vdjvis.api.requestparams.RqLaporanStatusDanaRutin;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.statement.Query;
@@ -32,7 +32,7 @@ public class LaporanController {
 
     @Path("/status_dana_rutin")
     @GET
-    public List<Map<String, Object>> computeLaporanStatusDanaRutin(@NotNull Map<String, String> param) {
+    public List<Map<String, Object>> computeLaporanStatusDanaRutin(@NotNull RqLaporanStatusDanaRutin param) {
         class PendaftaranDanaRutin2 extends BaseRecord<PendaftaranDanaRutin2> {
             public LocalDate tglDaftar;
             public int nominal;
@@ -51,7 +51,7 @@ public class LaporanController {
 
         List<Map<String, Object>> result = new ArrayList<>();
 
-        String idUmat = param.get(Laporan.UMAT_ID); // nullable
+        String idUmat = param.idUmat; // nullable
         YearMonth todayMonth = YearMonth.now();
 
         try (Handle h = jdbi.open()) {

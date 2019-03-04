@@ -1,9 +1,9 @@
 package com.skopware.vdjvis.backend.jdbi.rowmappers;
 
 import com.skopware.javautils.DateTimeHelper;
-import com.skopware.vdjvis.api.Acara;
-import com.skopware.vdjvis.api.Pendapatan;
-import com.skopware.vdjvis.api.Umat;
+import com.skopware.vdjvis.api.entities.Acara;
+import com.skopware.vdjvis.api.entities.Pendapatan;
+import com.skopware.vdjvis.api.entities.Umat;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.statement.StatementContext;
 
@@ -16,9 +16,12 @@ public class PendapatanRowMapper implements RowMapper<Pendapatan> {
         Pendapatan x = new Pendapatan();
         x.setUuid(rs.getString("id"));
 
-        x.umatId = rs.getString("umat_id");
-        x.umat = new Umat();
-        x.umat.nama = rs.getString("umat_nama");
+        String umat_id = rs.getString("umat_id");
+        if (umat_id != null) {
+            x.umat = new Umat();
+            x.umat.uuid = umat_id;
+            x.umat.nama = rs.getString("umat_nama");
+        }
 
         x.tglTransaksi = DateTimeHelper.toLocalDate(rs.getDate("tgl_trx"));
         x.nominal = rs.getInt("nominal");
@@ -26,9 +29,12 @@ public class PendapatanRowMapper implements RowMapper<Pendapatan> {
         x.jenisDana = Pendapatan.JenisDana.valueOf(rs.getString("jenis_dana"));
         x.keterangan = rs.getString("keterangan");
 
-        x.acaraId = rs.getString("acara_id");
-        x.acara = new Acara();
-        x.acara.nama = rs.getString("acara_nama");
+        String acara_id = rs.getString("acara_id");
+        if (acara_id != null) {
+            x.acara = new Acara();
+            x.acara.uuid = acara_id;
+            x.acara.nama = rs.getString("acara_nama");
+        }
 
         return x;
     }

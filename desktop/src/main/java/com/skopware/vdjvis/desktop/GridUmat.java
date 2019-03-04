@@ -8,7 +8,7 @@ import com.skopware.javautils.Tuple2;
 import com.skopware.javautils.swing.*;
 import com.skopware.javautils.swing.grid.JDataGrid;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
-import com.skopware.vdjvis.api.Umat;
+import com.skopware.vdjvis.api.entities.Umat;
 
 import javax.swing.*;
 import java.awt.*;

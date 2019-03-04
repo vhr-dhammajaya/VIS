@@ -5,8 +5,8 @@ import com.skopware.javautils.Tuple2;
 import com.skopware.javautils.swing.*;
 import com.skopware.javautils.swing.grid.JDataGrid;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
-import com.skopware.vdjvis.api.Acara;
-import com.skopware.vdjvis.api.Pengeluaran;
+import com.skopware.vdjvis.api.entities.Acara;
+import com.skopware.vdjvis.api.entities.Pengeluaran;
 
 import javax.swing.*;
 import java.awt.*;
@@ -97,7 +97,11 @@ public class GridPengeluaran {
             r.nominal = (int) edNominal.getValue();
             r.keterangan = edKeterangan.getText();
 
-            r.setAcara(edAcara.getRecord());
+            Acara acara = edAcara.getRecord();
+            r.acara = new Acara();
+            if (acara != null) {
+                r.acara.uuid = acara.uuid;
+            }
         }
     }
 }

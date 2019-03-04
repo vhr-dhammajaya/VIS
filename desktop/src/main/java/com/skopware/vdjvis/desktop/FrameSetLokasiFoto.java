@@ -1,7 +1,7 @@
 package com.skopware.vdjvis.desktop;
 
 import com.skopware.javautils.ObjectHelper;
-import com.skopware.javautils.Tuple3;
+import com.skopware.javautils.Tuple2;
 import com.skopware.javautils.db.PageData;
 import com.skopware.javautils.httpclient.HttpGetWithBody;
 import com.skopware.javautils.httpclient.HttpHelper;
@@ -11,10 +11,10 @@ import com.skopware.javautils.swing.BaseCrudTableModel;
 import com.skopware.javautils.swing.SwingHelper;
 import com.skopware.javautils.swing.grid.JDataGrid;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
-import com.skopware.vdjvis.api.CellFoto;
-import com.skopware.vdjvis.api.Leluhur;
-import com.skopware.vdjvis.api.PapanFoto;
-import com.skopware.vdjvis.api.PlacePhotoRequestParam;
+import com.skopware.vdjvis.api.entities.CellFoto;
+import com.skopware.vdjvis.api.entities.Leluhur;
+import com.skopware.vdjvis.api.entities.PapanFoto;
+import com.skopware.vdjvis.api.requestparams.RqPlacePhoto;
 import org.apache.http.client.methods.HttpPost;
 
 import javax.swing.*;
@@ -26,9 +26,15 @@ import java.util.*;
 import java.util.List;
 
 public class FrameSetLokasiFoto extends BaseCrudFrame {
-    private JDataGrid<Leluhur> gridMendiang; // fixme change to grid leluhur
+    private JDataGrid<Leluhur> gridMendiang;
+//    private List<Leluhur> listLeluhur;
+//    private Map<String, Leluhur> leluhurById;
+
     private List<PapanFoto> papanFotoList;
+    private Map<String, PapanFoto> papanById;
+
     private Map<String, CellFoto> cellFotoById;
+
     private PanelSemuaPapanFoto panelSemuaPapanFoto;
     private JPopupMenu popup;
     private JMenuItem mnuCut;
@@ -124,40 +130,44 @@ public class FrameSetLokasiFoto extends BaseCrudFrame {
         gridMendiang.setFilterAndSort();
 
         // refresh daftar papan
-        BaseCrudSwingWorker<Tuple3<
-                PageData<Leluhur>,
-                List<PapanFoto>,
-                Map<String, CellFoto>>> worker = new BaseCrudSwingWorker<>(progressGlassPane);
+        BaseCrudSwingWorker<Tuple2<
+                        PageData<Leluhur>,
+                        List<PapanFoto>>> worker = new BaseCrudSwingWorker<>(progressGlassPane);
 
         worker.onDoInBackground = () -> {
             PageData<Leluhur> leluhurList = HttpHelper.makeHttpRequest(App.config.url("/leluhur"), HttpGetWithBody::new, gridMendiang.gridConfig, PageData.class, Leluhur.class);
-
             List<PapanFoto> papanFotoList = HttpHelper.makeHttpRequest(App.config.url("/lokasi_foto/list_papan"), HttpGetWithBody::new, null, List.class, PapanFoto.class);
-            List<CellFoto> cellFotoList = HttpHelper.makeHttpRequest(App.config.url("/lokasi_foto/list_cell"), HttpGetWithBody::new, null, List.class, CellFoto.class);
-
-            Map<String, List<CellFoto>> cellFotoByPapanId = ObjectHelper.groupList(cellFotoList, e -> e.papanId);
-
-            for (PapanFoto papan : papanFotoList) {
-                papan.initCells();
-
-                List<CellFoto> cells = cellFotoByPapanId.get(papan.getUuid());
-
-                for (CellFoto c : cells) {
-                    c.papan = papan;
-                    papan.arrCellFoto[c.row][c.col] = c;
-                }
-            }
-
-            Map<String, CellFoto> cellFotoById = ObjectHelper.groupListById(cellFotoList, e -> e.uuid);
-
-            return new Tuple3<>(leluhurList, papanFotoList, cellFotoById);
+            return new Tuple2<>(leluhurList, papanFotoList);
         };
 
         worker.onSuccess = result -> {
             gridMendiang.setTableRows(result.val1);
+//            listLeluhur = result.val1.rows;
+//            leluhurById = ObjectHelper.groupListById(listLeluhur, leluhur -> leluhur.uuid);
 
             this.papanFotoList = result.val2;
-            this.cellFotoById = result.val3;
+            papanById = ObjectHelper.groupListById(papanFotoList, papanFoto -> papanFoto.uuid);
+
+            cellFotoById = new HashMap<>();
+
+            for (PapanFoto papan : papanFotoList) {
+                CellFoto[][] cells = papan.arrCellFoto;
+
+                for (int i = 0; i < cells.length; i++) {
+                    for (int j = 0; j < cells[i].length; j++) {
+                        cells[i][j].papan = papanById.get(cells[i][j].papan.uuid);
+
+//                        Leluhur leluhur = leluhurById.get(cells[i][j].leluhur.uuid);
+//                        if (leluhur != null) {
+//                            cells[i][j].leluhur = leluhur;
+//                            leluhur.cellFoto = cells[i][j];
+//                        }
+
+                        cellFotoById.put(cells[i][j].uuid, cells[i][j]);
+                    }
+                }
+            }
+
             panelSemuaPapanFoto.refresh();
         };
 
@@ -171,44 +181,45 @@ public class FrameSetLokasiFoto extends BaseCrudFrame {
         worker.execute();
     }
 
-    private void placePhoto(Leluhur x, CellFoto dest, Runnable onSuccess) {
-        PlacePhotoRequestParam requestParam = new PlacePhotoRequestParam();
+    private void placePhoto(Leluhur leluhur, CellFoto destCell, Runnable onSuccess) {
+        RqPlacePhoto requestParam = new RqPlacePhoto();
 
-        if (x.cellFotoId != null) { // previously already placed somewhere else, need to repaint/clear that table too
-            requestParam.originCellId = x.cellFotoId;
+        // if previously already placed somewhere else, need to repaint/clear that table too
+        if (leluhur.cellFoto != null) {
+            requestParam.mendiangOriginCellId = leluhur.cellFoto.uuid;
         }
 
-        if (dest.leluhur != null) { // destination cell is already occupied by another photo
-            requestParam.destCellExistingIdMendiang = dest.leluhur.uuid;
+        // if destination cell is already occupied by another photo
+        if (destCell.leluhur != null) {
+            requestParam.existingIdMendiangInDestCell = destCell.leluhur.uuid;
         }
 
-        requestParam.idMendiang = x.uuid;
-        requestParam.destCellId = dest.uuid;
+        requestParam.idMendiang = leluhur.uuid;
+        requestParam.destCellId = destCell.uuid;
 
         BaseCrudSwingWorker<Boolean> worker = new BaseCrudSwingWorker<>(progressGlassPane);
         worker.onDoInBackground = () -> HttpHelper.makeHttpRequest(App.config.url("/lokasi_foto"), HttpPost::new, requestParam, boolean.class);
 
         worker.onSuccess = dummy -> {
-            CellFoto xOriginCell = null;
-            if (x.cellFotoId != null) {
-                xOriginCell = cellFotoById.get(x.cellFotoId);
-                xOriginCell.leluhur = null;
+            CellFoto cellAsal = null;
+            boolean kosongkanCellAsal = leluhur.cellFoto != null;
+
+            if (kosongkanCellAsal) {
+                cellAsal = cellFotoById.get(leluhur.cellFoto.uuid);
+                cellAsal.leluhur = null;
             }
 
-            if (dest.leluhur != null) {
-                dest.leluhur.cellFotoId = null;
-                dest.leluhur.cellFoto = null;
+            if (destCell.leluhur != null) {
+                destCell.leluhur.cellFoto = null;
             }
 
-            dest.leluhur = x;
+            destCell.leluhur = leluhur;
+            leluhur.cellFoto = destCell;
 
-            x.cellFotoId = dest.uuid;
-            x.cellFoto = dest;
-
-            if (xOriginCell != null) {
-                xOriginCell.papan.jTable.repaint();
+            if (cellAsal != null) {
+                cellAsal.papan.jTable.repaint();
             }
-            dest.papan.jTable.repaint();
+            destCell.papan.jTable.repaint();
 
             if (onSuccess != null) {
                 onSuccess.run();

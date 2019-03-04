@@ -1,7 +1,7 @@
 package com.skopware.vdjvis.backend.jdbi.rowmappers;
 
 import com.skopware.javautils.DateTimeHelper;
-import com.skopware.vdjvis.api.TarifSamanagara;
+import com.skopware.vdjvis.api.entities.TarifSamanagara;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.statement.StatementContext;
 

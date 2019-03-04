@@ -1,20 +1,12 @@
 package com.skopware.vdjvis.backend;
 
 import com.skopware.javautils.dropwizard.BaseApp;
-import com.skopware.vdjvis.api.*;
+import com.skopware.vdjvis.api.entities.*;
 import com.skopware.vdjvis.backend.config.Config;
 import com.skopware.vdjvis.backend.controllers.*;
 import com.skopware.vdjvis.backend.jdbi.rowmappers.*;
-import io.dropwizard.jdbi3.JdbiFactory;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
 import io.dropwizard.setup.Environment;
-import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.argument.AbstractArgumentFactory;
-import org.jdbi.v3.core.argument.Argument;
-import org.jdbi.v3.core.config.ConfigRegistry;
-import org.jdbi.v3.sqlobject.SqlObjectPlugin;
-
-import java.sql.Types;
 
 public class App extends BaseApp<Config> {
     public static void main(String[] args) {
@@ -32,8 +24,6 @@ public class App extends BaseApp<Config> {
         jdbi.registerRowMapper(User.class, new UserRowMapper());
         jdbi.registerRowMapper(Leluhur.class, new LeluhurRowMapper());
         jdbi.registerRowMapper(TarifSamanagara.class, new TarifSamanagaraRowMapper());
-        jdbi.registerRowMapper(PapanFoto.class, new PapanFotoRowMapper());
-        jdbi.registerRowMapper(CellFoto.class, new CellFotoRowMapper());
         jdbi.registerRowMapper(PendaftaranDanaRutin.class, new PendaftaranDanaRutinRowMapper());
         jdbi.registerRowMapper(Pendapatan.class, new PendapatanRowMapper());
         jdbi.registerRowMapper(Pengeluaran.class, new PengeluaranRowMapper());

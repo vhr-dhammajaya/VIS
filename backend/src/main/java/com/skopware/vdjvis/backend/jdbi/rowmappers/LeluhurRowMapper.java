@@ -1,8 +1,9 @@
 package com.skopware.vdjvis.backend.jdbi.rowmappers;
 
 import com.skopware.javautils.DateTimeHelper;
-import com.skopware.vdjvis.api.Leluhur;
-import com.skopware.vdjvis.api.Umat;
+import com.skopware.vdjvis.api.entities.CellFoto;
+import com.skopware.vdjvis.api.entities.Leluhur;
+import com.skopware.vdjvis.api.entities.Umat;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.statement.StatementContext;
 
@@ -22,11 +23,18 @@ public class LeluhurRowMapper implements RowMapper<Leluhur> {
         x.hubunganDgnUmat = rs.getString("hubungan_dgn_umat");
         x.tglDaftar = DateTimeHelper.toLocalDate(rs.getDate("tgl_daftar"));
 
-        x.penanggungJawabId = rs.getString("umat_id");
-        x.penanggungJawab = new Umat();
-        x.penanggungJawab.nama = rs.getString("umat_nama");
+        String umat_id = rs.getString("umat_id");
+        if (umat_id != null) {
+            x.penanggungJawab = new Umat();
+            x.penanggungJawab.uuid = umat_id;
+            x.penanggungJawab.nama = rs.getString("umat_nama");
+        }
 
-        x.cellFotoId = rs.getString("cell_papan_id");
+        String cell_papan_id = rs.getString("cell_papan_id");
+        if (cell_papan_id != null) {
+            x.cellFoto = new CellFoto();
+            x.cellFoto.uuid = cell_papan_id;
+        }
         return x;
     }
 }

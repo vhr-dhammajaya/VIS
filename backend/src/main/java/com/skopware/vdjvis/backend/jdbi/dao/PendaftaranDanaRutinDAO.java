@@ -1,7 +1,7 @@
 package com.skopware.vdjvis.backend.jdbi.dao;
 
 import com.skopware.javautils.db.BaseCrudDAO;
-import com.skopware.vdjvis.api.PendaftaranDanaRutin;
+import com.skopware.vdjvis.api.entities.PendaftaranDanaRutin;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.customizer.BindFields;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
@@ -13,13 +13,13 @@ public interface PendaftaranDanaRutinDAO extends BaseCrudDAO<PendaftaranDanaRuti
     PendaftaranDanaRutin get(String id);
 
     @SqlUpdate("insert into pendaftaran_dana_rutin(id, umat_id, tgl_daftar, nominal, tipe, active) " +
-            "values(:uuid, :umatId, :tglDaftar, :nominal, :tipe, 1)")
+            "values(:uuid, :umat.uuid, :tglDaftar, :nominal, :tipe, 1)")
     @Override
-    void create(@BindBean PendaftaranDanaRutin x);
+    void create(@BindFields PendaftaranDanaRutin x);
 
     @SqlUpdate("update pendaftaran_dana_rutin set active = 1 where id = :uuid")
     @Override
-    void update(@BindBean PendaftaranDanaRutin x);
+    void update(@BindFields PendaftaranDanaRutin x);
 
     @SqlUpdate("update pendaftaran_dana_rutin set active = 0 where id = ?")
     @Override

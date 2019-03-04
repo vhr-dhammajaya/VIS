@@ -106,7 +106,7 @@ public class MainFrame extends JFrame {
 
         menuCatatDanaLain = new JMenuItem("Catat dana masuk lainnya");
         menuCatatDanaLain.addActionListener(e -> {
-            showWindow("framePendapatanNonRutin", () -> new BasicCrudFrame<>("Dana masuk / pendapatan", GridPendapatanNonRutin.create()));
+            showWindow("framePendapatanNonRutin", () -> new BasicCrudFrame<>("Dana masuk / pendapatan", GridPendapatan.create()));
         });
 
         menuCatatPengeluaran = new JMenuItem("Catat pengeluaran");
