@@ -25,6 +25,27 @@ public class GridUmat {
         return new JDataGrid<>(o);
     }
 
+    public static JDataGrid<Umat> createForGridSamanagara() {
+        JDataGridOptions<Umat> o = createDefaultOptions();
+        o.enableAdd = o.enableEdit = o.enableDelete = false;
+
+        JButton btnBayar = new JButton("Bayar iuran samanagara");
+        btnBayar.addActionListener(e -> {
+            Umat record = o.grid.getSelectedRecord();
+            if (record == null) {
+                SwingHelper.showErrorMessage(App.mainFrame, "Anda harus memilih 1 baris umat");
+                return;
+            }
+
+            DialogBayarIuranSamanagara d = new DialogBayarIuranSamanagara(record);
+            d.setVisible(true);
+            d.pack();
+        });
+        o.additionalToolbarButtons.add(btnBayar);
+
+        return new JDataGrid<>(o);
+    }
+
     public static JDataGridOptions<Umat> createDefaultOptions() {
         JDataGridOptions<Umat> o = new JDataGridOptions<>();
 

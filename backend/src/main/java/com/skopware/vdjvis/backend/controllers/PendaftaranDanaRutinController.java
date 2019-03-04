@@ -1,7 +1,7 @@
 package com.skopware.vdjvis.backend.controllers;
 
 import com.skopware.javautils.dropwizard.BaseCrudController;
-import com.skopware.vdjvis.api.requestparams.RqBayarDanaSosialDanTetap;
+import com.skopware.vdjvis.api.dto.DtoBayarDanaSosialDanTetap;
 import com.skopware.vdjvis.api.entities.PendaftaranDanaRutin;
 import com.skopware.vdjvis.backend.jdbi.dao.PendaftaranDanaRutinDAO;
 import org.jdbi.v3.core.Handle;
@@ -28,7 +28,7 @@ public class PendaftaranDanaRutinController extends BaseCrudController<Pendaftar
 
     @Path("/bayar_dana_sosial_tetap")
     @POST
-    public boolean bayarDanaRutin(@NotNull @Valid RqBayarDanaSosialDanTetap x) {
+    public boolean bayarDanaRutin(@NotNull @Valid DtoBayarDanaSosialDanTetap x) {
         try (Handle h = jdbi.open()) {
             PendaftaranDanaRutinDAO pendaftaranDanaRutinDAO = h.attach(PendaftaranDanaRutinDAO.class);
             PendaftaranDanaRutin pendaftaranDanaRutin = pendaftaranDanaRutinDAO.get(x.idPendaftaran);
@@ -37,13 +37,13 @@ public class PendaftaranDanaRutinController extends BaseCrudController<Pendaftar
                     " where umat_id=? and dana_rutin_id=?", pendaftaranDanaRutin.umat.uuid, x.idPendaftaran)
                     .mapTo(LocalDate.class)
                     .findFirst();
-            LocalDate current;
+            LocalDate currentMonth;
 
             if (lastPaidMonth.isPresent()) {
-                current = lastPaidMonth.get().plusMonths(1);
+                currentMonth = lastPaidMonth.get().plusMonths(1);
             }
             else {
-                current = pendaftaranDanaRutin.tglDaftar.withDayOfMonth(1);
+                currentMonth = pendaftaranDanaRutin.tglDaftar.withDayOfMonth(1);
             }
 
             for (int i = 0; i < x.countBulan; i++) {
@@ -53,13 +53,13 @@ public class PendaftaranDanaRutinController extends BaseCrudController<Pendaftar
                         .bind("umat_id", pendaftaranDanaRutin.umat.uuid)
                         .bind("jenis", pendaftaranDanaRutin.tipe.name())
                         .bind("dana_rutin_id", x.idPendaftaran)
-                        .bind("ut_thn_bln", current)
+                        .bind("ut_thn_bln", currentMonth)
                         .bind("nominal", pendaftaranDanaRutin.nominal)
                         .bind("tgl", x.tglTrans)
                         .bind("channel", x.channel)
                         .bind("keterangan", x.keterangan)
                         .execute();
-                current = current.plusMonths(1);
+                currentMonth = currentMonth.plusMonths(1);
             }
         }
 

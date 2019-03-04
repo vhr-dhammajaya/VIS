@@ -82,7 +82,7 @@ public class MainFrame extends JFrame {
         //#region menuSamanagara child
         menuPendaftaranSamanagara = new JMenuItem("Pendaftaran samanagara");
         menuPendaftaranSamanagara.addActionListener(event -> {
-            showWindow("frameMasterLeluhur", () -> new MasterDetailFrame<>("Pendaftaran leluhur Samanagara", "Pilih umat", "Daftar leluhur untuk umat yg dipilih", GridUmat.createNoAddEditDelete(), GridLeluhur.createDefault(), "umat_id"));
+            showWindow("frameMasterLeluhur", () -> new MasterDetailFrame<>("Pendaftaran leluhur Samanagara", "Pilih umat", "Daftar leluhur untuk umat yg dipilih", GridUmat.createForGridSamanagara(), GridLeluhur.createDefault(), "umat_id"));
         });
 
         menuDaftarLeluhur = new JMenuItem("Daftar leluhur");

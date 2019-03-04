@@ -4,7 +4,7 @@ import com.skopware.javautils.ObjectHelper;
 import com.skopware.vdjvis.api.entities.CellFoto;
 import com.skopware.vdjvis.api.entities.Leluhur;
 import com.skopware.vdjvis.api.entities.PapanFoto;
-import com.skopware.vdjvis.api.requestparams.RqPlacePhoto;
+import com.skopware.vdjvis.api.dto.DtoPlacePhoto;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 
@@ -76,7 +76,7 @@ public class LokasiFotoController {
     }
 
     @POST
-    public boolean placePhoto(@NotNull RqPlacePhoto param) {
+    public boolean placePhoto(@NotNull DtoPlacePhoto param) {
         jdbi.useHandle(h -> {
             h.useTransaction(h2 -> {
                 if (param.mendiangOriginCellId != null) {

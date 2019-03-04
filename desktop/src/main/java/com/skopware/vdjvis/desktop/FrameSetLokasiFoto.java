@@ -14,7 +14,7 @@ import com.skopware.javautils.swing.grid.JDataGridOptions;
 import com.skopware.vdjvis.api.entities.CellFoto;
 import com.skopware.vdjvis.api.entities.Leluhur;
 import com.skopware.vdjvis.api.entities.PapanFoto;
-import com.skopware.vdjvis.api.requestparams.RqPlacePhoto;
+import com.skopware.vdjvis.api.dto.DtoPlacePhoto;
 import org.apache.http.client.methods.HttpPost;
 
 import javax.swing.*;
@@ -182,7 +182,7 @@ public class FrameSetLokasiFoto extends BaseCrudFrame {
     }
 
     private void placePhoto(Leluhur leluhur, CellFoto destCell, Runnable onSuccess) {
-        RqPlacePhoto requestParam = new RqPlacePhoto();
+        DtoPlacePhoto requestParam = new DtoPlacePhoto();
 
         // if previously already placed somewhere else, need to repaint/clear that table too
         if (leluhur.cellFoto != null) {

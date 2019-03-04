@@ -2,9 +2,8 @@ package com.skopware.vdjvis.backend.controllers;
 
 import com.skopware.javautils.DateTimeHelper;
 import com.skopware.javautils.ObjectHelper;
-import com.skopware.javautils.db.BaseRecord;
 import com.skopware.vdjvis.api.entities.PendaftaranDanaRutin;
-import com.skopware.vdjvis.api.requestparams.RqLaporanStatusDanaRutin;
+import com.skopware.vdjvis.api.dto.DtoLaporanStatusDanaRutin;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.statement.Query;
@@ -32,8 +31,9 @@ public class LaporanController {
 
     @Path("/status_dana_rutin")
     @GET
-    public List<Map<String, Object>> computeLaporanStatusDanaRutin(@NotNull RqLaporanStatusDanaRutin param) {
-        class PendaftaranDanaRutin2 extends BaseRecord<PendaftaranDanaRutin2> {
+    public List<Map<String, Object>> computeLaporanStatusDanaRutin(@NotNull DtoLaporanStatusDanaRutin param) {
+        class PendaftaranDanaRutin2 {
+            public String uuid;
             public LocalDate tglDaftar;
             public int nominal;
             public PendaftaranDanaRutin.Type tipe;
@@ -42,11 +42,6 @@ public class LaporanController {
             public String namaUmat;
             public String alamat;
             public String noTelpon;
-
-            @Override
-            public String toUiString() {
-                return null;
-            }
         }
 
         List<Map<String, Object>> result = new ArrayList<>();
@@ -103,9 +98,9 @@ public class LaporanController {
 
                 int statusBayar = lastPaymentMonth.compareTo(todayMonth); // 0=tepat waktu, -1=kurang bayar, 1=lebih bayar
                 String jenisDana = danaRutin.tipe.name();
-                String strStatusBayar = "";
-                long diffInMonths = 0;
-                long totalRp = 0;
+                String strStatusBayar;
+                long diffInMonths;
+                long totalRp;
 
                 if (statusBayar < 0) {
                     strStatusBayar = "Kurang bayar";
@@ -114,8 +109,10 @@ public class LaporanController {
                 }
                 else if (statusBayar == 0)  {
                     strStatusBayar = "Tepat waktu";
+                    diffInMonths = 0;
+                    totalRp = 0;
                 }
-                else if (statusBayar > 0)  {
+                else {
                     strStatusBayar = "Lebih bayar";
                     diffInMonths = todayMonth.until(lastPaymentMonth, ChronoUnit.MONTHS);
                     totalRp = diffInMonths * danaRutin.nominal;

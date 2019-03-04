@@ -1,7 +1,7 @@
-package com.skopware.vdjvis.api.requestparams;
+package com.skopware.vdjvis.api.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class RqLaporanStatusDanaRutin {
+public class DtoLaporanStatusDanaRutin {
     @JsonProperty public String idUmat;
 }

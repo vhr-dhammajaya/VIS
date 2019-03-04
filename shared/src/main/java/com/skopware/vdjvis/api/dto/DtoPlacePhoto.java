@@ -1,8 +1,8 @@
-package com.skopware.vdjvis.api.requestparams;
+package com.skopware.vdjvis.api.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class RqPlacePhoto {
+public class DtoPlacePhoto {
     @JsonProperty public String idMendiang;
     @JsonProperty public String destCellId;
 
