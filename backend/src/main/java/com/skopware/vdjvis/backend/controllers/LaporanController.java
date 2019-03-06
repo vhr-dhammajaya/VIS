@@ -45,18 +45,6 @@ public class LaporanController {
 
         try (Handle handle = jdbi.open()) {
             //#region hitung status dana sosial & tetap
-            class PendaftaranDanaRutin2 {
-                public String uuid;
-                public LocalDate tglDaftar;
-                public int nominal;
-                public PendaftaranDanaRutin.Type tipe;
-
-                public String idUmat;
-                public String namaUmat;
-                public String alamat;
-                public String noTelpon;
-            }
-
             Query selPendaftaranDanaRutin;
             if (idUmat != null) {
                 selPendaftaranDanaRutin = handle.select("select p.*, u.nama as nama_umat, u.no_telpon, u.alamat" +
@@ -71,74 +59,41 @@ public class LaporanController {
                         " where p.active=1");
             }
 
-            List<PendaftaranDanaRutin2> listDanaRutin = selPendaftaranDanaRutin
+            List<PendaftaranDanaRutin> listDanaRutin = selPendaftaranDanaRutin
                     .map((rs, ctx) -> {
-                        PendaftaranDanaRutin2 x = new PendaftaranDanaRutin2();
+                        PendaftaranDanaRutin x = new PendaftaranDanaRutin();
 
                         x.uuid = rs.getString("id");
                         x.tglDaftar = DateTimeHelper.toLocalDate(rs.getDate("tgl_daftar"));
                         x.nominal = rs.getInt("nominal");
                         x.tipe = PendaftaranDanaRutin.Type.valueOf(rs.getString("tipe"));
-                        x.idUmat = rs.getString("umat_id");
-                        x.namaUmat = rs.getString("nama_umat");
-                        x.noTelpon = rs.getString("no_telpon");
-                        x.alamat = rs.getString("alamat");
+
+                        x.umat = new Umat();
+                        x.umat.uuid = rs.getString("umat_id");
+                        x.umat.nama = rs.getString("nama_umat");
+                        x.umat.noTelpon = rs.getString("no_telpon");
+                        x.umat.alamat = rs.getString("alamat");
 
                         return x;
                     })
                     .list();
+            List<StatusBayar> listStatusBayarDanaRutin = PendaftaranDanaRutin.computeStatusBayar(handle, listDanaRutin, todayMonth);
 
-            for (PendaftaranDanaRutin2 danaRutin : listDanaRutin) {
-                Optional<LocalDate> lastPayment = handle.select("select max(ut_thn_bln) from pembayaran_dana_rutin where umat_id=? and dana_rutin_id=?", danaRutin.idUmat, danaRutin.uuid)
-                        .mapTo(LocalDate.class)
-                        .findFirst();
-                YearMonth lastPaymentMonth;
-
-                if (lastPayment.isPresent()) {
-                    lastPaymentMonth = YearMonth.from(lastPayment.get());
-                }
-                else {
-                    // have never paid yet
-                    lastPaymentMonth = YearMonth.from(danaRutin.tglDaftar).minusMonths(1);
-                }
-
-                int statusBayar = lastPaymentMonth.compareTo(todayMonth); // 0=tepat waktu, -1=kurang bayar, 1=lebih bayar
-                String jenisDana = danaRutin.tipe.name();
-                String strStatusBayar;
-                long diffInMonths;
-                long totalRp;
-
-                if (statusBayar < 0) {
-                    strStatusBayar = "Kurang bayar";
-                    diffInMonths = lastPaymentMonth.until(todayMonth, ChronoUnit.MONTHS);
-                    totalRp = diffInMonths * danaRutin.nominal;
-                }
-                else if (statusBayar == 0)  {
-                    strStatusBayar = "Tepat waktu";
-                    diffInMonths = 0;
-                    totalRp = 0;
-                }
-                else {
-                    strStatusBayar = "Lebih bayar";
-                    diffInMonths = todayMonth.until(lastPaymentMonth, ChronoUnit.MONTHS);
-                    totalRp = 0;
-                }
-
-                String strStatusBayar2 = strStatusBayar;
-                long diffInMonths2 = diffInMonths;
-                long totalRp2 = totalRp;
+            for (int i = 0; i < listDanaRutin.size(); i++) {
+                PendaftaranDanaRutin danaRutin = listDanaRutin.get(i);
+                StatusBayar statusBayar = listStatusBayarDanaRutin.get(i);
 
                 result.add(ObjectHelper.apply(new DtoOutputLaporanStatusDanaRutin(), x -> {
-                    x.namaUmat = danaRutin.namaUmat;
-                    x.noTelpon = danaRutin.noTelpon;
-                    x.alamat = danaRutin.alamat;
+                    x.namaUmat = danaRutin.umat.nama;
+                    x.noTelpon = danaRutin.umat.noTelpon;
+                    x.alamat = danaRutin.umat.alamat;
 
-                    x.jenisDana = PendaftaranDanaRutin.Type.valueOf(jenisDana);
+                    x.jenisDana = danaRutin.tipe;
 
-                    x.statusBayar = statusBayar;
-                    x.strStatusBayar = strStatusBayar2;
-                    x.diffInMonths = diffInMonths2;
-                    x.nominal = totalRp2;
+                    x.statusBayar = statusBayar.status;
+                    x.strStatusBayar = statusBayar.strStatus;
+                    x.diffInMonths = statusBayar.countBulan;
+                    x.nominal = statusBayar.nominal;
                 }));
             }
             //#endregion
@@ -176,11 +131,11 @@ public class LaporanController {
                     .list();
 
             List<Tuple3<LocalDate, LocalDate, Integer>> listTarifSamanagara = Leluhur.fetchListTarifSamanagara(handle);
-            List<StatusBayar> listStatusBayar = Leluhur.computeStatusBayar(handle, listLeluhur, todayMonth, listTarifSamanagara);
+            List<StatusBayar> listStatusBayarSamanagara = Leluhur.computeStatusBayar(handle, listLeluhur, todayMonth, listTarifSamanagara);
 
             for (int i = 0; i < listLeluhur.size(); i++) {
                 Leluhur leluhur = listLeluhur.get(i);
-                StatusBayar statusBayar = listStatusBayar.get(i);
+                StatusBayar statusBayar = listStatusBayarSamanagara.get(i);
 
                 result.add(ObjectHelper.apply(new DtoOutputLaporanStatusDanaRutin(), x -> {
                     x.namaUmat = leluhur.penanggungJawab.nama;

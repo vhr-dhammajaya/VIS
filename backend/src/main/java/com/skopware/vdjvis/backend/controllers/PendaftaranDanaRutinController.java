@@ -1,20 +1,22 @@
 package com.skopware.vdjvis.backend.controllers;
 
+import com.skopware.javautils.db.PageData;
 import com.skopware.javautils.dropwizard.BaseCrudController;
+import com.skopware.javautils.swing.grid.GridConfig;
 import com.skopware.vdjvis.api.dto.DtoBayarDanaSosialDanTetap;
 import com.skopware.vdjvis.api.entities.PendaftaranDanaRutin;
+import com.skopware.vdjvis.api.entities.StatusBayar;
 import com.skopware.vdjvis.backend.jdbi.dao.PendaftaranDanaRutinDAO;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -24,6 +26,35 @@ import java.util.UUID;
 public class PendaftaranDanaRutinController extends BaseCrudController<PendaftaranDanaRutin, PendaftaranDanaRutinDAO> {
     public PendaftaranDanaRutinController(Jdbi jdbi) {
         super(jdbi, "pendaftaran_dana_rutin", PendaftaranDanaRutin.class, PendaftaranDanaRutinDAO.class);
+    }
+
+    @GET
+    @Override
+    public PageData<PendaftaranDanaRutin> getList(@NotNull GridConfig gridConfig) {
+        PageData<PendaftaranDanaRutin> pageData = super.getList(gridConfig);
+        List<PendaftaranDanaRutin> rows = pageData.rows;
+
+        try (Handle handle = jdbi.open()) {
+            List<StatusBayar> statusBayarList = PendaftaranDanaRutin.computeStatusBayar(handle, rows, YearMonth.now());
+
+            for (int i = 0; i < rows.size(); i++) {
+                rows.get(i).statusBayar = statusBayarList.get(i);
+            }
+        }
+
+        return pageData;
+    }
+
+    @POST
+    @Override
+    public PendaftaranDanaRutin create(@NotNull @Valid PendaftaranDanaRutin x) {
+        PendaftaranDanaRutin danaRutin = super.create(x);
+
+        try (Handle handle = jdbi.open()) {
+            danaRutin.statusBayar = PendaftaranDanaRutin.computeStatusBayar(handle, danaRutin, YearMonth.now());
+        }
+
+        return danaRutin;
     }
 
     @Path("/bayar_dana_sosial_tetap")
