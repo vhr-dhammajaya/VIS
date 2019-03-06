@@ -54,6 +54,24 @@ public class GridLeluhur {
                     x.fieldName = "tglDaftar";
                     x.dbColumnName = "tgl_daftar";
                     x.label = "Tgl daftar";
+                }),
+                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                    x.fieldName = "statusBayar.strStatus";
+                    x.filterable = false;
+                    x.sortable = false;
+                    x.label = "Status bayar";
+                }),
+                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                    x.fieldName = "statusBayar.countBulan";
+                    x.filterable = false;
+                    x.sortable = false;
+                    x.label = "Berapa bulan";
+                }),
+                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                    x.fieldName = "statusBayar.nominal";
+                    x.filterable = false;
+                    x.sortable = false;
+                    x.label = "Rp.";
                 })
         );
 

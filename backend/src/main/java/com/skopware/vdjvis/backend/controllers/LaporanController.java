@@ -5,12 +5,14 @@ import com.skopware.javautils.ObjectHelper;
 import com.skopware.javautils.Tuple3;
 import com.skopware.vdjvis.api.dto.DtoInputLaporanStatusDanaRutin;
 import com.skopware.vdjvis.api.dto.DtoOutputLaporanStatusDanaRutin;
+import com.skopware.vdjvis.api.entities.Leluhur;
 import com.skopware.vdjvis.api.entities.PendaftaranDanaRutin;
+import com.skopware.vdjvis.api.entities.StatusBayar;
+import com.skopware.vdjvis.api.entities.Umat;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.statement.Query;
 
-import javax.swing.text.html.Option;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -142,17 +144,6 @@ public class LaporanController {
             //#endregion
 
             //#region hitung status iuran samanagara
-            class Leluhur2 {
-                public String idLeluhur;
-                public String namaLeluhur;
-                public LocalDate tglDaftar;
-
-                public String idUmat;
-                public String namaUmat;
-                public String alamat;
-                public String noTelpon;
-            }
-
             Query qSelLeluhur;
 
             if (idUmat != null) {
@@ -168,75 +159,41 @@ public class LaporanController {
                         " where l.active=1");
             }
 
-            List<Leluhur2> listLeluhur = qSelLeluhur
+            List<Leluhur> listLeluhur = qSelLeluhur
                     .map((rs, ctx) -> {
-                        Leluhur2 x = new Leluhur2();
-                        x.idLeluhur = rs.getString("uuid");
-                        x.namaLeluhur = rs.getString("nama");
+                        Leluhur x = new Leluhur();
+                        x.uuid = rs.getString("uuid");
+                        x.nama = rs.getString("nama");
                         x.tglDaftar = DateTimeHelper.toLocalDate(rs.getDate("tgl_daftar"));
 
-                        x.idUmat = rs.getString("umat_id");
-                        x.namaUmat = rs.getString("nama_umat");
-                        x.alamat = rs.getString("alamat");
-                        x.noTelpon = rs.getString("no_telpon");
+                        x.penanggungJawab = new Umat();
+                        x.penanggungJawab.uuid = rs.getString("umat_id");
+                        x.penanggungJawab.nama = rs.getString("nama_umat");
+                        x.penanggungJawab.alamat = rs.getString("alamat");
+                        x.penanggungJawab.noTelpon = rs.getString("no_telpon");
                         return x;
                     })
                     .list();
 
-            List<Tuple3<LocalDate, LocalDate, Integer>> listTarifSamanagara = LeluhurController.fetchListTarifSamanagara(handle);
+            List<Tuple3<LocalDate, LocalDate, Integer>> listTarifSamanagara = Leluhur.fetchListTarifSamanagara(handle);
+            List<StatusBayar> listStatusBayar = Leluhur.computeStatusBayar(handle, listLeluhur, todayMonth, listTarifSamanagara);
 
-            for (Leluhur2 leluhur : listLeluhur) {
-                // hitung status bayar ut leluhur ini
-                Optional<LocalDate> lastPayment = handle.select("select max(ut_thn_bln) from pembayaran_dana_rutin where umat_id=? and leluhur_id=?", leluhur.idUmat, leluhur.idLeluhur)
-                        .mapTo(LocalDate.class)
-                        .findFirst();
-                YearMonth lastPaymentMonth;
-
-                if (lastPayment.isPresent()) {
-                    lastPaymentMonth = YearMonth.from(lastPayment.get());
-                }
-                else {
-                    lastPaymentMonth = YearMonth.from(leluhur.tglDaftar).minusMonths(1);
-                }
-
-                int statusBayar = lastPaymentMonth.compareTo(todayMonth);
-                String strStatusBayar;
-                long diffInMonths;
-                long totalRp;
-
-                if (statusBayar < 0) {
-                    strStatusBayar = "Kurang bayar";
-                    diffInMonths = lastPaymentMonth.until(todayMonth, ChronoUnit.MONTHS);
-
-                    totalRp = LeluhurController.hitungTotalHutangIuranSamanagara(diffInMonths, lastPaymentMonth, leluhur.tglDaftar, listTarifSamanagara);
-                }
-                else if (statusBayar == 0)  {
-                    strStatusBayar = "Tepat waktu";
-                    diffInMonths = 0;
-                    totalRp = 0;
-                }
-                else {
-                    strStatusBayar = "Lebih bayar";
-                    diffInMonths = todayMonth.until(lastPaymentMonth, ChronoUnit.MONTHS);
-                    totalRp = 0;
-                }
-
-                String strStatusBayar2 = strStatusBayar;
-                long diffInMonths2 = diffInMonths;
-                long totalRp2 = totalRp;
+            for (int i = 0; i < listLeluhur.size(); i++) {
+                Leluhur leluhur = listLeluhur.get(i);
+                StatusBayar statusBayar = listStatusBayar.get(i);
 
                 result.add(ObjectHelper.apply(new DtoOutputLaporanStatusDanaRutin(), x -> {
-                    x.namaUmat = leluhur.namaUmat;
-                    x.noTelpon = leluhur.noTelpon;
-                    x.alamat = leluhur.alamat;
-                    x.namaLeluhur = leluhur.namaLeluhur;
+                    x.namaUmat = leluhur.penanggungJawab.nama;
+                    x.noTelpon = leluhur.penanggungJawab.noTelpon;
+                    x.alamat = leluhur.penanggungJawab.alamat;
+                    x.namaLeluhur = leluhur.nama;
 
                     x.jenisDana = PendaftaranDanaRutin.Type.samanagara;
 
-                    x.statusBayar = statusBayar;
-                    x.strStatusBayar = strStatusBayar2;
-                    x.diffInMonths = diffInMonths2;
-                    x.nominal = totalRp2;
+                    x.statusBayar = statusBayar.status;
+                    x.strStatusBayar = statusBayar.strStatus;
+                    x.diffInMonths = statusBayar.countBulan;
+                    x.nominal = statusBayar.nominal;
                 }));
             }
             //#endregion

@@ -3,16 +3,20 @@ package com.skopware.vdjvis.backend.controllers;
 import com.skopware.javautils.DateTimeHelper;
 import com.skopware.javautils.ObjectHelper;
 import com.skopware.javautils.Tuple3;
+import com.skopware.javautils.db.PageData;
 import com.skopware.javautils.dropwizard.BaseCrudController;
+import com.skopware.javautils.swing.grid.GridConfig;
 import com.skopware.vdjvis.api.dto.DtoPembayaranSamanagara;
 import com.skopware.vdjvis.api.dto.DtoStatusBayarLeluhur;
 import com.skopware.vdjvis.api.entities.Leluhur;
 import com.skopware.vdjvis.api.entities.PendaftaranDanaRutin;
+import com.skopware.vdjvis.api.entities.StatusBayar;
 import com.skopware.vdjvis.api.entities.Umat;
 import com.skopware.vdjvis.backend.jdbi.dao.LeluhurDAO;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -29,32 +33,36 @@ public class LeluhurController extends BaseCrudController<Leluhur, LeluhurDAO> {
         super(jdbi, "v_leluhur", Leluhur.class, LeluhurDAO.class);
     }
 
-    public static List<Tuple3<LocalDate, LocalDate, Integer>> fetchListTarifSamanagara(Handle handle) {
-        List<Tuple3<LocalDate, LocalDate, Integer>> result = handle.select("select start_date, end_date, nominal from hist_biaya_smngr order by start_date desc")
-                .map((rs, ctx) -> {
-                    Tuple3<LocalDate, LocalDate, Integer> x = new Tuple3<>();
-                    x.val1 = DateTimeHelper.toLocalDate(rs.getDate("start_date"));
-                    x.val2 = DateTimeHelper.toLocalDate(rs.getDate("end_date"));
-                    x.val3 = rs.getInt("nominal");
-                    return x;
-                })
-                .list();
-        return result;
-    }
+    @GET
+    @Override
+    public PageData<Leluhur> getList(@NotNull GridConfig gridConfig) {
+        PageData<Leluhur> pageData = super.getList(gridConfig);
+        List<Leluhur> rows = pageData.rows;
 
-    public static long hitungTotalHutangIuranSamanagara(long berapaBulan, YearMonth lastPaymentMonth, LocalDate tglDaftar, List<Tuple3<LocalDate, LocalDate, Integer>> listTarifSamanagara) {
-        long totalRp = 0;
+        try (Handle handle = jdbi.open()) {
+            List<StatusBayar> listStatusBayar = Leluhur.computeStatusBayar(handle, rows, YearMonth.now(), Leluhur.fetchListTarifSamanagara(handle));
 
-        for (int i = 1; i <= berapaBulan; i++) {
-            YearMonth currYm = lastPaymentMonth.plusMonths(i);
-            LocalDate currDate = tglDaftar.withYear(currYm.getYear()).withMonth(currYm.getMonthValue());
+            for (int i = 0; i < rows.size(); i++) {
+                Leluhur leluhur = rows.get(i);
+                StatusBayar statusBayar = listStatusBayar.get(i);
 
-            // hitung jumlah yg harus dibayarkan bulan ini (lihat listTarifSamanagara)
-            int nominalBulanIni = DateTimeHelper.findValueInDateRange(currDate, listTarifSamanagara).get();
-            totalRp += nominalBulanIni;
+                leluhur.statusBayar = statusBayar;
+            }
         }
 
-        return totalRp;
+        return pageData;
+    }
+
+    @POST
+    @Override
+    public Leluhur create(@NotNull @Valid Leluhur x) {
+        Leluhur leluhur = super.create(x);
+
+        try (Handle handle = jdbi.open()) {
+            leluhur.statusBayar = Leluhur.computeStatusBayar(handle, leluhur, YearMonth.now(), Leluhur.fetchListTarifSamanagara(handle));
+        }
+
+        return leluhur;
     }
 
     @Path("/status_bayar")
@@ -81,7 +89,7 @@ public class LeluhurController extends BaseCrudController<Leluhur, LeluhurDAO> {
                     })
                     .list();
 
-            List<Tuple3<LocalDate, LocalDate, Integer>> listTarifSamanagara = fetchListTarifSamanagara(handle);
+            List<Tuple3<LocalDate, LocalDate, Integer>> listTarifSamanagara = Leluhur.fetchListTarifSamanagara(handle);
 
             for (Leluhur2 leluhur : listLeluhur) {
                 Optional<LocalDate> lastPayment = handle.select("select max(ut_thn_bln) from pembayaran_dana_rutin where umat_id=? and leluhur_id=?", umat.uuid, leluhur.uuid)
@@ -106,7 +114,7 @@ public class LeluhurController extends BaseCrudController<Leluhur, LeluhurDAO> {
                     diffInMonths = lastPaymentMonth.until(todayMonth, ChronoUnit.MONTHS);
 
                     // hitung jumlah kurang bayar
-                    totalRp = hitungTotalHutangIuranSamanagara(diffInMonths, lastPaymentMonth, leluhur.tglDaftar, listTarifSamanagara);
+                    totalRp = Leluhur.hitungTotalHutangIuranSamanagara(diffInMonths, lastPaymentMonth, leluhur.tglDaftar, listTarifSamanagara);
                 }
                 else if (statusBayar == 0) {
                     strStatusBayar = "Tepat waktu";
@@ -144,7 +152,7 @@ public class LeluhurController extends BaseCrudController<Leluhur, LeluhurDAO> {
     @POST
     public boolean bayarIuranSamanagara(@NotNull DtoPembayaranSamanagara pembayaran) {
         try (Handle handle = jdbi.open()) {
-            List<Tuple3<LocalDate, LocalDate, Integer>> listTarifSamanagara = fetchListTarifSamanagara(handle);
+            List<Tuple3<LocalDate, LocalDate, Integer>> listTarifSamanagara = Leluhur.fetchListTarifSamanagara(handle);
 
             for (DtoStatusBayarLeluhur leluhur : pembayaran.listLeluhur) {
                 Optional<LocalDate> lastPaidMonth = handle.select("select max(ut_thn_bln) from pembayaran_dana_rutin" +
