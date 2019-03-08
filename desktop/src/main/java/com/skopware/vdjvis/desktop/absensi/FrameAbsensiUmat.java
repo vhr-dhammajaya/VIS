@@ -28,25 +28,21 @@ public class FrameAbsensiUmat extends JInternalFrame {
     private JTextField txtInputNama;
 
     private List<BaseCrudTableModel.ColumnConfig> tblSearchResultColumnConfigs;
-    private SearchResultTableModel tblSearchResultModel;
+    private BaseCrudTableModel<Umat> tblSearchResultModel;
     private JTable tblSearchResult;
 
     private JLabel lblVisitorCount;
     private List<BaseCrudTableModel.ColumnConfig> tblUmatHadirColumnConfigs;
-    private UmatHadirTableModel tblUmatHadirModel;
+    private BaseCrudTableModel<Umat> tblUmatHadirModel;
     private JTable tblUmatHadir;
 
     private List<Umat> listUmat;
-    private List<Umat> listSearchResult;
-    private List<Umat> listUmatHadir;
 
     public FrameAbsensiUmat() {
         super("Absensi", true, true, true, true);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
         listUmat = HttpHelper.makeHttpRequest(App.config.url("/absensi/list_umat"), HttpGetWithBody::new, null, List.class, Umat.class);
-        listUmatHadir = HttpHelper.makeHttpRequest(App.config.url("/absensi/daftar_umat_hadir"), HttpGetWithBody::new, null, List.class, Umat.class);
-        listSearchResult = new ArrayList<>();
 
         //#region init controls
         JLabel lblInputNama = new JLabel("Nama / ID Umat");
@@ -81,8 +77,6 @@ public class FrameAbsensiUmat extends JInternalFrame {
             }
         });
 
-        lblVisitorCount = new JLabel(String.format(VISITOR_COUNT_FORMAT, listUmatHadir.size()));
-
         tblSearchResultColumnConfigs = Arrays.asList(
                 ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
                     x.fieldName = "nama";
@@ -101,7 +95,10 @@ public class FrameAbsensiUmat extends JInternalFrame {
                 })
         );
 
-        tblSearchResultModel = new SearchResultTableModel();
+        tblSearchResultModel = new BaseCrudTableModel<>();
+        tblSearchResultModel.setColumnConfigs(tblSearchResultColumnConfigs);
+        tblSearchResultModel.setRecordType(Umat.class);
+        tblSearchResultModel.setData(new ArrayList<>());
 
         tblSearchResult = new JTable(tblSearchResultModel);
         tblSearchResult.setFocusable(false);
@@ -119,7 +116,7 @@ public class FrameAbsensiUmat extends JInternalFrame {
                 return;
             }
 
-            Umat sel = listSearchResult.get(selRowIdx);
+            Umat sel = tblSearchResultModel.get(selRowIdx);
             txtInputNama.setText("");
             catatKehadiran(sel);
         });
@@ -137,7 +134,14 @@ public class FrameAbsensiUmat extends JInternalFrame {
                 })*/
         );
 
-        tblUmatHadirModel = new UmatHadirTableModel();
+        tblUmatHadirModel = new BaseCrudTableModel<>();
+        tblUmatHadirModel.setColumnConfigs(tblUmatHadirColumnConfigs);
+        tblUmatHadirModel.setRecordType(Umat.class);
+
+        List<Umat> prevUmatHadirList = HttpHelper.makeHttpRequest(App.config.url("/absensi/daftar_umat_hadir"), HttpGetWithBody::new, null, List.class, Umat.class);
+        tblUmatHadirModel.setData(prevUmatHadirList);
+
+        lblVisitorCount = new JLabel(String.format(VISITOR_COUNT_FORMAT, tblUmatHadirModel.getRowCount()));
 
         tblUmatHadir = new JTable(tblUmatHadirModel);
         tblUmatHadir.setFocusable(false);
@@ -200,8 +204,7 @@ public class FrameAbsensiUmat extends JInternalFrame {
     }
 
     private void setSearchResult(List<Umat> result) {
-        listSearchResult = result;
-        tblSearchResultModel.fireTableDataChanged();
+        tblSearchResultModel.setData(result);
     }
 
     private void absenBarcode(String input) {
@@ -214,75 +217,13 @@ public class FrameAbsensiUmat extends JInternalFrame {
     }
 
     private void catatKehadiran(Umat u) {
-        if (!listUmatHadir.contains(u)) {
+        if (!tblUmatHadirModel.getData().contains(u)) {
             HttpHelper.makeHttpRequest(App.config.url("/absensi/absen_umat"), HttpPost::new, u, boolean.class);
 
-            int oldSize = listUmatHadir.size();
-            listUmatHadir.add(u);
-            tblUmatHadirModel.fireTableRowsInserted(oldSize, oldSize);
+            tblUmatHadirModel.add(u);
 
-            int newSize = listUmatHadir.size();
+            int newSize = tblUmatHadirModel.getRowCount();
             lblVisitorCount.setText(String.format(VISITOR_COUNT_FORMAT, newSize));
-        }
-    }
-
-    public class SearchResultTableModel extends AbstractTableModel {
-
-        @Override
-        public int getRowCount() {
-            return listSearchResult.size();
-        }
-
-        @Override
-        public int getColumnCount() {
-            return tblSearchResultColumnConfigs.size();
-        }
-
-        @Override
-        public String getColumnName(int column) {
-            return tblSearchResultColumnConfigs.get(column).label;
-        }
-
-        @Override
-        public Class<?> getColumnClass(int columnIndex) {
-            return tblSearchResultColumnConfigs.get(columnIndex).dataType;
-        }
-
-        @Override
-        public Object getValueAt(int rowIndex, int columnIndex) {
-            Umat row = listSearchResult.get(rowIndex);
-            String fieldName = tblSearchResultColumnConfigs.get(columnIndex).fieldName;
-            return ObjectHelper.getFieldValue(row, fieldName);
-        }
-    }
-
-    public class UmatHadirTableModel extends AbstractTableModel {
-
-        @Override
-        public int getRowCount() {
-            return listUmatHadir.size();
-        }
-
-        @Override
-        public int getColumnCount() {
-            return tblUmatHadirColumnConfigs.size();
-        }
-
-        @Override
-        public String getColumnName(int column) {
-            return tblUmatHadirColumnConfigs.get(column).label;
-        }
-
-        @Override
-        public Class<?> getColumnClass(int columnIndex) {
-            return tblUmatHadirColumnConfigs.get(columnIndex).dataType;
-        }
-
-        @Override
-        public Object getValueAt(int rowIndex, int columnIndex) {
-            Umat row = listUmatHadir.get(rowIndex);
-            String fieldName = tblUmatHadirColumnConfigs.get(columnIndex).fieldName;
-            return ObjectHelper.getFieldValue(row, fieldName);
         }
     }
 }

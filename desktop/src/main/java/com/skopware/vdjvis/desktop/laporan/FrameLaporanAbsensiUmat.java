@@ -17,8 +17,39 @@ import java.util.Arrays;
 import java.util.List;
 
 public class FrameLaporanAbsensiUmat extends JInternalFrame {
+    private List<BaseCrudTableModel.ColumnConfig> columnConfigs = Arrays.asList(
+            ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                x.fieldName = "namaUmat";
+                x.label = "Nama umat";
+            }),
+            ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                x.fieldName = "sdhBerapaLamaAbsen.years";
+                x.label = "Sdh berapa lama tidak hadir (tahun)";
+            }),
+            ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                x.fieldName = "sdhBerapaLamaAbsen.months";
+                x.label = "(bulan)";
+            }),
+            ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                x.fieldName = "sdhBerapaLamaAbsen.days";
+                x.label = "(hari)";
+            }),
+            ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                x.fieldName = "tglTerakhirHadir";
+                x.label = "Tgl terakhir hadir";
+            }),
+            ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                x.fieldName = "noTelpon";
+                x.label = "No. telpon";
+            }),
+            ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                x.fieldName = "alamat";
+                x.label = "Alamat";
+            })
+    );
+
     private JTable table;
-    private TableModel tableModel;
+    private BaseCrudTableModel<DtoOutputLaporanAbsensi> tableModel;
 
     public FrameLaporanAbsensiUmat() {
         super("Laporan absensi", true, true, true, true);
@@ -26,7 +57,10 @@ public class FrameLaporanAbsensiUmat extends JInternalFrame {
         JButton btnRefresh = new JButton("Lihat laporan");
         btnRefresh.addActionListener(this::onRefresh);
 
-        tableModel = new TableModel();
+        tableModel = new BaseCrudTableModel<>();
+        tableModel.setColumnConfigs(columnConfigs);
+        tableModel.setRecordType(DtoOutputLaporanAbsensi.class);
+
         table = new JTable(tableModel);
 
         JPanel top = new JPanel(new FlowLayout(FlowLayout.LEADING));
@@ -41,79 +75,5 @@ public class FrameLaporanAbsensiUmat extends JInternalFrame {
     private void onRefresh(ActionEvent event) {
         List<DtoOutputLaporanAbsensi> result = HttpHelper.makeHttpRequest(App.config.url("/laporan/absensi"), HttpGetWithBody::new, null, List.class, DtoOutputLaporanAbsensi.class);
         tableModel.setData(result);
-    }
-
-    private static class TableModel extends AbstractTableModel {
-        private static List<BaseCrudTableModel.ColumnConfig> columnConfigs = Arrays.asList(
-                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                    x.fieldName = "namaUmat";
-                    x.label = "Nama umat";
-                    x.dataType = String.class;
-                }),
-                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                    x.fieldName = "sdhBerapaLamaAbsen.years";
-                    x.label = "Sdh berapa lama tidak hadir (tahun)";
-                    x.dataType = Integer.class;
-                }),
-                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                    x.fieldName = "sdhBerapaLamaAbsen.months";
-                    x.label = "(bulan)";
-                    x.dataType = Integer.class;
-                }),
-                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                    x.fieldName = "sdhBerapaLamaAbsen.days";
-                    x.label = "(hari)";
-                    x.dataType = Integer.class;
-                }),
-                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                    x.fieldName = "tglTerakhirHadir";
-                    x.label = "Tgl terakhir hadir";
-                    x.dataType = LocalDate.class;
-                }),
-                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                    x.fieldName = "noTelpon";
-                    x.label = "No. telpon";
-                    x.dataType = String.class;
-                }),
-                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                    x.fieldName = "alamat";
-                    x.label = "Alamat";
-                    x.dataType = String.class;
-                })
-        );
-
-        private List<DtoOutputLaporanAbsensi> data = new ArrayList<>();
-
-        public void setData(List<DtoOutputLaporanAbsensi> data) {
-            this.data = data;
-            fireTableDataChanged();
-        }
-
-        @Override
-        public int getRowCount() {
-            return data.size();
-        }
-
-        @Override
-        public int getColumnCount() {
-            return columnConfigs.size();
-        }
-
-        @Override
-        public String getColumnName(int column) {
-            return columnConfigs.get(column).label;
-        }
-
-        @Override
-        public Class<?> getColumnClass(int columnIndex) {
-            return columnConfigs.get(columnIndex).dataType;
-        }
-
-        @Override
-        public Object getValueAt(int rowIndex, int columnIndex) {
-            DtoOutputLaporanAbsensi row = data.get(rowIndex);
-            String fieldName = columnConfigs.get(columnIndex).fieldName;
-            return ObjectHelper.getFieldValue(row, fieldName);
-        }
     }
 }

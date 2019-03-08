@@ -21,11 +21,44 @@ import java.util.Arrays;
 import java.util.List;
 
 public class FrameLaporanDanaRutin extends JInternalFrame {
-    private static final String TABLE_CL_ID = "TABLE_CL_ID";
+    private List<BaseCrudTableModel.ColumnConfig> columnConfigs = Arrays.asList(
+            ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                x.fieldName = "namaUmat";
+                x.label = "Nama umat";
+            }),
+            ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                x.fieldName = "noTelpon";
+                x.label = "No. telpon";
+            }),
+            ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                x.fieldName = "alamat";
+                x.label = "Alamat";
+            }),
+            ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                x.fieldName = "jenisDana";
+                x.label = "Jenis dana";
+            }),
+            ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                x.fieldName = "namaLeluhur";
+                x.label = "Nama leluhur (ut Samanagara)";
+            }),
+            ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                x.fieldName = "strStatusBayar";
+                x.label = "Status bayar";
+            }),
+            ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                x.fieldName = "diffInMonths";
+                x.label = "Berapa bulan";
+            }),
+            ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                x.fieldName = "nominal";
+                x.label = "Kurang bayar (Rp)";
+            })
+    );
 
     private JForeignKeyPicker<Umat> edUmat;
     private JTable table;
-    private TableModel tableModel;
+    private BaseCrudTableModel<DtoOutputLaporanStatusDanaRutin> tableModel;
 
     public FrameLaporanDanaRutin() {
         super("Laporan status iuran samanagara, dana sosial & tetap", true, true, true, true);
@@ -40,17 +73,17 @@ public class FrameLaporanDanaRutin extends JInternalFrame {
         pnlFilter.add(edUmat);
         pnlFilter.add(btnRefresh);
 
-        tableModel = new TableModel();
+        tableModel = new BaseCrudTableModel<>();
+        tableModel.setColumnConfigs(columnConfigs);
+        tableModel.setRecordType(DtoOutputLaporanStatusDanaRutin.class);
+
         table = new JTable(tableModel);
 
         JScrollPane pnlTable = new JScrollPane(table);
 
-        JPanel pnlMain = new JPanel(new CardLayout());
-        pnlMain.add(pnlTable, TABLE_CL_ID);
-
         JPanel contentPane = new JPanel(new BorderLayout());
         contentPane.add(pnlFilter, BorderLayout.NORTH);
-        contentPane.add(pnlMain, BorderLayout.CENTER);
+        contentPane.add(pnlTable, BorderLayout.CENTER);
 
         setContentPane(contentPane);
     }
@@ -64,84 +97,5 @@ public class FrameLaporanDanaRutin extends JInternalFrame {
 
         List<DtoOutputLaporanStatusDanaRutin> result = HttpHelper.makeHttpRequest(App.config.url("/laporan/status_dana_rutin"), HttpGetWithBody::new, rq, List.class, DtoOutputLaporanStatusDanaRutin.class);
         tableModel.setData(result);
-    }
-
-    private static class TableModel extends AbstractTableModel {
-        private static List<BaseCrudTableModel.ColumnConfig> columnConfigs = Arrays.asList(
-                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                    x.fieldName = "namaUmat";
-                    x.label = "Nama umat";
-                    x.dataType = String.class;
-                }),
-                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                    x.fieldName = "noTelpon";
-                    x.label = "No. telpon";
-                    x.dataType = String.class;
-                }),
-                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                    x.fieldName = "alamat";
-                    x.label = "Alamat";
-                    x.dataType = String.class;
-                }),
-                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                    x.fieldName = "jenisDana";
-                    x.label = "Jenis dana";
-                    x.dataType = String.class;
-                }),
-                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                    x.fieldName = "namaLeluhur";
-                    x.label = "Nama leluhur (ut Samanagara)";
-                    x.dataType = String.class;
-                }),
-                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                    x.fieldName = "strStatusBayar";
-                    x.label = "Status bayar";
-                    x.dataType = String.class;
-                }),
-                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                    x.fieldName = "diffInMonths";
-                    x.label = "Berapa bulan";
-                    x.dataType = Long.class;
-                }),
-                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                    x.fieldName = "nominal";
-                    x.label = "Kurang bayar (Rp)";
-                    x.dataType = Long.class;
-                })
-        );
-
-        private List<DtoOutputLaporanStatusDanaRutin> data = new ArrayList<>();
-
-        public void setData(List<DtoOutputLaporanStatusDanaRutin> data) {
-            this.data = data;
-            this.fireTableDataChanged();
-        }
-
-        @Override
-        public int getRowCount() {
-            return data.size();
-        }
-
-        @Override
-        public int getColumnCount() {
-            return columnConfigs.size();
-        }
-
-        @Override
-        public String getColumnName(int column) {
-            return columnConfigs.get(column).label;
-        }
-
-        @Override
-        public Class<?> getColumnClass(int columnIndex) {
-            return columnConfigs.get(columnIndex).dataType;
-        }
-
-        @Override
-        public Object getValueAt(int rowIndex, int columnIndex) {
-            DtoOutputLaporanStatusDanaRutin row = data.get(rowIndex);
-            String fieldName = columnConfigs.get(columnIndex).fieldName;
-            return ObjectHelper.getFieldValue(row, fieldName);
-        }
     }
 }
