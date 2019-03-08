@@ -12,6 +12,7 @@ import com.skopware.vdjvis.desktop.master.GridAcara;
 
 import javax.swing.*;
 import java.awt.*;
+import java.time.LocalDate;
 import java.util.Arrays;
 
 public class GridPengeluaran {
@@ -62,6 +63,8 @@ public class GridPengeluaran {
         @Override
         protected void initFormFields() {
             edTglTrans = new JDatePicker();
+            edTglTrans.setDate(LocalDate.now());
+
             edNominal = new JSpinner(new SpinnerNumberModel(1000, 1000, Integer.MAX_VALUE, 1000));
             edKeterangan = new JTextArea(10, 20);
             edAcara = new JForeignKeyPicker<>(App.mainFrame, GridAcara.createNoAddEditDelete());

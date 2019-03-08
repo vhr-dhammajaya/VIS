@@ -11,6 +11,7 @@ import com.skopware.vdjvis.desktop.App;
 
 import javax.swing.*;
 import java.awt.*;
+import java.time.LocalDate;
 import java.util.Arrays;
 
 public class GridPendaftaranDanaRutin {
@@ -104,6 +105,8 @@ public class GridPendaftaranDanaRutin {
         @Override
         protected void initFormFields() {
             txtTglDaftar = new JDatePicker();
+            txtTglDaftar.setDate(LocalDate.now());
+
             txtNominal = new JSpinner(new SpinnerNumberModel(1000, 1000, Integer.MAX_VALUE, 1000));
 
             btnTipeSosial = new JRadioButton("Sosial");

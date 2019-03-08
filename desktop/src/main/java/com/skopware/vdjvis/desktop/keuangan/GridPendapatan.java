@@ -14,6 +14,7 @@ import com.skopware.vdjvis.desktop.master.GridUmat;
 
 import javax.swing.*;
 import java.awt.*;
+import java.time.LocalDate;
 import java.util.Arrays;
 
 public class GridPendapatan {
@@ -82,7 +83,10 @@ public class GridPendapatan {
         @Override
         protected void initFormFields() {
             edUmat = new JForeignKeyPicker<>(App.mainFrame, GridUmat.createNoAddEditDelete());
+
             edTglTrans = new JDatePicker();
+            edTglTrans.setDate(LocalDate.now());
+
             edNominal = new JSpinner(new SpinnerNumberModel(1000, 1000, Integer.MAX_VALUE, 1000));
             edChannel = new JComboBox<>(new String[]{"Tunai", "EDC", "Transfer ke rek. BCA"});
             edJenisDana = new JComboBox<>(new Pendapatan.JenisDana[] {
