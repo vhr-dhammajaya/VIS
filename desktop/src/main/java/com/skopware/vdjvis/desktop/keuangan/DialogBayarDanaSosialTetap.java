@@ -1,4 +1,4 @@
-package com.skopware.vdjvis.desktop;
+package com.skopware.vdjvis.desktop.keuangan;
 
 import com.skopware.javautils.Tuple2;
 import com.skopware.javautils.httpclient.HttpHelper;
@@ -6,6 +6,7 @@ import com.skopware.javautils.swing.JDatePicker;
 import com.skopware.javautils.swing.SwingHelper;
 import com.skopware.vdjvis.api.dto.DtoBayarDanaSosialDanTetap;
 import com.skopware.vdjvis.api.entities.PendaftaranDanaRutin;
+import com.skopware.vdjvis.desktop.App;
 import org.apache.http.client.methods.HttpPost;
 
 import javax.swing.*;

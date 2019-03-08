@@ -4,6 +4,18 @@ import com.skopware.javautils.swing.BaseCrudFrame;
 import com.skopware.javautils.swing.BasicCrudFrame;
 import com.skopware.javautils.swing.MasterDetailFrame;
 import com.skopware.javautils.swing.SwingHelper;
+import com.skopware.vdjvis.desktop.absensi.FrameAbsensiUmat;
+import com.skopware.vdjvis.desktop.keuangan.GridPendaftaranDanaRutin;
+import com.skopware.vdjvis.desktop.keuangan.GridPendapatan;
+import com.skopware.vdjvis.desktop.keuangan.GridPengeluaran;
+import com.skopware.vdjvis.desktop.laporan.FrameLaporanAbsensiUmat;
+import com.skopware.vdjvis.desktop.laporan.FrameLaporanDanaRutin;
+import com.skopware.vdjvis.desktop.master.GridAcara;
+import com.skopware.vdjvis.desktop.master.GridUmat;
+import com.skopware.vdjvis.desktop.master.GridUser;
+import com.skopware.vdjvis.desktop.samanagara.FrameSetLokasiFoto;
+import com.skopware.vdjvis.desktop.samanagara.GridLeluhur;
+import com.skopware.vdjvis.desktop.samanagara.GridSettingTarifSamanagara;
 
 import javax.swing.*;
 import javax.swing.event.InternalFrameAdapter;
@@ -15,40 +27,53 @@ public class MainFrame extends JFrame {
     private boolean loggedIn = false;
 
     private JMenuBar menuBar;
+
     private JMenu menuAccount;
     private JMenuItem menuGantiPassword;
     private JMenuItem menuLogout;
+
     private JMenu menuMaster;
     private JMenuItem menuMasterUmat;
     private JMenuItem menuMasterAcara;
     private JMenuItem menuMasterUser;
+
     private JMenu menuSamanagara;
     private JMenuItem menuPendaftaranSamanagara;
     private JMenuItem menuDaftarLeluhur;
     private JMenuItem menuLokasiFoto;
     private JMenuItem menuSettingBiayaSamanagara;
+
     private JMenu menuPendapatanPengeluaran;
     private JMenuItem menuPendaftaranDanaRutin;
     private JMenuItem menuCatatDanaLain;
     private JMenuItem menuCatatPengeluaran;
+
     private JMenu menuAbsensi;
     private JMenuItem menuAbsensiUmat;
+
     private JMenu menuLaporan;
     private JMenuItem menuLaporanDanaRutin;
+    private JMenuItem menuLaporanAbsensiUmat;
 
     private JDesktopPane desktopPane;
+
     private JInternalFrame frameMasterAcara;
     private JInternalFrame frameMasterUmat;
     private JInternalFrame frameMasterUser;
+
     private JInternalFrame frameMasterLeluhur;
     private JInternalFrame frameSetLokasiFoto;
     private JInternalFrame frameSettingIuranSamanagara;
+
     private JInternalFrame framePendaftaranDanaRutin;
     private JInternalFrame framePembayaranDanaSosialTetap;
     private JInternalFrame framePendapatanNonRutin;
     private JInternalFrame framePengeluaran;
+
     private JInternalFrame frameAbsensiUmat;
+
     private JInternalFrame frameLaporanDanaRutin;
+    private JInternalFrame frameLaporanAbsensiUmat;
 
     public MainFrame() {
         super("VIS VDJ");
@@ -60,7 +85,6 @@ public class MainFrame extends JFrame {
         menuMaster = new JMenu("Master");
         menuSamanagara = new JMenu("Samanagara");
         menuPendapatanPengeluaran = new JMenu("Pendapatan & Pengeluaran");
-
         menuAbsensi = new JMenu("Absensi");
         menuLaporan = new JMenu("Laporan");
         menuAccount = new JMenu("Akun");
@@ -130,6 +154,11 @@ public class MainFrame extends JFrame {
         menuLaporanDanaRutin.addActionListener(e -> {
             showWindow("frameLaporanDanaRutin", () -> new FrameLaporanDanaRutin());
         });
+
+        menuLaporanAbsensiUmat = new JMenuItem("Laporan absensi umat");
+        menuLaporanAbsensiUmat.addActionListener(e -> {
+            showWindow("frameLaporanAbsensiUmat", () -> new FrameLaporanAbsensiUmat());
+        });
         //#endregion
 
         //#region menuAccount child
@@ -162,6 +191,7 @@ public class MainFrame extends JFrame {
         menuAbsensi.add(menuAbsensiUmat);
 
         menuLaporan.add(menuLaporanDanaRutin);
+        menuLaporan.add(menuLaporanAbsensiUmat);
 
         menuAccount.add(menuGantiPassword);
         menuAccount.add(menuLogout);

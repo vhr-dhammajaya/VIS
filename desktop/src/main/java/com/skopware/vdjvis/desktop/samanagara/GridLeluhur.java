@@ -1,4 +1,4 @@
-package com.skopware.vdjvis.desktop;
+package com.skopware.vdjvis.desktop.samanagara;
 
 import com.skopware.javautils.ObjectHelper;
 import com.skopware.javautils.Tuple2;
@@ -10,6 +10,7 @@ import com.skopware.javautils.swing.grid.JDataGrid;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
 import com.skopware.vdjvis.api.entities.Leluhur;
 import com.skopware.vdjvis.api.entities.Umat;
+import com.skopware.vdjvis.desktop.App;
 
 import javax.swing.*;
 import java.awt.*;

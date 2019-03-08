@@ -4,6 +4,7 @@ import com.skopware.javautils.DateTimeHelper;
 import com.skopware.javautils.ObjectHelper;
 import com.skopware.javautils.Tuple3;
 import com.skopware.vdjvis.api.dto.DtoInputLaporanStatusDanaRutin;
+import com.skopware.vdjvis.api.dto.DtoOutputLaporanAbsensi;
 import com.skopware.vdjvis.api.dto.DtoOutputLaporanStatusDanaRutin;
 import com.skopware.vdjvis.api.entities.Leluhur;
 import com.skopware.vdjvis.api.entities.PendaftaranDanaRutin;
@@ -20,6 +21,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.time.LocalDate;
+import java.time.Period;
 import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -172,6 +174,38 @@ public class LaporanController {
                 return cmpStatusBayar;
             }
         });
+
+        return result;
+    }
+
+    @GET
+    @Path("/absensi")
+    public List<DtoOutputLaporanAbsensi> computeLaporanAbsensi() {
+        List<DtoOutputLaporanAbsensi> result = new ArrayList<>();
+        LocalDate today = LocalDate.now();
+
+        try (Handle handle = jdbi.open()) {
+            result = handle.select("select u.uuid, u.nama, u.alamat, u.no_telpon, max(k.tgl) as tgl_terakhir_hadir" +
+                    " from umat u" +
+                    " left join kehadiran k on k.umat_id = u.uuid" +
+                    " group by u.uuid, u.nama, u.alamat, u.no_telpon" +
+                    " order by tgl_terakhir_hadir")
+                    .map((rs, ctx) -> {
+                        DtoOutputLaporanAbsensi x = new DtoOutputLaporanAbsensi();
+                        x.namaUmat = rs.getString("nama");
+                        x.alamat = rs.getString("alamat");
+                        x.noTelpon = rs.getString("no_telpon");
+                        x.tglTerakhirHadir = DateTimeHelper.toLocalDate(rs.getDate("tgl_terakhir_hadir"));
+                        if (x.tglTerakhirHadir != null) {
+                            x.sdhBerapaLamaAbsen = Period.between(x.tglTerakhirHadir, today);
+                        }
+                        else {
+                            x.sdhBerapaLamaAbsen = null;
+                        }
+                        return x;
+                    })
+                    .list();
+        }
 
         return result;
     }

@@ -1,24 +1,24 @@
-package com.skopware.vdjvis.desktop;
+package com.skopware.vdjvis.desktop.laporan;
 
 import com.skopware.javautils.ObjectHelper;
 import com.skopware.javautils.httpclient.HttpGetWithBody;
 import com.skopware.javautils.httpclient.HttpHelper;
+import com.skopware.javautils.swing.BaseCrudTableModel;
 import com.skopware.javautils.swing.JForeignKeyPicker;
 import com.skopware.vdjvis.api.dto.DtoInputLaporanStatusDanaRutin;
 import com.skopware.vdjvis.api.dto.DtoOutputLaporanStatusDanaRutin;
 import com.skopware.vdjvis.api.entities.Umat;
+import com.skopware.vdjvis.desktop.App;
+import com.skopware.vdjvis.desktop.master.GridUmat;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Vector;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 public class FrameLaporanDanaRutin extends JInternalFrame {
     private static final String TABLE_CL_ID = "TABLE_CL_ID";
@@ -66,9 +66,49 @@ public class FrameLaporanDanaRutin extends JInternalFrame {
         tableModel.setData(result);
     }
 
-    public static class TableModel extends AbstractTableModel {
-        private static String[] columnLabels = {"Nama umat", "No. telpon", "Alamat", "Jenis dana", "Nama leluhur (ut Samanagara)", "Status bayar", "Berapa bulan", "Kurang bayar (Rp)"};
-        private static Class[] columnClasses = {String.class, String.class, String.class, String.class, String.class, String.class, Long.class, Long.class};
+    private static class TableModel extends AbstractTableModel {
+        private static List<BaseCrudTableModel.ColumnConfig> columnConfigs = Arrays.asList(
+                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                    x.fieldName = "namaUmat";
+                    x.label = "Nama umat";
+                    x.dataType = String.class;
+                }),
+                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                    x.fieldName = "noTelpon";
+                    x.label = "No. telpon";
+                    x.dataType = String.class;
+                }),
+                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                    x.fieldName = "alamat";
+                    x.label = "Alamat";
+                    x.dataType = String.class;
+                }),
+                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                    x.fieldName = "jenisDana";
+                    x.label = "Jenis dana";
+                    x.dataType = String.class;
+                }),
+                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                    x.fieldName = "namaLeluhur";
+                    x.label = "Nama leluhur (ut Samanagara)";
+                    x.dataType = String.class;
+                }),
+                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                    x.fieldName = "strStatusBayar";
+                    x.label = "Status bayar";
+                    x.dataType = String.class;
+                }),
+                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                    x.fieldName = "diffInMonths";
+                    x.label = "Berapa bulan";
+                    x.dataType = Long.class;
+                }),
+                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                    x.fieldName = "nominal";
+                    x.label = "Kurang bayar (Rp)";
+                    x.dataType = Long.class;
+                })
+        );
 
         private List<DtoOutputLaporanStatusDanaRutin> data = new ArrayList<>();
 
@@ -84,42 +124,24 @@ public class FrameLaporanDanaRutin extends JInternalFrame {
 
         @Override
         public int getColumnCount() {
-            return columnLabels.length;
+            return columnConfigs.size();
         }
 
         @Override
         public String getColumnName(int column) {
-            return columnLabels[column];
+            return columnConfigs.get(column).label;
         }
 
         @Override
         public Class<?> getColumnClass(int columnIndex) {
-            return columnClasses[columnIndex];
+            return columnConfigs.get(columnIndex).dataType;
         }
 
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
             DtoOutputLaporanStatusDanaRutin row = data.get(rowIndex);
-            switch (columnIndex) {
-                case 0:
-                    return row.namaUmat;
-                case 1:
-                    return row.noTelpon;
-                case 2:
-                    return row.alamat;
-                case 3:
-                    return row.jenisDana;
-                case 4:
-                    return row.namaLeluhur;
-                case 5:
-                    return row.strStatusBayar;
-                case 6:
-                    return row.diffInMonths;
-                case 7:
-                    return row.nominal;
-                default:
-                    throw new IllegalArgumentException("columnIndex: " + columnIndex);
-            }
+            String fieldName = columnConfigs.get(columnIndex).fieldName;
+            return ObjectHelper.getFieldValue(row, fieldName);
         }
     }
 }

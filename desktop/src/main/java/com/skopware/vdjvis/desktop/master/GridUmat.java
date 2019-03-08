@@ -1,4 +1,4 @@
-package com.skopware.vdjvis.desktop;
+package com.skopware.vdjvis.desktop.master;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.Borders;
@@ -9,6 +9,8 @@ import com.skopware.javautils.swing.*;
 import com.skopware.javautils.swing.grid.JDataGrid;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
 import com.skopware.vdjvis.api.entities.Umat;
+import com.skopware.vdjvis.desktop.App;
+import com.skopware.vdjvis.desktop.samanagara.DialogBayarIuranSamanagara;
 
 import javax.swing.*;
 import java.awt.*;

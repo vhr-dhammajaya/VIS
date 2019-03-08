@@ -1,4 +1,4 @@
-package com.skopware.vdjvis.desktop;
+package com.skopware.vdjvis.desktop.absensi;
 
 import com.skopware.javautils.ObjectHelper;
 import com.skopware.javautils.httpclient.HttpGetWithBody;
@@ -7,6 +7,7 @@ import com.skopware.javautils.swing.BaseCrudTableModel;
 import com.skopware.javautils.swing.jtable.cellrenderer.JButtonCellRenderer;
 import com.skopware.javautils.swing.jtable.cellrenderer.LocalDateCellRenderer;
 import com.skopware.vdjvis.api.entities.Umat;
+import com.skopware.vdjvis.desktop.App;
 import org.apache.http.client.methods.HttpPost;
 
 import java.time.LocalDate;
@@ -43,8 +44,8 @@ public class FrameAbsensiUmat extends JInternalFrame {
         super("Absensi", true, true, true, true);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
-        listUmat = HttpHelper.makeHttpRequest(App.config.url("/absensi/list_umat"), HttpGetWithBody::new, "", List.class, Umat.class);
-        listUmatHadir = HttpHelper.makeHttpRequest(App.config.url("/absensi/daftar_umat_hadir"), HttpGetWithBody::new, "", List.class, Umat.class);
+        listUmat = HttpHelper.makeHttpRequest(App.config.url("/absensi/list_umat"), HttpGetWithBody::new, null, List.class, Umat.class);
+        listUmatHadir = HttpHelper.makeHttpRequest(App.config.url("/absensi/daftar_umat_hadir"), HttpGetWithBody::new, null, List.class, Umat.class);
         listSearchResult = new ArrayList<>();
 
         //#region init controls

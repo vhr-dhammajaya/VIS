@@ -1,4 +1,4 @@
-package com.skopware.vdjvis.desktop;
+package com.skopware.vdjvis.desktop.samanagara;
 
 import com.skopware.javautils.ObjectHelper;
 import com.skopware.javautils.httpclient.HttpHelper;
@@ -9,6 +9,7 @@ import com.skopware.javautils.swing.grid.JDataGrid;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
 import com.skopware.javautils.swing.grid.SortConfig;
 import com.skopware.vdjvis.api.entities.TarifSamanagara;
+import com.skopware.vdjvis.desktop.App;
 import org.apache.http.client.methods.HttpPost;
 
 import javax.swing.*;

@@ -1,4 +1,4 @@
-package com.skopware.vdjvis.desktop;
+package com.skopware.vdjvis.desktop.samanagara;
 
 import com.skopware.javautils.ObjectHelper;
 import com.skopware.javautils.Tuple2;
@@ -15,6 +15,7 @@ import com.skopware.vdjvis.api.entities.CellFoto;
 import com.skopware.vdjvis.api.entities.Leluhur;
 import com.skopware.vdjvis.api.entities.PapanFoto;
 import com.skopware.vdjvis.api.dto.DtoPlacePhoto;
+import com.skopware.vdjvis.desktop.App;
 import org.apache.http.client.methods.HttpPost;
 
 import javax.swing.*;

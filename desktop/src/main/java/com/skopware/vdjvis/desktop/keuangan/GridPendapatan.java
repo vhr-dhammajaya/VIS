@@ -1,4 +1,4 @@
-package com.skopware.vdjvis.desktop;
+package com.skopware.vdjvis.desktop.keuangan;
 
 import com.skopware.javautils.ObjectHelper;
 import com.skopware.javautils.Tuple2;
@@ -8,6 +8,9 @@ import com.skopware.javautils.swing.grid.JDataGridOptions;
 import com.skopware.vdjvis.api.entities.Acara;
 import com.skopware.vdjvis.api.entities.Pendapatan;
 import com.skopware.vdjvis.api.entities.Umat;
+import com.skopware.vdjvis.desktop.App;
+import com.skopware.vdjvis.desktop.master.GridAcara;
+import com.skopware.vdjvis.desktop.master.GridUmat;
 
 import javax.swing.*;
 import java.awt.*;
