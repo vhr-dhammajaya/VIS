@@ -3,9 +3,7 @@ package com.skopware.vdjvis.backend.controllers;
 import com.skopware.javautils.DateTimeHelper;
 import com.skopware.javautils.ObjectHelper;
 import com.skopware.javautils.Tuple3;
-import com.skopware.vdjvis.api.dto.DtoInputLaporanStatusDanaRutin;
-import com.skopware.vdjvis.api.dto.DtoOutputLaporanAbsensi;
-import com.skopware.vdjvis.api.dto.DtoOutputLaporanStatusDanaRutin;
+import com.skopware.vdjvis.api.dto.*;
 import com.skopware.vdjvis.api.entities.Leluhur;
 import com.skopware.vdjvis.api.entities.PendaftaranDanaRutin;
 import com.skopware.vdjvis.api.entities.StatusBayar;
@@ -176,6 +174,40 @@ public class LaporanController {
         });
 
         return result;
+    }
+
+    @GET
+    @Path("/pemasukan_pengeluaran")
+    public List<DtoOutputLaporanPemasukanPengeluaran> computeLaporanPemasukanPengeluaran(@NotNull DtoInputLaporanPemasukanPengeluaran param) {
+        try (Handle handle = jdbi.open()) {
+            List<DtoOutputLaporanPemasukanPengeluaran> result = new ArrayList<>();
+
+            YearMonth curr = param.startInclusive;
+            while (!curr.isAfter(param.endInclusive)) {
+                int ymCurr = DateTimeHelper.computeMySQLYearMonth(curr);
+                int jmlPengeluaran = handle.select("select sum(nominal) from pengeluaran where extract(year_month from tgl_trx) = ?", ymCurr)
+                        .mapTo(int.class)
+                        .findOnly();
+                int jmlPendapatanNonRutin = handle.select("select sum(nominal) from pendapatan where extract(year_month from tgl_trx) = ?", ymCurr)
+                        .mapTo(int.class)
+                        .findOnly();
+                int jmlPendapatanRutin = handle.select("select sum(nominal) from pembayaran_dana_rutin where extract(year_month from ut_thn_bln) = ?", ymCurr)
+                        .mapTo(int.class)
+                        .findOnly();
+                int jmlPendapatan = jmlPendapatanNonRutin + jmlPendapatanRutin;
+
+                DtoOutputLaporanPemasukanPengeluaran x = new DtoOutputLaporanPemasukanPengeluaran();
+                x.tahun = curr.getYear();
+                x.bulan = curr.getMonthValue();
+                x.pemasukan = jmlPendapatan;
+                x.pengeluaran = jmlPengeluaran;
+                result.add(x);
+
+                curr = curr.plusMonths(1);
+            }
+
+            return result;
+        }
     }
 
     @GET

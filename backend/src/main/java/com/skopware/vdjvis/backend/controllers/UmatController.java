@@ -1,5 +1,6 @@
 package com.skopware.vdjvis.backend.controllers;
 
+import com.skopware.javautils.DateTimeHelper;
 import com.skopware.javautils.dropwizard.BaseCrudController;
 import com.skopware.vdjvis.api.entities.Umat;
 import com.skopware.vdjvis.backend.jdbi.dao.UmatDAO;
@@ -23,9 +24,9 @@ public class UmatController extends BaseCrudController<Umat, UmatDAO> {
     @Override
     public Umat create(@NotNull @Valid Umat x) {
         return jdbi.withHandle(handle -> {
-            int ymTglDaftar = x.tglDaftar.getYear() * 100 + x.tglDaftar.getMonthValue();
-            Integer seqNum = handle.select("select count(*) from umat where extract(year_month from tgl_daftar) = ?", ymTglDaftar)
-                    .mapTo(Integer.class)
+            int ymTglDaftar = DateTimeHelper.computeMySQLYearMonth(x.tglDaftar);
+            int seqNum = handle.select("select count(*) from umat where extract(year_month from tgl_daftar) = ?", ymTglDaftar)
+                    .mapTo(int.class)
                     .findOnly();
             seqNum++;
 

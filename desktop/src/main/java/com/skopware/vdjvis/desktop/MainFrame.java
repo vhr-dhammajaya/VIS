@@ -10,6 +10,7 @@ import com.skopware.vdjvis.desktop.keuangan.GridPendapatan;
 import com.skopware.vdjvis.desktop.keuangan.GridPengeluaran;
 import com.skopware.vdjvis.desktop.laporan.FrameLaporanAbsensiUmat;
 import com.skopware.vdjvis.desktop.laporan.FrameLaporanDanaRutin;
+import com.skopware.vdjvis.desktop.laporan.FrameLaporanPemasukanPengeluaran;
 import com.skopware.vdjvis.desktop.master.GridAcara;
 import com.skopware.vdjvis.desktop.master.GridUmat;
 import com.skopware.vdjvis.desktop.master.GridUser;
@@ -53,6 +54,7 @@ public class MainFrame extends JFrame {
 
     private JMenu menuLaporan;
     private JMenuItem menuLaporanDanaRutin;
+    private JMenuItem menuLaporanPemasukanPengeluaran;
     private JMenuItem menuLaporanAbsensiUmat;
 
     private JDesktopPane desktopPane;
@@ -73,6 +75,7 @@ public class MainFrame extends JFrame {
     private JInternalFrame frameAbsensiUmat;
 
     private JInternalFrame frameLaporanDanaRutin;
+    private JInternalFrame frameLaporanPemasukanPengeluaran;
     private JInternalFrame frameLaporanAbsensiUmat;
 
     public MainFrame() {
@@ -155,6 +158,11 @@ public class MainFrame extends JFrame {
             showWindow("frameLaporanDanaRutin", () -> new FrameLaporanDanaRutin());
         });
 
+        menuLaporanPemasukanPengeluaran = new JMenuItem("Laporan pemasukan & pengeluaran");
+        menuLaporanPemasukanPengeluaran.addActionListener(e -> {
+            showWindow("frameLaporanPemasukanPengeluaran", () -> new FrameLaporanPemasukanPengeluaran());
+        });
+
         menuLaporanAbsensiUmat = new JMenuItem("Laporan absensi umat");
         menuLaporanAbsensiUmat.addActionListener(e -> {
             showWindow("frameLaporanAbsensiUmat", () -> new FrameLaporanAbsensiUmat());
@@ -191,6 +199,7 @@ public class MainFrame extends JFrame {
         menuAbsensi.add(menuAbsensiUmat);
 
         menuLaporan.add(menuLaporanDanaRutin);
+        menuLaporan.add(menuLaporanPemasukanPengeluaran);
         menuLaporan.add(menuLaporanAbsensiUmat);
 
         menuAccount.add(menuGantiPassword);
