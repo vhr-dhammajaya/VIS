@@ -41,6 +41,9 @@ public class UmatRowMapper implements RowMapper<Umat> {
         x.penahbis = (rs.getString("penahbis"));
         x.tglPenahbisan = (DateTimeHelper.toLocalDate(rs.getDate("tgl_penahbisan")));
 
+        x.idBarcode = rs.getString("id_barcode");
+        x.tglDaftar = DateTimeHelper.toLocalDate(rs.getDate("tgl_daftar"));
+
         return x;
     }
 }

@@ -12,6 +12,7 @@ import com.skopware.vdjvis.api.entities.Umat;
 
 import javax.swing.*;
 import java.awt.*;
+import java.time.LocalDate;
 import java.util.Arrays;
 
 public class GridUmat {
@@ -385,7 +386,9 @@ public class GridUmat {
                     this,
                     new Tuple2<>(txtNama.getText().isEmpty(), "Nama tidak boleh kosong"),
                     new Tuple2<>(txtAlamat.getText().isEmpty() || txtKota.getText().isEmpty(), "Alamat & kota tidak boleh kosong"),
-                    new Tuple2<>(txtNoTelpon.getText().isEmpty(), "No. telpon tidak boleh kosong"));
+                    new Tuple2<>(txtNoTelpon.getText().isEmpty(), "No. telpon tidak boleh kosong"),
+                    new Tuple2<>(txtTglLahir.getDate() == null, "Tgl lahir tidak boleh kosong")
+            );
         }
 
         @Override
@@ -414,6 +417,10 @@ public class GridUmat {
             r.noTelpKerabat = txtNoTelponKerabat.getText();
             r.kotaKerabat = txtKotaKerabat.getText();
             r.kodePosKerabat = txtKodePosKerabat.getText();
+
+            if (isCreateNew) {
+                r.tglDaftar = LocalDate.now();
+            }
         }
     }
 }

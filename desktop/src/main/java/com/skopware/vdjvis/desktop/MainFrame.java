@@ -32,6 +32,7 @@ public class MainFrame extends JFrame {
     private JMenuItem menuCatatDanaLain;
     private JMenuItem menuCatatPengeluaran;
     private JMenu menuAbsensi;
+    private JMenuItem menuAbsensiUmat;
     private JMenu menuLaporan;
     private JMenuItem menuLaporanDanaRutin;
 
@@ -46,6 +47,7 @@ public class MainFrame extends JFrame {
     private JInternalFrame framePembayaranDanaSosialTetap;
     private JInternalFrame framePendapatanNonRutin;
     private JInternalFrame framePengeluaran;
+    private JInternalFrame frameAbsensiUmat;
     private JInternalFrame frameLaporanDanaRutin;
 
     public MainFrame() {
@@ -58,6 +60,7 @@ public class MainFrame extends JFrame {
         menuMaster = new JMenu("Master");
         menuSamanagara = new JMenu("Samanagara");
         menuPendapatanPengeluaran = new JMenu("Pendapatan & Pengeluaran");
+
         menuAbsensi = new JMenu("Absensi");
         menuLaporan = new JMenu("Laporan");
         menuAccount = new JMenu("Akun");
@@ -115,6 +118,13 @@ public class MainFrame extends JFrame {
         });
         //#endregion
 
+        //#region menuAbsensi child
+        menuAbsensiUmat = new JMenuItem("Absensi umat");
+        menuAbsensiUmat.addActionListener(e -> {
+            showWindow("frameAbsensiUmat", () -> new FrameAbsensiUmat());
+        });
+        //#endregion
+
         //#region menuLaporan child
         menuLaporanDanaRutin = new JMenuItem("Status iuran samanagara, dana sosial & tetap");
         menuLaporanDanaRutin.addActionListener(e -> {
@@ -148,6 +158,8 @@ public class MainFrame extends JFrame {
         menuPendapatanPengeluaran.add(menuPendaftaranDanaRutin);
         menuPendapatanPengeluaran.add(menuCatatDanaLain);
         menuPendapatanPengeluaran.add(menuCatatPengeluaran);
+
+        menuAbsensi.add(menuAbsensiUmat);
 
         menuLaporan.add(menuLaporanDanaRutin);
 

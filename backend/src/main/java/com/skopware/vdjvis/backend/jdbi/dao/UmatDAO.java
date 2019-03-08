@@ -20,7 +20,8 @@ public interface UmatDAO extends BaseCrudDAO<Umat> {
             "pendidikan_terakhir, jurusan," +
             "pekerjaan, bidang_usaha," +
             "nama_kerabat, alamat_kerabat, kota_kerabat, kode_pos_kerabat, no_telp_kerabat," +
-            "nama_upasaka, penahbis, tgl_penahbisan) " +
+            "nama_upasaka, penahbis, tgl_penahbisan," +
+            "id_barcode, tgl_daftar) " +
             "values(:uuid, :nama," +
             ":alamat, :kota, :kodePos," +
             ":noTelpon, :email," +
@@ -29,8 +30,8 @@ public interface UmatDAO extends BaseCrudDAO<Umat> {
             ":pendidikanTerakhir, :jurusan," +
             ":pekerjaan, :bidangUsaha," +
             ":namaKerabat, :alamatKerabat, :kotaKerabat, :kodePosKerabat, :noTelpKerabat," +
-            ":namaUpasaka, :penahbis, :tglPenahbisan" +
-            ")")
+            ":namaUpasaka, :penahbis, :tglPenahbisan," +
+            ":idBarcode, :tglDaftar)")
     @Override
     void create(@BindFields Umat x);
 

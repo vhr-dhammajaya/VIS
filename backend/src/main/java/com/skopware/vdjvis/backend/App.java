@@ -41,6 +41,7 @@ public class App extends BaseApp<Config> {
         jersey.register(new PendaftaranDanaRutinController(jdbi));
         jersey.register(new PendapatanController(jdbi));
         jersey.register(new PengeluaranController(jdbi));
+        jersey.register(new AbsensiController(jdbi));
         jersey.register(new LaporanController(jdbi));
     }
 }

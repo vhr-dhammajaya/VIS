@@ -36,6 +36,9 @@ public class Umat extends BaseRecord<Umat> {
     @JsonProperty public String namaUpasaka;
     @JsonProperty public String penahbis;
     @JsonProperty public LocalDate tglPenahbisan;
+
+    @JsonProperty public String idBarcode;
+    @JsonProperty public LocalDate tglDaftar;
     //#endregion
 
     //#region relationships
