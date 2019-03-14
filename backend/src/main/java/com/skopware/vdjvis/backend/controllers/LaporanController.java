@@ -21,7 +21,6 @@ import javax.ws.rs.core.MediaType;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.YearMonth;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Path("/laporan")
@@ -211,9 +210,9 @@ public class LaporanController {
     }
 
     @GET
-    @Path("/absensi")
-    public List<DtoOutputLaporanAbsensi> computeLaporanAbsensi() {
-        List<DtoOutputLaporanAbsensi> result = new ArrayList<>();
+    @Path("/absensi_umat")
+    public List<DtoOutputLaporanAbsensiUmat> computeLaporanAbsensiUmat() {
+        List<DtoOutputLaporanAbsensiUmat> result = new ArrayList<>();
         LocalDate today = LocalDate.now();
 
         try (Handle handle = jdbi.open()) {
@@ -223,7 +222,7 @@ public class LaporanController {
                     " group by u.uuid, u.nama, u.alamat, u.no_telpon" +
                     " order by tgl_terakhir_hadir")
                     .map((rs, ctx) -> {
-                        DtoOutputLaporanAbsensi x = new DtoOutputLaporanAbsensi();
+                        DtoOutputLaporanAbsensiUmat x = new DtoOutputLaporanAbsensiUmat();
                         x.namaUmat = rs.getString("nama");
                         x.alamat = rs.getString("alamat");
                         x.noTelpon = rs.getString("no_telpon");
