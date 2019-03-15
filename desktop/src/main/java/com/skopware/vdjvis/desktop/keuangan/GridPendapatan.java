@@ -17,45 +17,54 @@ import org.apache.http.client.methods.HttpPost;
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class GridPendapatan {
-    private static final List<BaseCrudTableModel.ColumnConfig> COLUMN_CONFIGS = Arrays.asList(
-            ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                x.label = "Umat yg berdana";
-                x.fieldName = "umat.nama";
-                x.dbColumnName = "umat_nama";
-            }),
-            ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                x.label = "Tgl dana";
-                x.fieldName = "tglTransaksi";
-                x.dbColumnName = "tgl_trx";
-            }),
-            ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                x.label = "Nominal";
-                x.fieldName = x.dbColumnName = "nominal";
-            }),
-            ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                x.label = "Cara dana";
-                x.fieldName = x.dbColumnName = "channel";
-            }),
-            ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                x.label = "Jenis dana";
-                x.fieldName = "jenisDana";
-                x.dbColumnName = "jenis_dana";
-            }),
-            ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                x.label = "Untuk acara";
-                x.fieldName = "acara.nama";
-                x.dbColumnName = "acara_nama";
-            })
-    );
-
     public static JDataGridOptions<Pendapatan> createDefaultOptions() {
         JDataGridOptions<Pendapatan> o = new JDataGridOptions<>();
 
-        o.columnConfigs = COLUMN_CONFIGS;
+        o.columnConfigs = Arrays.asList(
+                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                    x.label = "Umat yg berdana";
+                    x.fieldName = "umat.nama";
+                    x.dbColumnName = "umat_nama";
+                }),
+                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                    x.label = "Tgl dana";
+                    x.fieldName = "tglTransaksi";
+                    x.dbColumnName = "tgl_trx";
+                }),
+                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                    x.label = "Nominal";
+                    x.fieldName = x.dbColumnName = "nominal";
+                }),
+                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                    x.label = "Cara dana";
+                    x.fieldName = x.dbColumnName = "channel";
+                }),
+                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                    x.label = "Jenis dana";
+                    x.fieldName = "jenisDana";
+                    x.dbColumnName = "jenis_dana";
+                }),
+                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                    x.label = "Untuk acara";
+                    x.fieldName = "acara.nama";
+                    x.dbColumnName = "acara_nama";
+                }),
+                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                    x.fieldName = "correctionStatus";
+                    x.dbColumnName = "correction_status";
+                    x.label = "Butuh pembetulan?";
+                }),
+                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                    x.fieldName = "correctionRequestReason";
+                    x.dbColumnName = "corr_req_reason";
+                    x.label = "Alasan";
+                })
+        );
         o.recordType = Pendapatan.class;
         o.appConfig = App.config;
         o.shortControllerUrl = "/pendapatan";
@@ -76,11 +85,13 @@ public class GridPendapatan {
             if (sel == null) {
                 return;
             }
+            int selIdx = o.grid.getSelectedRecordIdx();
 
             DialogInputAlasanMintaPembetulan dialogInput = new DialogInputAlasanMintaPembetulan(reason -> {
-                Pendapatan sel2 = sel.clone();
-                sel2.correctionRequestReason = reason;
-                HttpHelper.makeHttpRequest(App.config.url("/pendapatan/request_koreksi"), HttpPost::new, sel2, boolean.class);
+                sel.correctionStatus = true;
+                sel.correctionRequestReason = reason;
+                HttpHelper.makeHttpRequest(App.config.url("/pendapatan/request_koreksi"), HttpPost::new, sel, boolean.class);
+                o.grid.tableModel.fireTableRowsUpdated(selIdx, selIdx);
             });
             dialogInput.setVisible(true);
             dialogInput.pack();
@@ -100,6 +111,9 @@ public class GridPendapatan {
         private JComboBox<Pendapatan.JenisDana> edJenisDana;
         private JTextArea edKeterangan;
         private JForeignKeyPicker<Acara> edAcara;
+
+        private JCheckBox edButuhPembetulan;
+        private JTextArea edAlasanButuhPembetulan;
 
         public FormPendapatan(Frame owner) {
             super(owner, "Input pendapatan", Pendapatan.class);
@@ -131,13 +145,24 @@ public class GridPendapatan {
             edKeterangan = new JTextArea(10, 20);
             edAcara = new JForeignKeyPicker<>(App.mainFrame, GridAcara.createNoAddEditDelete());
 
-            pnlFormFields = SwingHelper.buildForm2(Arrays.asList(
-                    Arrays.asList(new Tuple2<>("Umat yg berdana", edUmat)),
-                    Arrays.asList(new Tuple2<>("Tgl dana", edTglTrans), new Tuple2<>("Nominal", edNominal)),
-                    Arrays.asList(new Tuple2<>("Cara dana", edChannel), new Tuple2<>("Jenis dana", edJenisDana)),
-                    Arrays.asList(new Tuple2<>("Keterangan", edKeterangan)),
-                    Arrays.asList(new Tuple2<>("Untuk acara", edAcara))
-            ));
+            List<List<Tuple2<String, Component>>> formFields = new ArrayList<>();
+            formFields.add(Arrays.asList(new Tuple2<>("Umat yg berdana", edUmat)));
+            formFields.add(Arrays.asList(new Tuple2<>("Tgl dana", edTglTrans), new Tuple2<>("Nominal", edNominal)));
+            formFields.add(Arrays.asList(new Tuple2<>("Cara dana", edChannel), new Tuple2<>("Jenis dana", edJenisDana)));
+            formFields.add(Arrays.asList(new Tuple2<>("Keterangan", edKeterangan)));
+            formFields.add(Arrays.asList(new Tuple2<>("Untuk acara", edAcara)));
+
+            if (!isCreateNew) {
+                edButuhPembetulan = new JCheckBox();
+
+                edAlasanButuhPembetulan = new JTextArea(10, 20);
+                edAlasanButuhPembetulan.setEditable(false);
+
+                formFields.add(Arrays.asList(new Tuple2<>("Butuh pembetulan?", edButuhPembetulan)));
+                formFields.add(Arrays.asList(new Tuple2<>("Alasan butuh pembetulan", edAlasanButuhPembetulan)));
+            }
+
+            pnlFormFields = SwingHelper.buildForm2(formFields);
         }
 
         @Override
@@ -151,6 +176,11 @@ public class GridPendapatan {
             edJenisDana.setSelectedItem(r.jenisDana);
             edKeterangan.setText(r.keterangan);
             edAcara.setRecord(r.acara);
+
+            if (!isCreateNew) {
+                edButuhPembetulan.setSelected(r.correctionStatus);
+                edAlasanButuhPembetulan.setText(r.correctionRequestReason);
+            }
         }
 
         @Override
@@ -181,6 +211,13 @@ public class GridPendapatan {
             r.acara = new Acara();
             if (acara != null) {
                 r.acara.uuid = acara.uuid;
+            }
+
+            if (!isCreateNew) {
+                r.correctionStatus = edButuhPembetulan.isSelected();
+                if (!r.correctionStatus) {
+                    r.correctionRequestReason = "";
+                }
             }
         }
     }

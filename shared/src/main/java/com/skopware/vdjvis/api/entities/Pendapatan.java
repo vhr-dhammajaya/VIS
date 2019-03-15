@@ -1,21 +1,19 @@
 package com.skopware.vdjvis.api.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.skopware.javautils.db.BaseRecord;
 
 import java.time.LocalDate;
 
 public class Pendapatan extends BaseRecord<Pendapatan> {
-    public static int CORRECTION_STATUS_NORMAL = 0;
-    public static int CORRECTION_STATUS_NEEDS_CORRECTION = 1;
-
     // table columns
     @JsonProperty public LocalDate tglTransaksi;
     @JsonProperty public int nominal;
     @JsonProperty public String channel;
     @JsonProperty public JenisDana jenisDana;
     @JsonProperty public String keterangan;
-    @JsonProperty public int correctionStatus;
+    @JsonProperty public boolean correctionStatus;
     @JsonProperty public String correctionRequestReason;
 
     // relationships

@@ -36,6 +36,9 @@ public class PendapatanRowMapper implements RowMapper<Pendapatan> {
             x.acara.nama = rs.getString("acara_nama");
         }
 
+        x.correctionStatus = rs.getBoolean("correction_status");
+        x.correctionRequestReason = rs.getString("corr_req_reason");
+
         return x;
     }
 }

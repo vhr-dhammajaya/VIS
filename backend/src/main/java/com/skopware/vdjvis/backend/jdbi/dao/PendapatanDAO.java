@@ -18,7 +18,8 @@ public interface PendapatanDAO extends BaseCrudDAO<Pendapatan> {
     void create(@BindFields Pendapatan x);
 
     @SqlUpdate("update pendapatan set umat_id=:umat.uuid, tgl_trx=:tglTransaksi, nominal=:nominal, channel=:channel," +
-            "jenis_dana=:jenisDana, keterangan=:keterangan, acara_id=:acara.uuid where id=:uuid")
+            "jenis_dana=:jenisDana, keterangan=:keterangan, acara_id=:acara.uuid, correction_status=:correctionStatus," +
+            "corr_req_reason=:correctionRequestReason where id=:uuid")
     @Override
     void update(@BindFields Pendapatan x);
 
