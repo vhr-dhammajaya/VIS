@@ -4,7 +4,6 @@ import com.skopware.javautils.ObjectHelper;
 import com.skopware.javautils.httpclient.HttpGetWithBody;
 import com.skopware.javautils.httpclient.HttpHelper;
 import com.skopware.javautils.swing.BaseCrudTableModel;
-import com.skopware.javautils.swing.jtable.cellrenderer.JButtonCellRenderer;
 import com.skopware.javautils.swing.jtable.cellrenderer.LocalDateCellRenderer;
 import com.skopware.vdjvis.api.entities.Umat;
 import com.skopware.vdjvis.desktop.App;
@@ -15,8 +14,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import javax.swing.*;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -32,17 +29,17 @@ public class FrameAbsensiUmat extends JInternalFrame {
     private JTable tblSearchResult;
 
     private JLabel lblVisitorCount;
-    private List<BaseCrudTableModel.ColumnConfig> tblUmatHadirColumnConfigs;
-    private BaseCrudTableModel<Umat> tblUmatHadirModel;
-    private JTable tblUmatHadir;
+    private List<BaseCrudTableModel.ColumnConfig> tblOrangHadirColumnConfigs;
+    private BaseCrudTableModel<Umat> tblOrangHadirModel;
+    private JTable tblOrangHadir;
 
-    private List<Umat> listUmat;
+    private List<Umat> listOrang;
 
     public FrameAbsensiUmat() {
-        super("Absensi", true, true, true, true);
+        super("Absensi umat", true, true, true, true);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
-        listUmat = HttpHelper.makeHttpRequest(App.config.url("/absensi/list_umat"), HttpGetWithBody::new, null, List.class, Umat.class);
+        listOrang = HttpHelper.makeHttpRequest(App.config.url("/absensi_umat/list"), HttpGetWithBody::new, null, List.class, Umat.class);
 
         //#region init controls
         JLabel lblInputNama = new JLabel("Nama / ID Umat");
@@ -121,7 +118,7 @@ public class FrameAbsensiUmat extends JInternalFrame {
             catatKehadiran(sel);
         });
 
-        tblUmatHadirColumnConfigs = Arrays.asList(
+        tblOrangHadirColumnConfigs = Arrays.asList(
                 ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
                     x.fieldName = "nama";
                     x.label = "Nama";
@@ -134,23 +131,23 @@ public class FrameAbsensiUmat extends JInternalFrame {
                 })*/
         );
 
-        tblUmatHadirModel = new BaseCrudTableModel<>();
-        tblUmatHadirModel.setColumnConfigs(tblUmatHadirColumnConfigs);
-        tblUmatHadirModel.setRecordType(Umat.class);
+        tblOrangHadirModel = new BaseCrudTableModel<>();
+        tblOrangHadirModel.setColumnConfigs(tblOrangHadirColumnConfigs);
+        tblOrangHadirModel.setRecordType(Umat.class);
 
-        List<Umat> prevUmatHadirList = HttpHelper.makeHttpRequest(App.config.url("/absensi/daftar_umat_hadir"), HttpGetWithBody::new, null, List.class, Umat.class);
-        tblUmatHadirModel.setData(prevUmatHadirList);
+        List<Umat> prevUmatHadirList = HttpHelper.makeHttpRequest(App.config.url("/absensi_umat/daftar_hadir"), HttpGetWithBody::new, null, List.class, Umat.class);
+        tblOrangHadirModel.setData(prevUmatHadirList);
 
-        lblVisitorCount = new JLabel(String.format(VISITOR_COUNT_FORMAT, tblUmatHadirModel.getRowCount()));
+        lblVisitorCount = new JLabel(String.format(VISITOR_COUNT_FORMAT, tblOrangHadirModel.getRowCount()));
 
-        tblUmatHadir = new JTable(tblUmatHadirModel);
-        tblUmatHadir.setFocusable(false);
-        tblUmatHadir.setFillsViewportHeight(true);
+        tblOrangHadir = new JTable(tblOrangHadirModel);
+        tblOrangHadir.setFocusable(false);
+        tblOrangHadir.setFillsViewportHeight(true);
 
-        tblUmatHadir.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        tblUmatHadir.setRowSelectionAllowed(true);
-        tblUmatHadir.setCellSelectionEnabled(false);
-        tblUmatHadir.setColumnSelectionAllowed(false);
+        tblOrangHadir.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tblOrangHadir.setRowSelectionAllowed(true);
+        tblOrangHadir.setCellSelectionEnabled(false);
+        tblOrangHadir.setColumnSelectionAllowed(false);
 
 //        TableColumn btnDeleteColumn = tblUmatHadir.getColumnModel().getColumn(1);
 //        JButtonCellRenderer btnDeleteCellRenderer = new JButtonCellRenderer("Hapus");
@@ -169,7 +166,7 @@ public class FrameAbsensiUmat extends JInternalFrame {
 
         JPanel umatHadirPanel = new JPanel(new BorderLayout());
         umatHadirPanel.add(lblVisitorCount, BorderLayout.NORTH);
-        umatHadirPanel.add(new JScrollPane(tblUmatHadir), BorderLayout.CENTER);
+        umatHadirPanel.add(new JScrollPane(tblOrangHadir), BorderLayout.CENTER);
 
         JPanel centerPanel = new JPanel(new GridLayout(1, 2, 10, 5));
         centerPanel.add(searchResultsPanel);
@@ -197,7 +194,7 @@ public class FrameAbsensiUmat extends JInternalFrame {
             return;
         }
 
-        List<Umat> searchResult = listUmat.stream()
+        List<Umat> searchResult = listOrang.stream()
                 .filter(umat -> umat.nama.toLowerCase().contains(input.toLowerCase()))
                 .collect(Collectors.toList());
         setSearchResult(searchResult);
@@ -208,7 +205,7 @@ public class FrameAbsensiUmat extends JInternalFrame {
     }
 
     private void absenBarcode(String input) {
-        Optional<Umat> match = listUmat.stream()
+        Optional<Umat> match = listOrang.stream()
                 .filter(umat -> input.equals(umat.idBarcode))
                 .findFirst();
         if (match.isPresent()) {
@@ -217,12 +214,12 @@ public class FrameAbsensiUmat extends JInternalFrame {
     }
 
     private void catatKehadiran(Umat u) {
-        if (!tblUmatHadirModel.getData().contains(u)) {
-            HttpHelper.makeHttpRequest(App.config.url("/absensi/absen_umat"), HttpPost::new, u, boolean.class);
+        if (!tblOrangHadirModel.getData().contains(u)) {
+            HttpHelper.makeHttpRequest(App.config.url("/absensi_umat/absen"), HttpPost::new, u, boolean.class);
 
-            tblUmatHadirModel.add(u);
+            tblOrangHadirModel.add(u);
 
-            int newSize = tblUmatHadirModel.getRowCount();
+            int newSize = tblOrangHadirModel.getRowCount();
             lblVisitorCount.setText(String.format(VISITOR_COUNT_FORMAT, newSize));
         }
     }

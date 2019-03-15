@@ -11,18 +11,18 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-@Path("/absensi")
+@Path("/absensi_umat")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class AbsensiController {
+public class AbsensiUmatController {
     private Jdbi jdbi;
 
-    public AbsensiController(Jdbi jdbi) {
+    public AbsensiUmatController(Jdbi jdbi) {
         this.jdbi = jdbi;
     }
 
     @GET
-    @Path("/list_umat")
+    @Path("/list")
     public List<Umat> getListUmat() {
         return jdbi.withHandle(handle -> {
             return handle.select("select uuid, nama, alamat, tgl_lahir, id_barcode from umat")
@@ -40,8 +40,8 @@ public class AbsensiController {
     }
 
     @GET
-    @Path("/daftar_umat_hadir")
-    public List<Umat> fetchUmatHadir() {
+    @Path("/daftar_hadir")
+    public List<Umat> getDaftarHadir() {
         return jdbi.withHandle(handle -> {
             return handle.select("select u.uuid, u.nama from kehadiran k" +
                     " join umat u on u.uuid=k.umat_id" +
@@ -57,18 +57,18 @@ public class AbsensiController {
     }
 
     @POST
-    @Path("/absen_umat")
-    public boolean catatKehadiran(@NotNull Umat umat) {
+    @Path("/absen")
+    public boolean catatKehadiran(@NotNull Umat x) {
         LocalDate today = LocalDate.now();
 
         jdbi.useHandle(handle -> {
-            Optional<String> id = handle.select("select umat_id from kehadiran where umat_id=? and tgl=?", umat.uuid, today)
+            Optional<String> id = handle.select("select umat_id from kehadiran where umat_id=? and tgl=?", x.uuid, today)
                     .mapTo(String.class)
                     .findFirst();
 
             if (!id.isPresent()) {
                 handle.createUpdate("insert into kehadiran(umat_id, tgl) values(:umat_id, :tgl)")
-                        .bind("umat_id", umat.uuid)
+                        .bind("umat_id", x.uuid)
                         .bind("tgl", today)
                         .execute();
             }
