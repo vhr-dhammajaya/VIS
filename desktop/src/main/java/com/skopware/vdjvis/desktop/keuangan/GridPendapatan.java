@@ -2,56 +2,60 @@ package com.skopware.vdjvis.desktop.keuangan;
 
 import com.skopware.javautils.ObjectHelper;
 import com.skopware.javautils.Tuple2;
+import com.skopware.javautils.httpclient.HttpHelper;
 import com.skopware.javautils.swing.*;
-import com.skopware.javautils.swing.grid.JDataGrid;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
 import com.skopware.vdjvis.api.entities.Acara;
 import com.skopware.vdjvis.api.entities.Pendapatan;
 import com.skopware.vdjvis.api.entities.Umat;
 import com.skopware.vdjvis.desktop.App;
+import com.skopware.vdjvis.desktop.DialogInputAlasanMintaPembetulan;
 import com.skopware.vdjvis.desktop.master.GridAcara;
 import com.skopware.vdjvis.desktop.master.GridUmat;
+import org.apache.http.client.methods.HttpPost;
 
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.List;
 
 public class GridPendapatan {
-    public static JDataGrid<Pendapatan> create() {
+    private static final List<BaseCrudTableModel.ColumnConfig> COLUMN_CONFIGS = Arrays.asList(
+            ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                x.label = "Umat yg berdana";
+                x.fieldName = "umat.nama";
+                x.dbColumnName = "umat_nama";
+            }),
+            ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                x.label = "Tgl dana";
+                x.fieldName = "tglTransaksi";
+                x.dbColumnName = "tgl_trx";
+            }),
+            ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                x.label = "Nominal";
+                x.fieldName = x.dbColumnName = "nominal";
+            }),
+            ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                x.label = "Cara dana";
+                x.fieldName = x.dbColumnName = "channel";
+            }),
+            ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                x.label = "Jenis dana";
+                x.fieldName = "jenisDana";
+                x.dbColumnName = "jenis_dana";
+            }),
+            ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                x.label = "Untuk acara";
+                x.fieldName = "acara.nama";
+                x.dbColumnName = "acara_nama";
+            })
+    );
+
+    public static JDataGridOptions<Pendapatan> createDefaultOptions() {
         JDataGridOptions<Pendapatan> o = new JDataGridOptions<>();
 
-        o.columnConfigs = Arrays.asList(
-                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                    x.label = "Umat yg berdana";
-                    x.fieldName = "umat.nama";
-                    x.dbColumnName = "umat_nama";
-                }),
-                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                    x.label = "Tgl dana";
-                    x.fieldName = "tglTransaksi";
-                    x.dbColumnName = "tgl_trx";
-                }),
-                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                    x.label = "Nominal";
-                    x.fieldName = x.dbColumnName = "nominal";
-                }),
-                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                    x.label = "Cara dana";
-                    x.fieldName = x.dbColumnName = "channel";
-                }),
-                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                    x.label = "Jenis dana";
-                    x.fieldName = "jenisDana";
-                    x.dbColumnName = "jenis_dana";
-                }),
-                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                    x.label = "Untuk acara";
-                    x.fieldName = "acara.nama";
-                    x.dbColumnName = "acara_nama";
-                })
-        );
-
+        o.columnConfigs = COLUMN_CONFIGS;
         o.recordType = Pendapatan.class;
         o.appConfig = App.config;
         o.shortControllerUrl = "/pendapatan";
@@ -59,7 +63,32 @@ public class GridPendapatan {
         o.fnShowCreateForm = () -> new FormPendapatan(App.mainFrame);
         o.fnShowEditForm = (rec, idx) -> new FormPendapatan(App.mainFrame, rec, idx);
 
-        return new JDataGrid<>(o);
+        return o;
+    }
+
+    public static JDataGridOptions<Pendapatan> createOptionsForOperator() {
+        JDataGridOptions<Pendapatan> o = createDefaultOptions();
+        o.enableEdit = o.enableDelete = false;
+
+        JButton btnTandaiSalah = new JButton("Tandai salah / minta pembetulan");
+        btnTandaiSalah.addActionListener(e -> {
+            Pendapatan sel = o.grid.getSelectedRecord();
+            if (sel == null) {
+                return;
+            }
+
+            DialogInputAlasanMintaPembetulan dialogInput = new DialogInputAlasanMintaPembetulan(reason -> {
+                Pendapatan sel2 = sel.clone();
+                sel2.correctionRequestReason = reason;
+                HttpHelper.makeHttpRequest(App.config.url("/pendapatan/request_koreksi"), HttpPost::new, sel2, boolean.class);
+            });
+            dialogInput.setVisible(true);
+            dialogInput.pack();
+        });
+
+        o.additionalToolbarButtons.add(btnTandaiSalah);
+
+        return o;
     }
 
     public static class FormPendapatan extends BaseCrudForm<Pendapatan> {

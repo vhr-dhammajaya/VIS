@@ -4,6 +4,8 @@ import com.skopware.javautils.swing.BaseCrudFrame;
 import com.skopware.javautils.swing.BasicCrudFrame;
 import com.skopware.javautils.swing.MasterDetailFrame;
 import com.skopware.javautils.swing.SwingHelper;
+import com.skopware.javautils.swing.grid.JDataGrid;
+import com.skopware.vdjvis.api.entities.Pendapatan;
 import com.skopware.vdjvis.desktop.absensi.FrameAbsensiUmat;
 import com.skopware.vdjvis.desktop.keuangan.GridPendaftaranDanaRutin;
 import com.skopware.vdjvis.desktop.keuangan.GridPendapatan;
@@ -136,7 +138,22 @@ public class MainFrame extends JFrame {
 
         menuCatatDanaLain = new JMenuItem("Catat dana masuk lainnya");
         menuCatatDanaLain.addActionListener(e -> {
-            showWindow("framePendapatanNonRutin", () -> new BasicCrudFrame<>("Dana masuk / pendapatan", GridPendapatan.create()));
+            showWindow("framePendapatanNonRutin", () -> {
+                JDataGrid<Pendapatan> gridPendapatan;
+
+                switch (App.currentUser.tipe) {
+                    case PENGURUS:
+                        gridPendapatan = new JDataGrid<>(GridPendapatan.createDefaultOptions());
+                        break;
+                    case OPERATOR:
+                        gridPendapatan = new JDataGrid<>(GridPendapatan.createOptionsForOperator());
+                        break;
+                    default:
+                        throw new RuntimeException();
+                }
+
+                return new BasicCrudFrame<>("Dana masuk / pendapatan", gridPendapatan);
+            });
         });
 
         menuCatatPengeluaran = new JMenuItem("Catat pengeluaran");

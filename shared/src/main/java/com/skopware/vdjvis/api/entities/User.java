@@ -12,7 +12,7 @@ public class User extends BaseRecord<User> {
     //#endregion
 
     public enum Type {
-        OPERATOR("Operator"), PENGURUS("Pengurus"), UMAT("Umat");
+        OPERATOR("Operator"), PENGURUS("Pengurus");
 
         private String label;
 

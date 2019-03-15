@@ -65,8 +65,7 @@ public class GridUser {
             txtNama = new JTextField(45);
             cmbTipeUser = new JComboBox<>(new User.Type[] {
                     User.Type.OPERATOR,
-                    User.Type.PENGURUS,
-                    User.Type.UMAT
+                    User.Type.PENGURUS
             });
 
             String layoutSpec = "right:pref, 4dlu, left:pref:grow";
