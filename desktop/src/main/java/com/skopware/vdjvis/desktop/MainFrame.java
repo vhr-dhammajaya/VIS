@@ -6,6 +6,8 @@ import com.skopware.javautils.swing.MasterDetailFrame;
 import com.skopware.javautils.swing.SwingHelper;
 import com.skopware.javautils.swing.grid.JDataGrid;
 import com.skopware.vdjvis.api.entities.Pendapatan;
+import com.skopware.vdjvis.api.entities.Siswa;
+import com.skopware.vdjvis.desktop.absensi.FrameAbsensiSiswa;
 import com.skopware.vdjvis.desktop.absensi.FrameAbsensiUmat;
 import com.skopware.vdjvis.desktop.keuangan.GridPendaftaranDanaRutin;
 import com.skopware.vdjvis.desktop.keuangan.GridPendapatan;
@@ -14,6 +16,7 @@ import com.skopware.vdjvis.desktop.laporan.FrameLaporanAbsensiUmat;
 import com.skopware.vdjvis.desktop.laporan.FrameLaporanDanaRutin;
 import com.skopware.vdjvis.desktop.laporan.FrameLaporanPemasukanPengeluaran;
 import com.skopware.vdjvis.desktop.master.GridAcara;
+import com.skopware.vdjvis.desktop.master.GridSiswa;
 import com.skopware.vdjvis.desktop.master.GridUmat;
 import com.skopware.vdjvis.desktop.master.GridUser;
 import com.skopware.vdjvis.desktop.samanagara.FrameSetLokasiFoto;
@@ -37,12 +40,12 @@ public class MainFrame extends JFrame {
 
     private JMenu menuMaster;
     private JMenuItem menuMasterUmat;
+    private JMenuItem menuMasterSiswa;
     private JMenuItem menuMasterAcara;
     private JMenuItem menuMasterUser;
 
     private JMenu menuSamanagara;
     private JMenuItem menuPendaftaranSamanagara;
-    private JMenuItem menuDaftarLeluhur;
     private JMenuItem menuLokasiFoto;
     private JMenuItem menuSettingBiayaSamanagara;
 
@@ -53,6 +56,7 @@ public class MainFrame extends JFrame {
 
     private JMenu menuAbsensi;
     private JMenuItem menuAbsensiUmat;
+    private JMenuItem menuAbsensiSiswa;
 
     private JMenu menuLaporan;
     private JMenuItem menuLaporanDanaRutin;
@@ -63,6 +67,7 @@ public class MainFrame extends JFrame {
 
     private JInternalFrame frameMasterAcara;
     private JInternalFrame frameMasterUmat;
+    private JInternalFrame frameMasterSiswa;
     private JInternalFrame frameMasterUser;
 
     private JInternalFrame frameMasterLeluhur;
@@ -75,6 +80,7 @@ public class MainFrame extends JFrame {
     private JInternalFrame framePengeluaran;
 
     private JInternalFrame frameAbsensiUmat;
+    private JInternalFrame frameAbsensiSiswa;
 
     private JInternalFrame frameLaporanDanaRutin;
     private JInternalFrame frameLaporanPemasukanPengeluaran;
@@ -100,6 +106,11 @@ public class MainFrame extends JFrame {
             showWindow("frameMasterUmat", () -> new BasicCrudFrame<>("Master Umat", GridUmat.createDefault()));
         });
 
+        menuMasterSiswa = new JMenuItem("Siswa");
+        menuMasterSiswa.addActionListener(e -> {
+            showWindow("frameMasterSiswa", () -> new BasicCrudFrame<>("Master siswa", new JDataGrid<>(GridSiswa.createDefaultOptions())));
+        });
+
         menuMasterAcara = new JMenuItem("Acara");
         menuMasterAcara.addActionListener((event) -> {
             showWindow("frameMasterAcara", () -> new BasicCrudFrame<>("Master Acara", GridAcara.createDefault()));
@@ -116,8 +127,6 @@ public class MainFrame extends JFrame {
         menuPendaftaranSamanagara.addActionListener(event -> {
             showWindow("frameMasterLeluhur", () -> new MasterDetailFrame<>("Pendaftaran leluhur Samanagara", "Pilih umat", "Daftar leluhur untuk umat yg dipilih", GridUmat.createForGridSamanagara(), GridLeluhur.createDefault(), "umat_id"));
         });
-
-        menuDaftarLeluhur = new JMenuItem("Daftar leluhur");
 
         menuLokasiFoto = new JMenuItem("Lokasi foto");
         menuLokasiFoto.addActionListener(event -> {
@@ -167,6 +176,11 @@ public class MainFrame extends JFrame {
         menuAbsensiUmat.addActionListener(e -> {
             showWindow("frameAbsensiUmat", () -> new FrameAbsensiUmat());
         });
+
+        menuAbsensiSiswa = new JMenuItem("Absensi siswa");
+        menuAbsensiSiswa.addActionListener(e -> {
+            showWindow("frameAbsensiSiswa", () -> new FrameAbsensiSiswa());
+        });
         //#endregion
 
         //#region menuLaporan child
@@ -202,6 +216,7 @@ public class MainFrame extends JFrame {
         //#endregion
 
         menuMaster.add(menuMasterUmat);
+        menuMaster.add(menuMasterSiswa);
         menuMaster.add(menuMasterAcara);
         menuMaster.add(menuMasterUser);
 
@@ -214,6 +229,7 @@ public class MainFrame extends JFrame {
         menuPendapatanPengeluaran.add(menuCatatPengeluaran);
 
         menuAbsensi.add(menuAbsensiUmat);
+        menuAbsensi.add(menuAbsensiSiswa);
 
         menuLaporan.add(menuLaporanDanaRutin);
         menuLaporan.add(menuLaporanPemasukanPengeluaran);
