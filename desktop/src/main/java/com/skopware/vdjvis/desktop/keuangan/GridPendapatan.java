@@ -79,8 +79,8 @@ public class GridPendapatan {
         JDataGridOptions<Pendapatan> o = createDefaultOptions();
         o.enableEdit = o.enableDelete = false;
 
-        JButton btnTandaiSalah = new JButton("Tandai salah / minta pembetulan");
-        btnTandaiSalah.addActionListener(e -> {
+        JButton btnMintaPembetulan = new JButton("Minta pembetulan");
+        btnMintaPembetulan.addActionListener(e -> {
             Pendapatan sel = o.grid.getSelectedRecord();
             if (sel == null) {
                 return;
@@ -97,7 +97,7 @@ public class GridPendapatan {
             dialogInput.pack();
         });
 
-        o.additionalToolbarButtons.add(btnTandaiSalah);
+        o.additionalToolbarButtons.add(btnMintaPembetulan);
 
         return o;
     }

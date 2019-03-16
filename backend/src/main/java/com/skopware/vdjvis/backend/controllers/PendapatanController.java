@@ -24,7 +24,8 @@ public class PendapatanController extends BaseCrudController<Pendapatan, Pendapa
     @Path("/request_koreksi")
     public boolean requestKoreksi(@NotNull Pendapatan x) {
         jdbi.useHandle(handle -> {
-            handle.createUpdate("update pendapatan set correction_status=1, corr_req_reason=:reason where id=:id")
+            handle.createUpdate("update pendapatan set correction_status=1, corr_req_reason=:reason" +
+                    " where id=:id")
                     .bind("reason", x.correctionRequestReason)
                     .bind("id", x.uuid)
                     .execute();
