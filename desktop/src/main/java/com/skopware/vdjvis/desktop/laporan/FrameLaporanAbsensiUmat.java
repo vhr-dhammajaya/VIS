@@ -74,7 +74,7 @@ public class FrameLaporanAbsensiUmat extends JInternalFrame {
 
         JPanel top = new JPanel(new FlowLayout(FlowLayout.LEADING));
         top.add(btnRefresh);
-        top.add(btnPrintLaporan);
+//        top.add(btnPrintLaporan);
 
         JPanel contentPane = new JPanel(new BorderLayout());
         contentPane.add(top, BorderLayout.NORTH);
