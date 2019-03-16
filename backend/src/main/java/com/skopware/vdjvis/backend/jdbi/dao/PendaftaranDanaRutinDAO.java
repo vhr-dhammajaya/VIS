@@ -2,7 +2,6 @@ package com.skopware.vdjvis.backend.jdbi.dao;
 
 import com.skopware.javautils.db.BaseCrudDAO;
 import com.skopware.vdjvis.api.entities.PendaftaranDanaRutin;
-import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.customizer.BindFields;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
