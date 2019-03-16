@@ -20,9 +20,6 @@ public class App {
 
         SwingUtilities.invokeLater(() -> {
             formLogin = new DialogLogin();
-            mainFrame = new MainFrame();
-            JDatePicker.popupOwner = mainFrame;
-
             formLogin.setVisible(true);
             formLogin.pack();
         });
@@ -33,6 +30,8 @@ public class App {
 
         formLogin.setVisible(false);
 
+        mainFrame = new MainFrame();
+        JDatePicker.popupOwner = mainFrame;
         mainFrame.setVisible(true);
         mainFrame.pack();
         mainFrame.setExtendedState(Frame.MAXIMIZED_BOTH);
@@ -43,7 +42,7 @@ public class App {
     public static void logout() {
         formLogin.setVisible(true);
 
-        mainFrame.setVisible(false);
+        mainFrame.dispose();
 
         loggedIn = false;
         currentUser = null;
