@@ -5,10 +5,11 @@ import com.skopware.javautils.swing.BasicCrudFrame;
 import com.skopware.javautils.swing.MasterDetailFrame;
 import com.skopware.javautils.swing.SwingHelper;
 import com.skopware.javautils.swing.grid.JDataGrid;
+import com.skopware.vdjvis.api.entities.DetilPembayaranDanaRutin;
 import com.skopware.vdjvis.api.entities.Pendapatan;
-import com.skopware.vdjvis.api.entities.Siswa;
 import com.skopware.vdjvis.desktop.absensi.FrameAbsensiSiswa;
 import com.skopware.vdjvis.desktop.absensi.FrameAbsensiUmat;
+import com.skopware.vdjvis.desktop.keuangan.GridDetilPembayaranDanaRutin;
 import com.skopware.vdjvis.desktop.keuangan.GridPendaftaranDanaRutin;
 import com.skopware.vdjvis.desktop.keuangan.GridPendapatan;
 import com.skopware.vdjvis.desktop.keuangan.GridPengeluaran;
@@ -51,6 +52,7 @@ public class MainFrame extends JFrame {
 
     private JMenu menuPendapatanPengeluaran;
     private JMenuItem menuPendaftaranDanaRutin;
+    private JMenuItem menuLihatDetilPembayaranDanaRutin;
     private JMenuItem menuCatatDanaLain;
     private JMenuItem menuCatatPengeluaran;
 
@@ -75,7 +77,7 @@ public class MainFrame extends JFrame {
     private JInternalFrame frameSettingIuranSamanagara;
 
     private JInternalFrame framePendaftaranDanaRutin;
-    private JInternalFrame framePembayaranDanaSosialTetap;
+    private JInternalFrame frameLihatDetilPembayaranDanaRutin;
     private JInternalFrame framePendapatanNonRutin;
     private JInternalFrame framePengeluaran;
 
@@ -145,23 +147,43 @@ public class MainFrame extends JFrame {
             showWindow("framePendaftaranDanaRutin", () -> new MasterDetailFrame<>("Dana sosial / tetap", "Pilih umat", "Daftar dana sosial & tetap untuk umat yg dipilih", GridUmat.createNoAddEditDelete(), GridPendaftaranDanaRutin.createDefault(), "umat_id"));
         });
 
-        menuCatatDanaLain = new JMenuItem("Catat dana masuk lainnya");
-        menuCatatDanaLain.addActionListener(e -> {
-            showWindow("framePendapatanNonRutin", () -> {
-                JDataGrid<Pendapatan> gridPendapatan;
+        menuLihatDetilPembayaranDanaRutin = new JMenuItem("Lihat detil pembayaran samanagara, dana sosial & tetap");
+        menuLihatDetilPembayaranDanaRutin.addActionListener(e -> {
+            showWindow("frameLihatDetilPembayaranDanaRutin", () -> {
+                JDataGrid<DetilPembayaranDanaRutin> grid;
 
                 switch (App.currentUser.tipe) {
                     case PENGURUS:
-                        gridPendapatan = new JDataGrid<>(GridPendapatan.createDefaultOptions());
+                        grid = new JDataGrid<>(GridDetilPembayaranDanaRutin.createDefaultOptions());
                         break;
                     case OPERATOR:
-                        gridPendapatan = new JDataGrid<>(GridPendapatan.createOptionsForOperator());
+                        grid = new JDataGrid<>(GridDetilPembayaranDanaRutin.createForOperator());
                         break;
                     default:
-                        throw new RuntimeException();
+                        throw new RuntimeException(String.valueOf(App.currentUser.tipe));
                 }
 
-                return new BasicCrudFrame<>("Dana masuk / pendapatan", gridPendapatan);
+                return new BasicCrudFrame<>("Detil pembayaran iuran samanagara, dana sosial, tetap", grid);
+            });
+        });
+
+        menuCatatDanaLain = new JMenuItem("Catat dana masuk lainnya");
+        menuCatatDanaLain.addActionListener(e -> {
+            showWindow("framePendapatanNonRutin", () -> {
+                JDataGrid<Pendapatan> grid;
+
+                switch (App.currentUser.tipe) {
+                    case PENGURUS:
+                        grid = new JDataGrid<>(GridPendapatan.createDefaultOptions());
+                        break;
+                    case OPERATOR:
+                        grid = new JDataGrid<>(GridPendapatan.createOptionsForOperator());
+                        break;
+                    default:
+                        throw new RuntimeException(String.valueOf(App.currentUser.tipe));
+                }
+
+                return new BasicCrudFrame<>("Dana masuk / pendapatan", grid);
             });
         });
 
@@ -225,6 +247,7 @@ public class MainFrame extends JFrame {
         menuSamanagara.add(menuSettingBiayaSamanagara);
 
         menuPendapatanPengeluaran.add(menuPendaftaranDanaRutin);
+        menuPendapatanPengeluaran.add(menuLihatDetilPembayaranDanaRutin);
         menuPendapatanPengeluaran.add(menuCatatDanaLain);
         menuPendapatanPengeluaran.add(menuCatatPengeluaran);
 

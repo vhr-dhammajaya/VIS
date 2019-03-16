@@ -23,9 +23,12 @@ public class App extends BaseApp<Config> {
         jdbi.registerRowMapper(Umat.class, new UmatRowMapper());
         jdbi.registerRowMapper(Siswa.class, new SiswaRowMapper());
         jdbi.registerRowMapper(User.class, new UserRowMapper());
+
         jdbi.registerRowMapper(Leluhur.class, new LeluhurRowMapper());
         jdbi.registerRowMapper(TarifSamanagara.class, new TarifSamanagaraRowMapper());
+
         jdbi.registerRowMapper(PendaftaranDanaRutin.class, new PendaftaranDanaRutinRowMapper());
+        jdbi.registerRowMapper(DetilPembayaranDanaRutin.class, new DetilPembayaranDanaRutinRowMapper());
         jdbi.registerRowMapper(Pendapatan.class, new PendapatanRowMapper());
         jdbi.registerRowMapper(Pengeluaran.class, new PengeluaranRowMapper());
     }
@@ -33,18 +36,24 @@ public class App extends BaseApp<Config> {
     @Override
     protected void registerControllers(Config config, Environment env) {
         JerseyEnvironment jersey = env.jersey();
+
         jersey.register(new AcaraController(jdbi));
         jersey.register(new UmatController(jdbi));
         jersey.register(new SiswaController(jdbi));
         jersey.register(new UserController(jdbi));
+
         jersey.register(new LeluhurController(jdbi));
         jersey.register(new TarifSamanagaraController(jdbi));
         jersey.register(new LokasiFotoController(jdbi));
+
         jersey.register(new PendaftaranDanaRutinController(jdbi));
+        jersey.register(new DetilPembayaranDanaRutinController(jdbi));
         jersey.register(new PendapatanController(jdbi));
         jersey.register(new PengeluaranController(jdbi));
+
         jersey.register(new AbsensiUmatController(jdbi));
         jersey.register(new AbsensiSiswaController(jdbi));
+
         jersey.register(new LaporanController(jdbi));
     }
 }
