@@ -3,20 +3,29 @@ package com.skopware.vdjvis.desktop.keuangan;
 import com.skopware.javautils.ObjectHelper;
 import com.skopware.javautils.Tuple2;
 import com.skopware.javautils.httpclient.HttpHelper;
+import com.skopware.javautils.jasperreports.JasperHelper;
 import com.skopware.javautils.swing.BaseCrudForm;
 import com.skopware.javautils.swing.BaseCrudTableModel;
 import com.skopware.javautils.swing.JDatePicker;
 import com.skopware.javautils.swing.SwingHelper;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
+import com.skopware.javautils.swing.grid.SortConfig;
 import com.skopware.vdjvis.api.entities.DetilPembayaranDanaRutin;
+import com.skopware.vdjvis.api.entities.Pendapatan;
 import com.skopware.vdjvis.desktop.App;
 import com.skopware.vdjvis.desktop.DialogInputAlasanMintaPembetulan;
 import com.skopware.vdjvis.desktop.MainFrame;
+import net.sf.jasperreports.engine.JREmptyDataSource;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.view.JasperViewer;
 import org.apache.http.client.methods.HttpPost;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GridDetilPembayaranDanaRutin {
     public static JDataGridOptions<DetilPembayaranDanaRutin> createDefaultOptions() {
@@ -85,8 +94,33 @@ public class GridDetilPembayaranDanaRutin {
         o.recordType = DetilPembayaranDanaRutin.class;
         o.appConfig = App.config;
         o.shortControllerUrl = "/detil_pembayaran_dana_rutin";
+        o.initialSortConfig.add(ObjectHelper.apply(new SortConfig(), x -> {
+            x.field = "tgl";
+            x.dir = SortConfig.SortDir.DESC;
+        }));
 
         o.fnShowEditForm = (rec, idx) -> new FormDetilPembayaranDanaRutin(App.mainFrame, rec, idx);
+
+        JButton btnCetakKuitansi = new JButton("Cetak tanda terima");
+        btnCetakKuitansi.addActionListener(e -> {
+            DetilPembayaranDanaRutin sel = o.grid.getSelectedRecord();
+            if (sel == null) {
+                return;
+            }
+
+            Map<String, Object> params = new HashMap<>();
+            params.put("NamaUmat", sel.umat.nama);
+            params.put("NominalDana", sel.nominal);
+            params.put("KeperluanDana", sel.getKeperluanDana());
+            params.put("KeteranganTambahan", sel.keterangan);
+
+            JasperReport jasperReport = JasperHelper.loadJasperFileFromResource(GridPendapatan.class, "tanda_terima_dana.jasper");
+            JasperPrint jasperPrint = JasperHelper.fillReport(jasperReport, params, new JREmptyDataSource());
+            JasperViewer viewer = new JasperViewer(jasperPrint, false);
+            viewer.setVisible(true);
+        });
+
+        o.additionalToolbarButtons.add(btnCetakKuitansi);
 
         return o;
     }

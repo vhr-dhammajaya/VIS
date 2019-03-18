@@ -1,5 +1,6 @@
 package com.skopware.vdjvis.api.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.skopware.javautils.db.BaseRecord;
 
@@ -21,4 +22,21 @@ public class DetilPembayaranDanaRutin extends BaseRecord<DetilPembayaranDanaRuti
     @JsonProperty public Umat umat;
     @JsonProperty public PendaftaranDanaRutin danaRutin;
     @JsonProperty public Leluhur leluhurSamanagara;
+
+    @JsonIgnore
+    public String getKeperluanDana() {
+        StringBuilder sb = new StringBuilder();
+
+        if (leluhurSamanagara != null) {
+            // samanagara
+            return String.format("Iuran samanagara untuk leluhur %s bulan %d tahun %d", leluhurSamanagara.nama, untukBulan.getMonthValue(), untukBulan.getYear());
+        }
+        else if (danaRutin != null) {
+            // dana sosial / tetap
+            return String.format("Dana %s untuk bulan %d tahun %d", jenis.name(), untukBulan.getMonthValue(), untukBulan.getYear());
+        }
+        else {
+            throw new IllegalStateException();
+        }
+    }
 }
