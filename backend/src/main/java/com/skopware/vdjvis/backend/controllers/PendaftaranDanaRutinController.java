@@ -65,7 +65,7 @@ public class PendaftaranDanaRutinController extends BaseCrudController<Pendaftar
             PendaftaranDanaRutin pendaftaranDanaRutin = pendaftaranDanaRutinDAO.get(x.idPendaftaran);
 
             Optional<LocalDate> lastPaidMonth = h.select("select max(ut_thn_bln) from pembayaran_dana_rutin" +
-                    " where umat_id=? and dana_rutin_id=?", pendaftaranDanaRutin.umat.uuid, x.idPendaftaran)
+                    " where active=1 and umat_id=? and dana_rutin_id=?", pendaftaranDanaRutin.umat.uuid, x.idPendaftaran)
                     .mapTo(LocalDate.class)
                     .findFirst();
             LocalDate currentMonth;

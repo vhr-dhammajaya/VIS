@@ -92,7 +92,8 @@ public class LeluhurController extends BaseCrudController<Leluhur, LeluhurDAO> {
             List<Tuple3<LocalDate, LocalDate, Integer>> listTarifSamanagara = Leluhur.fetchListTarifSamanagara(handle);
 
             for (Leluhur2 leluhur : listLeluhur) {
-                Optional<LocalDate> lastPayment = handle.select("select max(ut_thn_bln) from pembayaran_dana_rutin where umat_id=? and leluhur_id=?", umat.uuid, leluhur.uuid)
+                Optional<LocalDate> lastPayment = handle.select("select max(ut_thn_bln) from pembayaran_dana_rutin" +
+                        " where active=1 and umat_id=? and leluhur_id=?", umat.uuid, leluhur.uuid)
                         .mapTo(LocalDate.class)
                         .findFirst();
                 YearMonth lastPaymentMonth;
@@ -156,7 +157,7 @@ public class LeluhurController extends BaseCrudController<Leluhur, LeluhurDAO> {
 
             for (DtoStatusBayarLeluhur leluhur : pembayaran.listLeluhur) {
                 Optional<LocalDate> lastPaidMonth = handle.select("select max(ut_thn_bln) from pembayaran_dana_rutin" +
-                        " where umat_id=? and leluhur_id=?", pembayaran.umatId, leluhur.leluhurId)
+                        " where active=1 and umat_id=? and leluhur_id=?", pembayaran.umatId, leluhur.leluhurId)
                         .mapTo(LocalDate.class)
                         .findFirst();
                 LocalDate currentMonth;
