@@ -174,7 +174,7 @@ public class MainFrame extends JFrame {
 
                 switch (App.currentUser.tipe) {
                     case PENGURUS:
-                        grid = new JDataGrid<>(GridPendapatan.createDefaultOptions());
+                        grid = new JDataGrid<>(GridPendapatan.createBaseOptions());
                         break;
                     case OPERATOR:
                         grid = new JDataGrid<>(GridPendapatan.createOptionsForOperator());

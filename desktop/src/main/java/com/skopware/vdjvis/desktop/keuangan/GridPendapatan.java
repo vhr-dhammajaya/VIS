@@ -3,6 +3,7 @@ package com.skopware.vdjvis.desktop.keuangan;
 import com.skopware.javautils.ObjectHelper;
 import com.skopware.javautils.Tuple2;
 import com.skopware.javautils.httpclient.HttpHelper;
+import com.skopware.javautils.jasperreports.JasperHelper;
 import com.skopware.javautils.swing.*;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
 import com.skopware.vdjvis.api.entities.Acara;
@@ -12,17 +13,21 @@ import com.skopware.vdjvis.desktop.App;
 import com.skopware.vdjvis.desktop.DialogInputAlasanMintaPembetulan;
 import com.skopware.vdjvis.desktop.master.GridAcara;
 import com.skopware.vdjvis.desktop.master.GridUmat;
+import net.sf.jasperreports.engine.JREmptyDataSource;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.view.JasperViewer;
 import org.apache.http.client.methods.HttpPost;
 
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 import java.util.List;
 
 public class GridPendapatan {
-    public static JDataGridOptions<Pendapatan> createDefaultOptions() {
+    public static JDataGridOptions<Pendapatan> createBaseOptions() {
         JDataGridOptions<Pendapatan> o = new JDataGridOptions<>();
 
         o.columnConfigs = Arrays.asList(
@@ -72,11 +77,32 @@ public class GridPendapatan {
         o.fnShowCreateForm = () -> new FormPendapatan(App.mainFrame);
         o.fnShowEditForm = (rec, idx) -> new FormPendapatan(App.mainFrame, rec, idx);
 
+        JButton btnCetakKuitansi = new JButton("Cetak tanda terima");
+        btnCetakKuitansi.addActionListener(e -> {
+            Pendapatan sel = o.grid.getSelectedRecord();
+            if (sel == null) {
+                return;
+            }
+
+            Map<String, Object> params = new HashMap<>();
+            params.put("NamaUmat", sel.umat == null? "" : sel.umat.nama);
+            params.put("NominalDana", sel.nominal);
+            params.put("KeperluanDana", sel.getKeperluanDana());
+            params.put("KeteranganTambahan", sel.keterangan);
+
+            JasperReport jasperReport = JasperHelper.loadJasperFileFromResource(GridPendapatan.class, "tanda_terima_dana.jasper");
+            JasperPrint jasperPrint = JasperHelper.fillReport(jasperReport, params, new JREmptyDataSource());
+            JasperViewer viewer = new JasperViewer(jasperPrint, false);
+            viewer.setVisible(true);
+        });
+
+        o.additionalToolbarButtons.add(btnCetakKuitansi);
+
         return o;
     }
 
     public static JDataGridOptions<Pendapatan> createOptionsForOperator() {
-        JDataGridOptions<Pendapatan> o = createDefaultOptions();
+        JDataGridOptions<Pendapatan> o = createBaseOptions();
         o.enableEdit = o.enableDelete = false;
 
         JButton btnMintaPembetulan = new JButton("Minta pembetulan");

@@ -20,6 +20,18 @@ public class Pendapatan extends BaseRecord<Pendapatan> {
     @JsonProperty public Umat umat;
     @JsonProperty public Acara acara;
 
+    @JsonIgnore
+    public String getKeperluanDana() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("- " + jenisDana.label + "\n");
+
+        if (acara != null) {
+            sb.append("- Untuk acara: " + acara.nama);
+        }
+
+        return sb.toString();
+    }
+
     public enum JenisDana {
         //IURAN_SAMANAGARA("Iuran samanagara"), DANA_SOSIAL("Dana sosial"), DANA_TETAP("Dana tetap"),
         DANA_SUKARELA("Dana sukarela"), DANA_PARAMITTA("Dana paramitta"), HAPPY_SUNDAY("Happy Sunday"), KOTAK_DANA("Kotak dana"), LAIN_2("Lain-2");
