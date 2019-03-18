@@ -46,12 +46,10 @@ public class GridSettingTarifSamanagara {
         o.recordType = TarifSamanagara.class;
         o.appConfig = App.config;
         o.shortControllerUrl = "/tarif_samanagara";
-        o.initialSortConfig = ObjectHelper.apply(new ArrayList<>(), list -> {
-            list.add(ObjectHelper.apply(new SortConfig(), x -> {
-                x.field = "start_date";
-                x.dir = SortConfig.SortDir.DESC;
-            }));
-        });
+        o.initialSortConfig.add(ObjectHelper.apply(new SortConfig(), x -> {
+            x.field = "start_date";
+            x.dir = SortConfig.SortDir.DESC;
+        }));
 
         JButton btnUpdateNominal = new JButton("Update nominal");
         o.additionalToolbarButtons = Arrays.asList(btnUpdateNominal);
