@@ -7,6 +7,7 @@ import com.skopware.javautils.swing.SwingHelper;
 import com.skopware.javautils.swing.grid.JDataGrid;
 import com.skopware.vdjvis.api.entities.DetilPembayaranDanaRutin;
 import com.skopware.vdjvis.api.entities.Pendapatan;
+import com.skopware.vdjvis.api.entities.User;
 import com.skopware.vdjvis.desktop.absensi.FrameAbsensiSiswa;
 import com.skopware.vdjvis.desktop.absensi.FrameAbsensiUmat;
 import com.skopware.vdjvis.desktop.keuangan.GridDetilPembayaranDanaRutin;
@@ -118,10 +119,12 @@ public class MainFrame extends JFrame {
             showWindow("frameMasterAcara", () -> new BasicCrudFrame<>("Master Acara", GridAcara.createDefault()));
         });
 
-        menuMasterUser = new JMenuItem("User");
-        menuMasterUser.addActionListener((event) -> {
-            showWindow("frameMasterUser", () -> new BasicCrudFrame<>("Master User", GridUser.createDefault()));
-        });
+        if (User.Type.PENGURUS.equals(App.currentUser.tipe)) {
+            menuMasterUser = new JMenuItem("User");
+            menuMasterUser.addActionListener((event) -> {
+                showWindow("frameMasterUser", () -> new BasicCrudFrame<>("Master User", GridUser.createDefault()));
+            });
+        }
         //#endregion
 
         //#region menuSamanagara child
@@ -240,7 +243,10 @@ public class MainFrame extends JFrame {
         menuMaster.add(menuMasterUmat);
         menuMaster.add(menuMasterSiswa);
         menuMaster.add(menuMasterAcara);
-        menuMaster.add(menuMasterUser);
+
+        if (User.Type.PENGURUS.equals(App.currentUser.tipe)) {
+            menuMaster.add(menuMasterUser);
+        }
 
         menuSamanagara.add(menuPendaftaranSamanagara);
         menuSamanagara.add(menuLokasiFoto);
