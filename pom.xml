@@ -11,6 +11,7 @@
 
         <!-- can't use absolute path -->
         <module>../../personal/skopware_utils/javautils</module>
+        <module>migrasi_data</module>
     </modules>
 
     <groupId>com.skopware.vdjvis</groupId>

@@ -9,6 +9,7 @@
         <module name="backend" />
         <module name="desktop" />
         <module name="javautils" />
+        <module name="migrasi_data" />
         <module name="shared" />
       </profile>
     </annotationProcessing>
