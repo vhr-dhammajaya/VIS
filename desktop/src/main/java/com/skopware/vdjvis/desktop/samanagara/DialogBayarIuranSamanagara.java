@@ -7,9 +7,11 @@ import com.skopware.javautils.Tuple3;
 import com.skopware.javautils.db.PageData;
 import com.skopware.javautils.httpclient.HttpGetWithBody;
 import com.skopware.javautils.httpclient.HttpHelper;
+import com.skopware.javautils.swing.BaseCrudTableModel;
 import com.skopware.javautils.swing.JDatePicker;
 import com.skopware.javautils.swing.SwingHelper;
 import com.skopware.javautils.swing.grid.GridConfig;
+import com.skopware.javautils.swing.jtable.celleditor.JSpinnerCellEditor;
 import com.skopware.vdjvis.api.dto.DtoPembayaranSamanagara;
 import com.skopware.vdjvis.api.dto.DtoStatusBayarLeluhur;
 import com.skopware.vdjvis.api.entities.TarifSamanagara;
@@ -21,6 +23,7 @@ import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableColumn;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -35,7 +38,8 @@ public class DialogBayarIuranSamanagara extends JDialog {
     private List<Tuple3<LocalDate, LocalDate, Integer>> listTarifSamanagara;
     private List<DtoStatusBayarLeluhur> listStatusLeluhur;
     private JTable tblLeluhur;
-    private LeluhurTableModel leluhurTableModel;
+//    private LeluhurTableModel leluhurTableModel;
+    private BaseCrudTableModel<DtoStatusBayarLeluhur> leluhurTableModel;
     private JFormattedTextField edTotalBayarRp;
     private JDatePicker edTglTrans;
     private JComboBox<String> edChannel;
@@ -62,7 +66,34 @@ public class DialogBayarIuranSamanagara extends JDialog {
                 .map(tarifSamanagara -> new Tuple3<>(tarifSamanagara.startDate, tarifSamanagara.endDate, tarifSamanagara.nominal))
                 .collect(Collectors.toList());
 
-        leluhurTableModel = new LeluhurTableModel();
+        leluhurTableModel = new BaseCrudTableModel<>();
+        List<BaseCrudTableModel.ColumnConfig> columnConfigs = Arrays.asList(
+                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                    x.fieldName = "leluhurNama";
+                    x.label = "Nama leluhur";
+                }),
+                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                    x.fieldName = "strStatusBayar";
+                    x.label = "Status bayar";
+                }),
+                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                    x.fieldName = "diffInMonths";
+                    x.label = "Berapa bulan";
+                }),
+                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                    x.fieldName = "nominal";
+                    x.label = "Rp";
+                }),
+                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                    x.fieldName = "mauBayarBrpBulan";
+                    x.label = "Mau bayar brp bulan?";
+                    x.editable = true;
+                })
+        );
+        leluhurTableModel.setColumnConfigs(columnConfigs);
+        leluhurTableModel.setRecordType(DtoStatusBayarLeluhur.class);
+        leluhurTableModel.setData(listStatusLeluhur);
+
         leluhurTableModel.addTableModelListener(e -> {
             // recompute edTotalBayarRp
             int totalBayarRp = 0;
@@ -80,6 +111,8 @@ public class DialogBayarIuranSamanagara extends JDialog {
             edTotalBayarRp.setValue(totalBayarRp);
         });
         tblLeluhur = new JTable(leluhurTableModel);
+        TableColumn colMauBayarBrpBulan = tblLeluhur.getColumnModel().getColumn(4);
+        colMauBayarBrpBulan.setCellEditor(new JSpinnerCellEditor(new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1)));
 
         edTotalBayarRp = new JFormattedTextField(new DecimalFormat("###,###,##0"));
         edTotalBayarRp.setColumns(9);
@@ -126,74 +159,5 @@ public class DialogBayarIuranSamanagara extends JDialog {
 
         JPanel contentPane = SwingHelper.createOkCancelPanel(scrollPane, btnOk, btnCancel);
         setContentPane(contentPane);
-    }
-
-    private static String[] columnLabels = {"Nama leluhur", "Status bayar", "Berapa bulan", "Rp", "Mau bayar brp bulan?"};
-    private static Class[] columnClasses = {String.class, String.class, Integer.class, Integer.class, Integer.class}; // can't use int.class if want to be editable
-    private static boolean[] columnEditableFlags = {false, false, false, false, true};
-    private static Map<Integer, String> columnKeyByIndex = ObjectHelper.apply(new HashMap<>(), x -> {
-        x.put(0, "leluhur_nama");
-        x.put(1, "strStatusBayar");
-        x.put(2, "diffInMonths");
-        x.put(3, "totalRp");
-        x.put(4, "mauBayarBrpBulan?");
-    });
-
-    private class LeluhurTableModel extends AbstractTableModel {
-        @Override
-        public int getRowCount() {
-            return listStatusLeluhur.size();
-        }
-
-        @Override
-        public int getColumnCount() {
-            // nama leluhur, strStatusBayar, berapa bulan, rp, mau bayar brp bulan
-            return columnLabels.length;
-        }
-
-        @Override
-        public String getColumnName(int column) {
-            return columnLabels[column];
-        }
-
-        @Override
-        public Class<?> getColumnClass(int columnIndex) {
-            return columnClasses[columnIndex];
-        }
-
-        @Override
-        public boolean isCellEditable(int rowIndex, int columnIndex) {
-            return columnEditableFlags[columnIndex];
-        }
-
-        @Override
-        public Object getValueAt(int rowIndex, int columnIndex) {
-            DtoStatusBayarLeluhur row = listStatusLeluhur.get(rowIndex);
-            switch (columnIndex) {
-                case 0:
-                    return row.leluhurNama;
-                case 1:
-                    return row.strStatusBayar;
-                case 2:
-                    return row.diffInMonths;
-                case 3:
-                    return row.nominal;
-                case 4:
-                    return row.mauBayarBrpBulan;
-                default:
-                    throw new IllegalArgumentException("columnIndex: " + columnIndex);
-            }
-        }
-
-        @Override
-        public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-            DtoStatusBayarLeluhur row = listStatusLeluhur.get(rowIndex);
-
-            if (columnIndex == 4) {
-                row.mauBayarBrpBulan = (int) aValue;
-            }
-
-            fireTableCellUpdated(rowIndex, columnIndex);
-        }
     }
 }
