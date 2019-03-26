@@ -14,6 +14,7 @@ import com.skopware.javautils.swing.grid.GridConfig;
 import com.skopware.javautils.swing.jtable.celleditor.JSpinnerCellEditor;
 import com.skopware.vdjvis.api.dto.DtoPembayaranSamanagara;
 import com.skopware.vdjvis.api.dto.DtoStatusBayarLeluhur;
+import com.skopware.vdjvis.api.entities.Leluhur;
 import com.skopware.vdjvis.api.entities.TarifSamanagara;
 import com.skopware.vdjvis.api.entities.Umat;
 import com.skopware.vdjvis.desktop.App;
@@ -34,6 +35,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class DialogBayarIuranSamanagara extends JDialog {
+    private static final int IDX_COL_MAU_BAYAR_BRP_BULAN = 4;
+    private static final int IDX_COL_NOMINAL_YG_MAU_DIBAYARKAN = 5;
     private Umat umat;
     private List<Tuple3<LocalDate, LocalDate, Integer>> listTarifSamanagara;
     private List<DtoStatusBayarLeluhur> listStatusLeluhur;
@@ -88,6 +91,10 @@ public class DialogBayarIuranSamanagara extends JDialog {
                     x.fieldName = "mauBayarBrpBulan";
                     x.label = "Mau bayar brp bulan?";
                     x.editable = true;
+                }),
+                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                    x.fieldName = "nominalYgMauDibayarkan";
+                    x.label = "Nominal yg mau dibayarkan";
                 })
         );
         leluhurTableModel.setColumnConfigs(columnConfigs);
@@ -95,23 +102,37 @@ public class DialogBayarIuranSamanagara extends JDialog {
         leluhurTableModel.setData(listStatusLeluhur);
 
         leluhurTableModel.addTableModelListener(e -> {
-            // recompute edTotalBayarRp
-            int totalBayarRp = 0;
+            /*
+            this if is neccessary
+            if not, will stack overflow.
+            Because fireTableCellUpdated(..., IDX_COL_NOMINAL_YG_MAU_DIBAYARKAN); (called below) will trigger this lambda (recursive)
+             */
+            if (e.getColumn() == IDX_COL_MAU_BAYAR_BRP_BULAN) {
+                // recompute edTotalBayarRp
+                int totalBayarRp = 0;
 
-            for (DtoStatusBayarLeluhur leluhur : listStatusLeluhur) {
-                for (int i = 1; i <= leluhur.mauBayarBrpBulan; i++) {
-                    YearMonth currYm = leluhur.lastPaymentMonth.plusMonths(i);
-                    LocalDate currDate = leluhur.leluhurTglDaftar.withYear(currYm.getYear()).withMonth(currYm.getMonthValue());
+                for (int cntLeluhur = 0; cntLeluhur < listStatusLeluhur.size(); cntLeluhur++) {
+                    DtoStatusBayarLeluhur leluhur = listStatusLeluhur.get(cntLeluhur);
+                    int totalBayarUtLeluhurX = 0;
 
-                    int nominalBulanIni = DateTimeHelper.findValueInDateRange(currDate, listTarifSamanagara).get();
-                    totalBayarRp += nominalBulanIni;
+                    for (int cntBulan = 1; cntBulan <= leluhur.mauBayarBrpBulan; cntBulan++) {
+                        YearMonth currYm = leluhur.lastPaymentMonth.plusMonths(cntBulan);
+                        LocalDate currDate = leluhur.leluhurTglDaftar.withYear(currYm.getYear()).withMonth(currYm.getMonthValue());
+
+                        int nominalBulanIni = DateTimeHelper.findValueInDateRange(currDate, listTarifSamanagara).get();
+                        totalBayarUtLeluhurX += nominalBulanIni;
+                        totalBayarRp += nominalBulanIni;
+                    }
+
+                    leluhur.nominalYgMauDibayarkan = totalBayarUtLeluhurX;
+                    leluhurTableModel.fireTableCellUpdated(cntLeluhur, IDX_COL_NOMINAL_YG_MAU_DIBAYARKAN);
                 }
-            }
 
-            edTotalBayarRp.setValue(totalBayarRp);
+                edTotalBayarRp.setValue(totalBayarRp);
+            }
         });
         tblLeluhur = new JTable(leluhurTableModel);
-        TableColumn colMauBayarBrpBulan = tblLeluhur.getColumnModel().getColumn(4);
+        TableColumn colMauBayarBrpBulan = tblLeluhur.getColumnModel().getColumn(IDX_COL_MAU_BAYAR_BRP_BULAN);
         colMauBayarBrpBulan.setCellEditor(new JSpinnerCellEditor(new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1)));
 
         edTotalBayarRp = new JFormattedTextField(new DecimalFormat("###,###,##0"));

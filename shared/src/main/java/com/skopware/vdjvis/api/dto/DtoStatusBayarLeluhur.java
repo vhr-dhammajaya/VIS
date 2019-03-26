@@ -17,4 +17,5 @@ public class DtoStatusBayarLeluhur {
     @JsonProperty public int nominal;
 
     @JsonProperty public int mauBayarBrpBulan = 0;
+    @JsonProperty public int nominalYgMauDibayarkan;
 }
