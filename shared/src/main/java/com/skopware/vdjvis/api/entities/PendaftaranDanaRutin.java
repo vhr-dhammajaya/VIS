@@ -52,12 +52,12 @@ public class PendaftaranDanaRutin extends BaseRecord<PendaftaranDanaRutin> {
         int statusByr = lastPaymentMonth.compareTo(todayMonth); // 0=tepat waktu, -1=kurang bayar, 1=lebih bayar
         String jenisDana = danaRutin.tipe.name();
         String strStatusBayar;
-        long diffInMonths;
-        long totalRp;
+        int diffInMonths;
+        int totalRp;
 
         if (statusByr < 0) {
             strStatusBayar = "Kurang bayar";
-            diffInMonths = lastPaymentMonth.until(todayMonth, ChronoUnit.MONTHS);
+            diffInMonths = (int) lastPaymentMonth.until(todayMonth, ChronoUnit.MONTHS);
             totalRp = diffInMonths * danaRutin.nominal;
         }
         else if (statusByr == 0)  {
@@ -67,7 +67,7 @@ public class PendaftaranDanaRutin extends BaseRecord<PendaftaranDanaRutin> {
         }
         else {
             strStatusBayar = "Lebih bayar";
-            diffInMonths = todayMonth.until(lastPaymentMonth, ChronoUnit.MONTHS);
+            diffInMonths = (int) todayMonth.until(lastPaymentMonth, ChronoUnit.MONTHS);
             totalRp = 0;
         }
 

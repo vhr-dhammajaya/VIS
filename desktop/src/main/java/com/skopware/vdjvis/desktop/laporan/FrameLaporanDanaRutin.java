@@ -47,7 +47,7 @@ public class FrameLaporanDanaRutin extends JInternalFrame {
                 x.label = "Status bayar";
             }),
             ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                x.fieldName = "diffInMonths";
+                x.fieldName = "countBulan";
                 x.label = "Berapa bulan";
             }),
             ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {

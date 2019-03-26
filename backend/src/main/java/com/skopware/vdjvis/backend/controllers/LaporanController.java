@@ -8,6 +8,8 @@ import com.skopware.vdjvis.api.entities.Leluhur;
 import com.skopware.vdjvis.api.entities.PendaftaranDanaRutin;
 import com.skopware.vdjvis.api.entities.StatusBayar;
 import com.skopware.vdjvis.api.entities.Umat;
+import com.skopware.vdjvis.api.laporan.pemasukan_pengeluaran_bulanan.DtoInputLaporanPemasukanPengeluaran;
+import com.skopware.vdjvis.api.laporan.pemasukan_pengeluaran_bulanan.DtoOutputLaporanPemasukanPengeluaran;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.statement.Query;
@@ -91,7 +93,7 @@ public class LaporanController {
 
                     x.statusBayar = statusBayar.status;
                     x.strStatusBayar = statusBayar.strStatus;
-                    x.diffInMonths = statusBayar.countBulan;
+                    x.countBulan = statusBayar.countBulan;
                     x.nominal = statusBayar.nominal;
                 }));
             }
@@ -146,7 +148,7 @@ public class LaporanController {
 
                     x.statusBayar = statusBayar.status;
                     x.strStatusBayar = statusBayar.strStatus;
-                    x.diffInMonths = statusBayar.countBulan;
+                    x.countBulan = statusBayar.countBulan;
                     x.nominal = statusBayar.nominal;
                 }));
             }

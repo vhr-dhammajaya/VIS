@@ -1,4 +1,4 @@
-package com.skopware.vdjvis.api.dto;
+package com.skopware.vdjvis.api.laporan.pemasukan_pengeluaran_bulanan;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

@@ -60,12 +60,12 @@ public class Leluhur extends BaseRecord<Leluhur> {
 
         int statusBayar = lastPaymentMonth.compareTo(todayMonth);
         String strStatusBayar;
-        long diffInMonths;
-        long totalRp;
+        int diffInMonths;
+        int totalRp;
 
         if (statusBayar < 0) {
             strStatusBayar = "Kurang bayar";
-            diffInMonths = lastPaymentMonth.until(todayMonth, ChronoUnit.MONTHS);
+            diffInMonths = (int) lastPaymentMonth.until(todayMonth, ChronoUnit.MONTHS);
             totalRp = hitungTotalHutangIuranSamanagara(diffInMonths, lastPaymentMonth, leluhur.tglDaftar, listTarifSamanagara);
         }
         else if (statusBayar == 0)  {
@@ -75,7 +75,7 @@ public class Leluhur extends BaseRecord<Leluhur> {
         }
         else {
             strStatusBayar = "Lebih bayar";
-            diffInMonths = todayMonth.until(lastPaymentMonth, ChronoUnit.MONTHS);
+            diffInMonths = (int) todayMonth.until(lastPaymentMonth, ChronoUnit.MONTHS);
             totalRp = 0;
         }
 
@@ -100,8 +100,8 @@ public class Leluhur extends BaseRecord<Leluhur> {
         return result;
     }
 
-    public static long hitungTotalHutangIuranSamanagara(long berapaBulan, YearMonth lastPaymentMonth, LocalDate tglDaftar, List<Tuple3<LocalDate, LocalDate, Integer>> listTarifSamanagara) {
-        long totalRp = 0;
+    public static int hitungTotalHutangIuranSamanagara(int berapaBulan, YearMonth lastPaymentMonth, LocalDate tglDaftar, List<Tuple3<LocalDate, LocalDate, Integer>> listTarifSamanagara) {
+        int totalRp = 0;
 
         for (int i = 1; i <= berapaBulan; i++) {
             YearMonth currYm = lastPaymentMonth.plusMonths(i);

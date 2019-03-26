@@ -107,12 +107,12 @@ public class LeluhurController extends BaseCrudController<Leluhur, LeluhurDAO> {
 
                 int statusBayar = lastPaymentMonth.compareTo(todayMonth);
                 String strStatusBayar;
-                long diffInMonths;
-                long totalRp;
+                int diffInMonths;
+                int totalRp;
 
                 if (statusBayar < 0) {
                     strStatusBayar = "Kurang bayar";
-                    diffInMonths = lastPaymentMonth.until(todayMonth, ChronoUnit.MONTHS);
+                    diffInMonths = (int) lastPaymentMonth.until(todayMonth, ChronoUnit.MONTHS);
 
                     // hitung jumlah kurang bayar
                     totalRp = Leluhur.hitungTotalHutangIuranSamanagara(diffInMonths, lastPaymentMonth, leluhur.tglDaftar, listTarifSamanagara);
@@ -124,13 +124,13 @@ public class LeluhurController extends BaseCrudController<Leluhur, LeluhurDAO> {
                 }
                 else {
                     strStatusBayar = "Lebih bayar";
-                    diffInMonths = todayMonth.until(lastPaymentMonth, ChronoUnit.MONTHS);
+                    diffInMonths = (int) todayMonth.until(lastPaymentMonth, ChronoUnit.MONTHS);
                     totalRp = 0;
                 }
 
                 String strStatusBayar2 = strStatusBayar;
-                long diffInMonths2 = diffInMonths;
-                long totalRp2 = totalRp;
+                int diffInMonths2 = diffInMonths;
+                int totalRp2 = totalRp;
 
                 result.add(ObjectHelper.apply(new DtoStatusBayarLeluhur(), x -> {
                     x.leluhurId = leluhur.uuid;
@@ -140,7 +140,7 @@ public class LeluhurController extends BaseCrudController<Leluhur, LeluhurDAO> {
                     x.statusBayar = statusBayar;
                     x.strStatusBayar = strStatusBayar2;
                     x.lastPaymentMonth = lastPaymentMonth;
-                    x.diffInMonths = diffInMonths2;
+                    x.countBulan = diffInMonths2;
                     x.nominal = totalRp2;
                 }));
             }

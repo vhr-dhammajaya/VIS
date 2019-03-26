@@ -13,8 +13,8 @@ public class DtoStatusBayarLeluhur {
     @JsonProperty public int statusBayar;
     @JsonProperty public String strStatusBayar;
     @JsonProperty public YearMonth lastPaymentMonth;
-    @JsonProperty public long diffInMonths;
-    @JsonProperty public long nominal;
+    @JsonProperty public int countBulan;
+    @JsonProperty public int nominal;
 
     @JsonProperty public int mauBayarBrpBulan = 0;
 }

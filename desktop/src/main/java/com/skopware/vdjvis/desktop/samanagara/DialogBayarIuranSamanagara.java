@@ -77,7 +77,7 @@ public class DialogBayarIuranSamanagara extends JDialog {
                     x.label = "Status bayar";
                 }),
                 ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                    x.fieldName = "diffInMonths";
+                    x.fieldName = "countBulan";
                     x.label = "Berapa bulan";
                 }),
                 ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {

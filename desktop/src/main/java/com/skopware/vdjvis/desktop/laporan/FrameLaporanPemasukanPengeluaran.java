@@ -7,12 +7,11 @@ import com.skopware.javautils.httpclient.HttpHelper;
 import com.skopware.javautils.swing.BaseCrudTableModel;
 import com.skopware.javautils.swing.JDatePicker;
 import com.skopware.javautils.swing.SwingHelper;
-import com.skopware.vdjvis.api.dto.DtoInputLaporanPemasukanPengeluaran;
-import com.skopware.vdjvis.api.dto.DtoOutputLaporanPemasukanPengeluaran;
+import com.skopware.vdjvis.api.laporan.pemasukan_pengeluaran_bulanan.DtoInputLaporanPemasukanPengeluaran;
+import com.skopware.vdjvis.api.laporan.pemasukan_pengeluaran_bulanan.DtoOutputLaporanPemasukanPengeluaran;
 import com.skopware.vdjvis.desktop.App;
 
 import javax.swing.*;
-import javax.swing.table.AbstractTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.time.LocalDate;
