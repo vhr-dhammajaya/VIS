@@ -43,16 +43,20 @@ public class FrameLaporanDanaRutin extends JInternalFrame {
                 x.label = "Nama leluhur (ut Samanagara)";
             }),
             ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                x.fieldName = "strStatusBayar";
+                x.fieldName = "statusBayar.strStatus";
                 x.label = "Status bayar";
             }),
             ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                x.fieldName = "countBulan";
+                x.fieldName = "statusBayar.countBulan";
                 x.label = "Berapa bulan";
             }),
             ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                x.fieldName = "nominal";
+                x.fieldName = "statusBayar.nominal";
                 x.label = "Kurang bayar (Rp)";
+            }),
+            ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                x.fieldName = "statusBayar.lastPaidMonth";
+                x.label = "Pembayaran terakhir di bulan";
             })
     );
 

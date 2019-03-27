@@ -59,7 +59,13 @@ public class GridPendaftaranDanaRutin {
                     x.fieldName = "statusBayar.nominal";
                     x.filterable = false;
                     x.sortable = false;
-                    x.label = "Rp.";
+                    x.label = "Kurang bayar (Rp)";
+                }),
+                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                    x.fieldName = "statusBayar.lastPaidMonth";
+                    x.filterable = false;
+                    x.sortable = false;
+                    x.label = "Pembayaran terakhir di bulan";
                 })
         );
 

@@ -91,10 +91,7 @@ public class LaporanController {
 
                     x.jenisDana = danaRutin.tipe;
 
-                    x.statusBayar = statusBayar.status;
-                    x.strStatusBayar = statusBayar.strStatus;
-                    x.countBulan = statusBayar.countBulan;
-                    x.nominal = statusBayar.nominal;
+                    x.statusBayar = statusBayar;
                 }));
             }
             //#endregion
@@ -146,10 +143,7 @@ public class LaporanController {
 
                     x.jenisDana = PendaftaranDanaRutin.Type.samanagara;
 
-                    x.statusBayar = statusBayar.status;
-                    x.strStatusBayar = statusBayar.strStatus;
-                    x.countBulan = statusBayar.countBulan;
-                    x.nominal = statusBayar.nominal;
+                    x.statusBayar = statusBayar;
                 }));
             }
             //#endregion
@@ -159,13 +153,13 @@ public class LaporanController {
         // 2. nominal (descending / largest to smallest)
         Collections.sort(result, (a, b) -> {
             // statusBayar can be < -1 or > 1. Need to normalize so that all "Kurang bayar", "Lebih bayar" is -1, 1
-            int statusBayarANormalized = a.statusBayar < 0? -1 : a.statusBayar == 0? 0 : 1;
-            int statusBayarBNormalized = b.statusBayar < 0? -1 : b.statusBayar == 0? 0 : 1;
+            int statusBayarANormalized = a.statusBayar.status < 0? -1 : a.statusBayar.status == 0? 0 : 1;
+            int statusBayarBNormalized = b.statusBayar.status < 0? -1 : b.statusBayar.status == 0? 0 : 1;
 
             int cmpStatusBayar = Integer.compare(statusBayarANormalized, statusBayarBNormalized);
             if (cmpStatusBayar == 0) {
                 // compare nominal
-                int cmpNominalDesc = Long.compare(a.nominal, b.nominal);
+                int cmpNominalDesc = Long.compare(a.statusBayar.nominal, b.statusBayar.nominal);
                 return -cmpNominalDesc;
             }
             else {
@@ -185,13 +179,13 @@ public class LaporanController {
             YearMonth curr = param.startInclusive;
             while (!curr.isAfter(param.endInclusive)) {
                 int ymCurr = DateTimeHelper.computeMySQLYearMonth(curr);
-                int jmlPengeluaran = handle.select("select sum(nominal) from pengeluaran where extract(year_month from tgl_trx) = ?", ymCurr)
+                int jmlPengeluaran = handle.select("select sum(nominal) from pengeluaran where active=1 and extract(year_month from tgl_trx) = ?", ymCurr)
                         .mapTo(int.class)
                         .findOnly();
-                int jmlPendapatanNonRutin = handle.select("select sum(nominal) from pendapatan where extract(year_month from tgl_trx) = ?", ymCurr)
+                int jmlPendapatanNonRutin = handle.select("select sum(nominal) from pendapatan where active=1 and extract(year_month from tgl_trx) = ?", ymCurr)
                         .mapTo(int.class)
                         .findOnly();
-                int jmlPendapatanRutin = handle.select("select sum(nominal) from pembayaran_dana_rutin where extract(year_month from ut_thn_bln) = ?", ymCurr)
+                int jmlPendapatanRutin = handle.select("select sum(total_nominal) from pembayaran_samanagara_sosial_tetap where extract(year_month from tgl) = ?", ymCurr)
                         .mapTo(int.class)
                         .findOnly();
                 int jmlPendapatan = jmlPendapatanNonRutin + jmlPendapatanRutin;
