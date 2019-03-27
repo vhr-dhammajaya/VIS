@@ -222,9 +222,9 @@ public class GridPendapatan {
             Pendapatan r = this.editedRecord;
 
             Umat umat = edUmat.getRecord();
-            r.umat = new Umat();
+            r.umat = new Umat(); // reset uuid to null
             if (umat != null) {
-                r.umat.uuid = umat.uuid;
+                r.umat = umat;
             }
 
             r.tglTransaksi = edTglTrans.getDate();
@@ -234,9 +234,9 @@ public class GridPendapatan {
             r.keterangan = edKeterangan.getText();
 
             Acara acara = edAcara.getRecord();
-            r.acara = new Acara();
+            r.acara = new Acara(); // reset uuid to null
             if (acara != null) {
-                r.acara.uuid = acara.uuid;
+                r.acara = acara;
             }
 
             if (!isCreateNew) {

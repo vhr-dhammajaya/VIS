@@ -103,9 +103,9 @@ public class GridPengeluaran {
             r.keterangan = edKeterangan.getText();
 
             Acara acara = edAcara.getRecord();
-            r.acara = new Acara();
+            r.acara = new Acara(); // reset uuid to null
             if (acara != null) {
-                r.acara.uuid = acara.uuid;
+                r.acara = acara;
             }
         }
     }
