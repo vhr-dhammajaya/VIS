@@ -4,8 +4,7 @@ import com.skopware.javautils.db.PageData;
 import com.skopware.javautils.dropwizard.BaseCrudController;
 import com.skopware.javautils.swing.grid.GridConfig;
 import com.skopware.vdjvis.api.dto.DtoBayarDanaSosialDanTetap;
-import com.skopware.vdjvis.api.entities.PendaftaranDanaRutin;
-import com.skopware.vdjvis.api.entities.StatusBayar;
+import com.skopware.vdjvis.api.entities.*;
 import com.skopware.vdjvis.backend.jdbi.dao.PendaftaranDanaRutinDAO;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
@@ -59,41 +58,70 @@ public class PendaftaranDanaRutinController extends BaseCrudController<Pendaftar
 
     @Path("/bayar_dana_sosial_tetap")
     @POST
-    public boolean bayarDanaRutin(@NotNull @Valid DtoBayarDanaSosialDanTetap x) {
-        try (Handle h = jdbi.open()) {
-            PendaftaranDanaRutinDAO pendaftaranDanaRutinDAO = h.attach(PendaftaranDanaRutinDAO.class);
-            PendaftaranDanaRutin pendaftaranDanaRutin = pendaftaranDanaRutinDAO.get(x.idPendaftaran);
+    public PembayaranDanaRutin bayarDanaRutin(@NotNull @Valid DtoBayarDanaSosialDanTetap input) {
+        try (Handle handle = jdbi.open()) {
+            PembayaranDanaRutin[] result = new PembayaranDanaRutin[1];
 
-            Optional<LocalDate> lastPaidMonth = h.select("select max(ut_thn_bln) from pembayaran_dana_rutin" +
-                    " where active=1 and umat_id=? and dana_rutin_id=?", pendaftaranDanaRutin.umat.uuid, x.idPendaftaran)
-                    .mapTo(LocalDate.class)
-                    .findFirst();
-            LocalDate currentMonth;
+            handle.useTransaction(handle1 -> {
+                PendaftaranDanaRutinDAO pendaftaranDanaRutinDAO = handle1.attach(PendaftaranDanaRutinDAO.class);
+                PendaftaranDanaRutin pendaftaranDanaRutin = pendaftaranDanaRutinDAO.get(input.idPendaftaran);
 
-            if (lastPaidMonth.isPresent()) {
-                currentMonth = lastPaidMonth.get().plusMonths(1);
-            }
-            else {
-                currentMonth = pendaftaranDanaRutin.tglDaftar.withDayOfMonth(1);
-            }
+                PembayaranDanaRutin pembayaran = new PembayaranDanaRutin();
+                result[0] = pembayaran;
+                pembayaran.uuid = UUID.randomUUID().toString();
 
-            for (int i = 0; i < x.countBulan; i++) {
-                h.createUpdate("insert into pembayaran_dana_rutin(uuid, umat_id, jenis, dana_rutin_id, ut_thn_bln, nominal, tgl, channel, keterangan)" +
-                        " values(:uuid, :umat_id, :jenis, :dana_rutin_id, :ut_thn_bln, :nominal, :tgl, :channel, :keterangan)")
-                        .bind("uuid", UUID.randomUUID().toString())
-                        .bind("umat_id", pendaftaranDanaRutin.umat.uuid)
-                        .bind("jenis", pendaftaranDanaRutin.tipe.name())
-                        .bind("dana_rutin_id", x.idPendaftaran)
-                        .bind("ut_thn_bln", currentMonth)
-                        .bind("nominal", pendaftaranDanaRutin.nominal)
-                        .bind("tgl", x.tglTrans)
-                        .bind("channel", x.channel)
-                        .bind("keterangan", x.keterangan)
+                pembayaran.umat = new Umat();
+                pembayaran.umat.uuid = pendaftaranDanaRutin.umat.uuid;
+
+                pembayaran.tgl = input.tglTrans;
+                pembayaran.totalNominal = input.countBulan * pendaftaranDanaRutin.nominal;
+                pembayaran.channel = input.channel;
+                pembayaran.keterangan = input.keterangan;
+
+                handle1.createUpdate("insert into pembayaran_samanagara_sosial_tetap(uuid, umat_id, tgl, total_nominal, channel, keterangan)" +
+                        " values(?, ?, ?, ?, ?, ?)")
+                        .bind(0, pembayaran.uuid)
+                        .bind(1, pembayaran.umat.uuid)
+                        .bind(2, pembayaran.tgl)
+                        .bind(3, pembayaran.totalNominal)
+                        .bind(4, pembayaran.channel)
+                        .bind(5, pembayaran.keterangan)
                         .execute();
-                currentMonth = currentMonth.plusMonths(1);
-            }
-        }
 
-        return true;
+                YearMonth lastPaidMonth = PendaftaranDanaRutin.fetchLastPaidMonth(handle1, pendaftaranDanaRutin.umat.uuid, input.idPendaftaran, pendaftaranDanaRutin.tglDaftar);
+                YearMonth currentMonth = lastPaidMonth.plusMonths(1);
+
+                for (int i = 0; i < input.countBulan; i++) {
+                    DetilPembayaranDanaRutin detil = new DetilPembayaranDanaRutin();
+                    detil.uuid = UUID.randomUUID().toString();
+
+                    detil.parentTrx = new PembayaranDanaRutin();
+                    detil.parentTrx.uuid = pembayaran.uuid;
+
+                    detil.jenis = pendaftaranDanaRutin.tipe;
+
+                    detil.danaRutin = new PendaftaranDanaRutin();
+                    detil.danaRutin.uuid = pendaftaranDanaRutin.uuid;
+
+                    detil.untukBulan = currentMonth;
+                    detil.nominal = pendaftaranDanaRutin.nominal;
+
+                    handle1.createUpdate("insert into detil_pembayaran_dana_rutin(uuid, trx_id, jenis, dana_rutin_id, ut_thn_bln, nominal)" +
+                            " values(?, ?, ?, ?, ?, ?)")
+                            .bind(0, detil.uuid)
+                            .bind(1, detil.parentTrx.uuid)
+                            .bind(2, detil.jenis.name())
+                            .bind(3, detil.danaRutin.uuid)
+                            .bind(4, LocalDate.of(currentMonth.getYear(), currentMonth.getMonth(), 1))
+                            .bind(5, detil.nominal)
+                            .execute();
+
+                    pembayaran.mapDetilPembayaran.put(detil.uuid, detil);
+                    currentMonth = currentMonth.plusMonths(1);
+                }
+            });
+
+            return result[0];
+        }
     }
 }

@@ -5,6 +5,7 @@ import com.skopware.javautils.httpclient.HttpHelper;
 import com.skopware.javautils.swing.JDatePicker;
 import com.skopware.javautils.swing.SwingHelper;
 import com.skopware.vdjvis.api.dto.DtoBayarDanaSosialDanTetap;
+import com.skopware.vdjvis.api.entities.PembayaranDanaRutin;
 import com.skopware.vdjvis.api.entities.PendaftaranDanaRutin;
 import com.skopware.vdjvis.desktop.App;
 import org.apache.http.client.methods.HttpPost;
@@ -67,8 +68,8 @@ public class DialogBayarDanaSosialTetap extends JDialog {
             requestParam.channel = (String) edChannel.getSelectedItem();
             requestParam.keterangan = edKeterangan.getText();
 
-            HttpHelper.makeHttpRequest(App.config.url("/pendaftaran_dana_rutin/bayar_dana_sosial_tetap"), HttpPost::new, requestParam, boolean.class);
-
+            PembayaranDanaRutin pembayaran = HttpHelper.makeHttpRequest(App.config.url("/pendaftaran_dana_rutin/bayar_dana_sosial_tetap"), HttpPost::new, requestParam, PembayaranDanaRutin.class);
+            // todo tampilkan window cetak tanda terima
             this.dispose();
         });
 

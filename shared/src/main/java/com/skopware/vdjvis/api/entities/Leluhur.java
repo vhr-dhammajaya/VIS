@@ -3,6 +3,7 @@ package com.skopware.vdjvis.api.entities;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.skopware.javautils.DateTimeHelper;
 import com.skopware.javautils.Tuple3;
+import com.skopware.javautils.Tuple4;
 import com.skopware.javautils.db.BaseRecord;
 import org.jdbi.v3.core.Handle;
 
@@ -45,28 +46,22 @@ public class Leluhur extends BaseRecord<Leluhur> {
     }
 
     public static StatusBayar computeStatusBayar(Handle handle, Leluhur leluhur, YearMonth todayMonth, List<Tuple3<LocalDate, LocalDate, Integer>> listTarifSamanagara) {
+        return computeStatusBayar(handle, leluhur.penanggungJawab.uuid, leluhur.uuid, leluhur.tglDaftar, todayMonth, listTarifSamanagara);
+    }
+
+    public static StatusBayar computeStatusBayar(Handle handle, String umatId, String leluhurId, LocalDate tglDaftar, YearMonth todayMonth, List<Tuple3<LocalDate, LocalDate, Integer>> listTarifSamanagara) {
         // hitung status bayar ut leluhur ini
-        Optional<LocalDate> lastPayment = handle.select("select max(ut_thn_bln) from pembayaran_dana_rutin where umat_id=? and leluhur_id=?", leluhur.penanggungJawab.uuid, leluhur.uuid)
-                .mapTo(LocalDate.class)
-                .findFirst();
-        YearMonth lastPaymentMonth;
+        YearMonth lastPaidMonth = fetchLastPaidMonth(handle, umatId, leluhurId, tglDaftar);
 
-        if (lastPayment.isPresent()) {
-            lastPaymentMonth = YearMonth.from(lastPayment.get());
-        }
-        else {
-            lastPaymentMonth = YearMonth.from(leluhur.tglDaftar).minusMonths(1);
-        }
-
-        int statusBayar = lastPaymentMonth.compareTo(todayMonth);
+        int statusBayar = lastPaidMonth.compareTo(todayMonth);
         String strStatusBayar;
         int diffInMonths;
         int totalRp;
 
         if (statusBayar < 0) {
             strStatusBayar = "Kurang bayar";
-            diffInMonths = (int) lastPaymentMonth.until(todayMonth, ChronoUnit.MONTHS);
-            totalRp = hitungTotalHutangIuranSamanagara(diffInMonths, lastPaymentMonth, leluhur.tglDaftar, listTarifSamanagara);
+            diffInMonths = (int) lastPaidMonth.until(todayMonth, ChronoUnit.MONTHS);
+            totalRp = hitungTotalHutangIuranSamanagara(diffInMonths, lastPaidMonth, tglDaftar, listTarifSamanagara);
         }
         else if (statusBayar == 0)  {
             strStatusBayar = "Tepat waktu";
@@ -75,13 +70,14 @@ public class Leluhur extends BaseRecord<Leluhur> {
         }
         else {
             strStatusBayar = "Lebih bayar";
-            diffInMonths = (int) todayMonth.until(lastPaymentMonth, ChronoUnit.MONTHS);
+            diffInMonths = (int) todayMonth.until(lastPaidMonth, ChronoUnit.MONTHS);
             totalRp = 0;
         }
 
         StatusBayar result = new StatusBayar();
         result.status = statusBayar;
         result.strStatus = strStatusBayar;
+        result.lastPaidMonth = lastPaidMonth;
         result.countBulan = diffInMonths;
         result.nominal = totalRp;
         return result;
@@ -98,6 +94,21 @@ public class Leluhur extends BaseRecord<Leluhur> {
                 })
                 .list();
         return result;
+    }
+
+    public static YearMonth fetchLastPaidMonth(Handle handle, String umatId, String leluhurId, LocalDate tglDaftar) {
+        Optional<LocalDate> lastPaidMonth = handle.select("select max(d.ut_thn_bln)" +
+                " from detil_pembayaran_dana_rutin d" +
+                " join pembayaran_samanagara_sosial_tetap p on p.uuid = d.trx_id" +
+                " where p.umat_id=? and d.leluhur_id=?", umatId, leluhurId)
+                .mapTo(LocalDate.class)
+                .findFirst();
+        if (lastPaidMonth.isPresent()) {
+            return YearMonth.from(lastPaidMonth.get());
+        }
+        else {
+            return YearMonth.from(tglDaftar).minusMonths(1);
+        }
     }
 
     public static int hitungTotalHutangIuranSamanagara(int berapaBulan, YearMonth lastPaymentMonth, LocalDate tglDaftar, List<Tuple3<LocalDate, LocalDate, Integer>> listTarifSamanagara) {

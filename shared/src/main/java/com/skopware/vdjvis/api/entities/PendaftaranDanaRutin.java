@@ -36,28 +36,16 @@ public class PendaftaranDanaRutin extends BaseRecord<PendaftaranDanaRutin> {
     }
 
     public static StatusBayar computeStatusBayar(Handle handle, PendaftaranDanaRutin danaRutin, YearMonth todayMonth) {
-        Optional<LocalDate> lastPayment = handle.select("select max(ut_thn_bln) from pembayaran_dana_rutin where umat_id=? and dana_rutin_id=?", danaRutin.umat.uuid, danaRutin.uuid)
-                .mapTo(LocalDate.class)
-                .findFirst();
-        YearMonth lastPaymentMonth;
+        YearMonth lastPaidMonth = fetchLastPaidMonth(handle, danaRutin.umat.uuid, danaRutin.uuid, danaRutin.tglDaftar);
 
-        if (lastPayment.isPresent()) {
-            lastPaymentMonth = YearMonth.from(lastPayment.get());
-        }
-        else {
-            // have never paid yet
-            lastPaymentMonth = YearMonth.from(danaRutin.tglDaftar).minusMonths(1);
-        }
-
-        int statusByr = lastPaymentMonth.compareTo(todayMonth); // 0=tepat waktu, -1=kurang bayar, 1=lebih bayar
-        String jenisDana = danaRutin.tipe.name();
+        int statusByr = lastPaidMonth.compareTo(todayMonth); // 0=tepat waktu, -1=kurang bayar, 1=lebih bayar
         String strStatusBayar;
         int diffInMonths;
         int totalRp;
 
         if (statusByr < 0) {
             strStatusBayar = "Kurang bayar";
-            diffInMonths = (int) lastPaymentMonth.until(todayMonth, ChronoUnit.MONTHS);
+            diffInMonths = (int) lastPaidMonth.until(todayMonth, ChronoUnit.MONTHS);
             totalRp = diffInMonths * danaRutin.nominal;
         }
         else if (statusByr == 0)  {
@@ -67,17 +55,33 @@ public class PendaftaranDanaRutin extends BaseRecord<PendaftaranDanaRutin> {
         }
         else {
             strStatusBayar = "Lebih bayar";
-            diffInMonths = (int) todayMonth.until(lastPaymentMonth, ChronoUnit.MONTHS);
+            diffInMonths = (int) todayMonth.until(lastPaidMonth, ChronoUnit.MONTHS);
             totalRp = 0;
         }
 
         StatusBayar statusBayar = new StatusBayar();
         statusBayar.status = statusByr;
         statusBayar.strStatus = strStatusBayar;
+        statusBayar.lastPaidMonth = lastPaidMonth;
         statusBayar.countBulan = diffInMonths;
         statusBayar.nominal = totalRp;
 
         return statusBayar;
+    }
+
+    public static YearMonth fetchLastPaidMonth(Handle handle, String umatId, String danaRutinId, LocalDate tglDaftar) {
+        Optional<LocalDate> lastPayment = handle.select("select max(d.ut_thn_bln) from" +
+                " detil_pembayaran_dana_rutin d" +
+                " join pembayaran_samanagara_sosial_tetap p on p.uuid = d.trx_id" +
+                " where p.umat_id=? and d.dana_rutin_id=?", umatId, danaRutinId)
+                .mapTo(LocalDate.class)
+                .findFirst();
+        if (lastPayment.isPresent()) {
+            return YearMonth.from(lastPayment.get());
+        }
+        else {
+            return YearMonth.from(tglDaftar).minusMonths(1);
+        }
     }
 
     public enum Type {

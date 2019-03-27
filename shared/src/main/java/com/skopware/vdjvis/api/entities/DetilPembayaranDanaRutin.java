@@ -12,14 +12,9 @@ public class DetilPembayaranDanaRutin extends BaseRecord<DetilPembayaranDanaRuti
     @JsonProperty public PendaftaranDanaRutin.Type jenis;
     @JsonProperty public YearMonth untukBulan;
     @JsonProperty public int nominal;
-    @JsonProperty public LocalDate tglTrans;
-    @JsonProperty public String channel;
-    @JsonProperty public String keterangan;
-    @JsonProperty public boolean correctionStatus;
-    @JsonProperty public String correctionRequestReason;
 
     // relationships
-    @JsonProperty public Umat umat;
+    @JsonProperty public PembayaranDanaRutin parentTrx;
     @JsonProperty public PendaftaranDanaRutin danaRutin;
     @JsonProperty public Leluhur leluhurSamanagara;
 

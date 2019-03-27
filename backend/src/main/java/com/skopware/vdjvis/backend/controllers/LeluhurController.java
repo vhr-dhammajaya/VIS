@@ -8,10 +8,7 @@ import com.skopware.javautils.dropwizard.BaseCrudController;
 import com.skopware.javautils.swing.grid.GridConfig;
 import com.skopware.vdjvis.api.dto.DtoPembayaranSamanagara;
 import com.skopware.vdjvis.api.dto.DtoStatusBayarLeluhur;
-import com.skopware.vdjvis.api.entities.Leluhur;
-import com.skopware.vdjvis.api.entities.PendaftaranDanaRutin;
-import com.skopware.vdjvis.api.entities.StatusBayar;
-import com.skopware.vdjvis.api.entities.Umat;
+import com.skopware.vdjvis.api.entities.*;
 import com.skopware.vdjvis.backend.jdbi.dao.LeluhurDAO;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
@@ -92,45 +89,7 @@ public class LeluhurController extends BaseCrudController<Leluhur, LeluhurDAO> {
             List<Tuple3<LocalDate, LocalDate, Integer>> listTarifSamanagara = Leluhur.fetchListTarifSamanagara(handle);
 
             for (Leluhur2 leluhur : listLeluhur) {
-                Optional<LocalDate> lastPayment = handle.select("select max(ut_thn_bln) from pembayaran_dana_rutin" +
-                        " where active=1 and umat_id=? and leluhur_id=?", umat.uuid, leluhur.uuid)
-                        .mapTo(LocalDate.class)
-                        .findFirst();
-                YearMonth lastPaymentMonth;
-
-                if (lastPayment.isPresent()) {
-                    lastPaymentMonth = YearMonth.from(lastPayment.get());
-                }
-                else {
-                    lastPaymentMonth = YearMonth.from(leluhur.tglDaftar).minusMonths(1);
-                }
-
-                int statusBayar = lastPaymentMonth.compareTo(todayMonth);
-                String strStatusBayar;
-                int diffInMonths;
-                int totalRp;
-
-                if (statusBayar < 0) {
-                    strStatusBayar = "Kurang bayar";
-                    diffInMonths = (int) lastPaymentMonth.until(todayMonth, ChronoUnit.MONTHS);
-
-                    // hitung jumlah kurang bayar
-                    totalRp = Leluhur.hitungTotalHutangIuranSamanagara(diffInMonths, lastPaymentMonth, leluhur.tglDaftar, listTarifSamanagara);
-                }
-                else if (statusBayar == 0) {
-                    strStatusBayar = "Tepat waktu";
-                    diffInMonths = 0;
-                    totalRp = 0;
-                }
-                else {
-                    strStatusBayar = "Lebih bayar";
-                    diffInMonths = (int) todayMonth.until(lastPaymentMonth, ChronoUnit.MONTHS);
-                    totalRp = 0;
-                }
-
-                String strStatusBayar2 = strStatusBayar;
-                int diffInMonths2 = diffInMonths;
-                int totalRp2 = totalRp;
+                StatusBayar statusBayar = Leluhur.computeStatusBayar(handle, umat.uuid, leluhur.uuid, leluhur.tglDaftar, todayMonth, listTarifSamanagara);
 
                 result.add(ObjectHelper.apply(new DtoStatusBayarLeluhur(), x -> {
                     x.leluhurId = leluhur.uuid;
@@ -138,10 +97,6 @@ public class LeluhurController extends BaseCrudController<Leluhur, LeluhurDAO> {
                     x.leluhurTglDaftar = leluhur.tglDaftar;
 
                     x.statusBayar = statusBayar;
-                    x.strStatusBayar = strStatusBayar2;
-                    x.lastPaymentMonth = lastPaymentMonth;
-                    x.countBulan = diffInMonths2;
-                    x.nominal = totalRp2;
                 }));
             }
         }
@@ -151,46 +106,75 @@ public class LeluhurController extends BaseCrudController<Leluhur, LeluhurDAO> {
 
     @Path("/bayar_iuran_samanagara")
     @POST
-    public boolean bayarIuranSamanagara(@NotNull DtoPembayaranSamanagara pembayaran) {
+    public PembayaranDanaRutin bayarIuranSamanagara(@NotNull DtoPembayaranSamanagara input) {
         try (Handle handle = jdbi.open()) {
-            List<Tuple3<LocalDate, LocalDate, Integer>> listTarifSamanagara = Leluhur.fetchListTarifSamanagara(handle);
+            PembayaranDanaRutin[] result = new PembayaranDanaRutin[1];
 
-            for (DtoStatusBayarLeluhur leluhur : pembayaran.listLeluhur) {
-                Optional<LocalDate> lastPaidMonth = handle.select("select max(ut_thn_bln) from pembayaran_dana_rutin" +
-                        " where active=1 and umat_id=? and leluhur_id=?", pembayaran.umatId, leluhur.leluhurId)
-                        .mapTo(LocalDate.class)
-                        .findFirst();
-                LocalDate currentMonth;
+            handle.useTransaction(handle1 -> {
+                List<Tuple3<LocalDate, LocalDate, Integer>> listTarifSamanagara = Leluhur.fetchListTarifSamanagara(handle1);
 
-                if (lastPaidMonth.isPresent()) {
-                    currentMonth = lastPaidMonth.get().plusMonths(1);
+                PembayaranDanaRutin pembayaran = new PembayaranDanaRutin();
+                result[0] = pembayaran;
+                pembayaran.uuid = UUID.randomUUID().toString();
+
+                pembayaran.umat = new Umat();
+                pembayaran.umat.uuid = input.umatId;
+
+                pembayaran.tgl = input.tglTrans;
+                pembayaran.totalNominal = input.listLeluhur.stream().mapToInt(e -> e.nominalYgMauDibayarkan).reduce(0, (left, right) -> left + right);
+                pembayaran.channel = input.channel;
+                pembayaran.keterangan = input.keterangan;
+
+                handle1.createUpdate("insert into pembayaran_samanagara_sosial_tetap(uuid, umat_id, tgl, total_nominal, channel, keterangan)" +
+                        " values(:uuid, :umatId, :tgl, :totalNominal, :channel, :keterangan)")
+                        .bind("uuid", pembayaran.uuid)
+                        .bind("umatId", pembayaran.umat.uuid)
+                        .bind("tgl", pembayaran.tgl)
+                        .bind("totalNominal", pembayaran.totalNominal)
+                        .bind("channel", pembayaran.channel)
+                        .bind("keterangan", pembayaran.keterangan)
+                        .execute();
+
+                for (DtoStatusBayarLeluhur leluhur : input.listLeluhur) {
+                    DetilPembayaranDanaRutin templateDetil = new DetilPembayaranDanaRutin();
+
+                    templateDetil.parentTrx = new PembayaranDanaRutin();
+                    templateDetil.parentTrx.uuid = pembayaran.uuid;
+
+                    templateDetil.jenis = PendaftaranDanaRutin.Type.samanagara;
+
+                    templateDetil.leluhurSamanagara = new Leluhur();
+                    templateDetil.leluhurSamanagara.uuid = leluhur.leluhurId;
+
+                    YearMonth lastPaidMonth = Leluhur.fetchLastPaidMonth(handle1, pembayaran.umat.uuid, templateDetil.leluhurSamanagara.uuid, leluhur.leluhurTglDaftar);
+                    YearMonth currentMonth = lastPaidMonth.plusMonths(1);
+
+                    for (int i = 0; i < leluhur.mauBayarBrpBulan; i++) {
+                        LocalDate currDate = leluhur.leluhurTglDaftar.withYear(currentMonth.getYear()).withMonth(currentMonth.getMonthValue());
+                        int nominal = DateTimeHelper.findValueInDateRange(currDate, listTarifSamanagara).get();
+
+                        DetilPembayaranDanaRutin detil = templateDetil.clone();
+                        detil.uuid = UUID.randomUUID().toString();
+                        detil.untukBulan = currentMonth;
+                        detil.nominal = nominal;
+
+                        handle1.createUpdate("insert into detil_pembayaran_dana_rutin(uuid, trx_id, jenis, leluhur_id, ut_thn_bln, nominal)" +
+                                " values(:uuid, :trx_id, :jenis, :leluhur_id, :ut_thn_bln, :nominal)")
+                                .bind("uuid", detil.uuid)
+                                .bind("trx_id", detil.parentTrx.uuid)
+                                .bind("jenis", detil.jenis.name())
+                                .bind("leluhur_id", detil.leluhurSamanagara.uuid)
+                                .bind("ut_thn_bln", LocalDate.of(currentMonth.getYear(), currentMonth.getMonth(), 1))
+                                .bind("nominal", detil.nominal)
+                                .execute();
+
+                        pembayaran.mapDetilPembayaran.put(detil.uuid, detil);
+                        currentMonth = currentMonth.plusMonths(1);
+                    }
                 }
-                else {
-                    currentMonth = leluhur.leluhurTglDaftar.withDayOfMonth(1);
-                }
+            });
 
-                for (int i = 0; i < leluhur.mauBayarBrpBulan; i++) {
-                    LocalDate currDate = leluhur.leluhurTglDaftar.withYear(currentMonth.getYear()).withMonth(currentMonth.getMonthValue());
-                    int nominal = DateTimeHelper.findValueInDateRange(currDate, listTarifSamanagara).get();
-
-                    handle.createUpdate("insert into pembayaran_dana_rutin(uuid, umat_id, jenis, leluhur_id, ut_thn_bln, nominal, tgl, channel, keterangan)" +
-                            " values(:uuid, :umat_id, :jenis, :leluhur_id, :ut_thn_bln, :nominal, :tgl, :channel, :keterangan)")
-                            .bind("uuid", UUID.randomUUID().toString())
-                            .bind("umat_id", pembayaran.umatId)
-                            .bind("jenis", PendaftaranDanaRutin.Type.samanagara.name())
-                            .bind("leluhur_id", leluhur.leluhurId)
-                            .bind("ut_thn_bln", currentMonth)
-                            .bind("nominal", nominal)
-                            .bind("tgl", pembayaran.tglTrans)
-                            .bind("channel", pembayaran.channel)
-                            .bind("keterangan", pembayaran.keterangan)
-                            .execute();
-
-                    currentMonth = currentMonth.plusMonths(1);
-                }
-            }
+            return result[0];
         }
-
-        return true;
     }
 }

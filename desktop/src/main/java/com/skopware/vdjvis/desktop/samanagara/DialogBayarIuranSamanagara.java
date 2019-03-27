@@ -15,6 +15,7 @@ import com.skopware.javautils.swing.jtable.celleditor.JSpinnerCellEditor;
 import com.skopware.vdjvis.api.dto.DtoPembayaranSamanagara;
 import com.skopware.vdjvis.api.dto.DtoStatusBayarLeluhur;
 import com.skopware.vdjvis.api.entities.Leluhur;
+import com.skopware.vdjvis.api.entities.PembayaranDanaRutin;
 import com.skopware.vdjvis.api.entities.TarifSamanagara;
 import com.skopware.vdjvis.api.entities.Umat;
 import com.skopware.vdjvis.desktop.App;
@@ -76,15 +77,15 @@ public class DialogBayarIuranSamanagara extends JDialog {
                     x.label = "Nama leluhur";
                 }),
                 ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                    x.fieldName = "strStatusBayar";
+                    x.fieldName = "statusBayar.strStatus";
                     x.label = "Status bayar";
                 }),
                 ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                    x.fieldName = "countBulan";
+                    x.fieldName = "statusBayar.countBulan";
                     x.label = "Berapa bulan";
                 }),
                 ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                    x.fieldName = "nominal";
+                    x.fieldName = "statusBayar.nominal";
                     x.label = "Rp";
                 }),
                 ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
@@ -116,7 +117,7 @@ public class DialogBayarIuranSamanagara extends JDialog {
                     int totalBayarUtLeluhurX = 0;
 
                     for (int cntBulan = 1; cntBulan <= leluhur.mauBayarBrpBulan; cntBulan++) {
-                        YearMonth currYm = leluhur.lastPaymentMonth.plusMonths(cntBulan);
+                        YearMonth currYm = leluhur.statusBayar.lastPaidMonth.plusMonths(cntBulan);
                         LocalDate currDate = leluhur.leluhurTglDaftar.withYear(currYm.getYear()).withMonth(currYm.getMonthValue());
 
                         int nominalBulanIni = DateTimeHelper.findValueInDateRange(currDate, listTarifSamanagara).get();
@@ -171,7 +172,8 @@ public class DialogBayarIuranSamanagara extends JDialog {
             dto.channel = (String) edChannel.getSelectedItem();
             dto.keterangan = edKeterangan.getText();
 
-            HttpHelper.makeHttpRequest(App.config.url("/leluhur/bayar_iuran_samanagara"), HttpPost::new, dto, boolean.class);
+            PembayaranDanaRutin pembayaran = HttpHelper.makeHttpRequest(App.config.url("/leluhur/bayar_iuran_samanagara"), HttpPost::new, dto, PembayaranDanaRutin.class);
+            // todo tampilkan window cetak tanda terima
             this.dispose();
         });
 
