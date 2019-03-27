@@ -185,7 +185,7 @@ public class LaporanController {
                 int jmlPendapatanNonRutin = handle.select("select sum(nominal) from pendapatan where active=1 and extract(year_month from tgl_trx) = ?", ymCurr)
                         .mapTo(int.class)
                         .findOnly();
-                int jmlPendapatanRutin = handle.select("select sum(total_nominal) from pembayaran_samanagara_sosial_tetap where extract(year_month from tgl) = ?", ymCurr)
+                int jmlPendapatanRutin = handle.select("select sum(total_nominal) from pembayaran_samanagara_sosial_tetap where active=1 and extract(year_month from tgl) = ?", ymCurr)
                         .mapTo(int.class)
                         .findOnly();
                 int jmlPendapatan = jmlPendapatanNonRutin + jmlPendapatanRutin;

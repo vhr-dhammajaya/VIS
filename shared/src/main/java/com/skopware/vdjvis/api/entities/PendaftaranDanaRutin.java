@@ -73,7 +73,7 @@ public class PendaftaranDanaRutin extends BaseRecord<PendaftaranDanaRutin> {
         Optional<LocalDate> lastPayment = handle.select("select max(d.ut_thn_bln) from" +
                 " detil_pembayaran_dana_rutin d" +
                 " join pembayaran_samanagara_sosial_tetap p on p.uuid = d.trx_id" +
-                " where p.umat_id=? and d.dana_rutin_id=?", umatId, danaRutinId)
+                " where p.active=1 and p.umat_id=? and d.dana_rutin_id=?", umatId, danaRutinId)
                 .mapTo(LocalDate.class)
                 .findFirst();
         if (lastPayment.isPresent()) {

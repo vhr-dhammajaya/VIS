@@ -100,7 +100,7 @@ public class Leluhur extends BaseRecord<Leluhur> {
         Optional<LocalDate> lastPaidMonth = handle.select("select max(d.ut_thn_bln)" +
                 " from detil_pembayaran_dana_rutin d" +
                 " join pembayaran_samanagara_sosial_tetap p on p.uuid = d.trx_id" +
-                " where p.umat_id=? and d.leluhur_id=?", umatId, leluhurId)
+                " where p.active=1 and p.umat_id=? and d.leluhur_id=?", umatId, leluhurId)
                 .mapTo(LocalDate.class)
                 .findFirst();
         if (lastPaidMonth.isPresent()) {
