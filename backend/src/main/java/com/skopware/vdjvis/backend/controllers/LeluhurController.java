@@ -119,6 +119,7 @@ public class LeluhurController extends BaseCrudController<Leluhur, LeluhurDAO> {
 
                 pembayaran.umat = new Umat();
                 pembayaran.umat.uuid = input.umatId;
+                pembayaran.umat.nama = handle1.select("select nama from umat where uuid=?", input.umatId).mapTo(String.class).findOnly();
 
                 pembayaran.tgl = input.tglTrans;
                 pembayaran.totalNominal = input.listLeluhur.stream().mapToInt(e -> e.nominalYgMauDibayarkan).reduce(0, (left, right) -> left + right);

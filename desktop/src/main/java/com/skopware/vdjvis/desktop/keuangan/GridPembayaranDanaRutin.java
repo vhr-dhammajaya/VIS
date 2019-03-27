@@ -1,6 +1,9 @@
 package com.skopware.vdjvis.desktop.keuangan;
 
 import com.skopware.javautils.ObjectHelper;
+import com.skopware.javautils.httpclient.HttpGetWithBody;
+import com.skopware.javautils.httpclient.HttpHelper;
+import com.skopware.javautils.jasperreports.JasperHelper;
 import com.skopware.javautils.swing.BaseCrudForm;
 import com.skopware.javautils.swing.BaseCrudTableModel;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
@@ -8,10 +11,15 @@ import com.skopware.vdjvis.api.entities.PembayaranDanaRutin;
 import com.skopware.vdjvis.api.entities.User;
 import com.skopware.vdjvis.desktop.App;
 import com.skopware.vdjvis.desktop.MainFrame;
+import net.sf.jasperreports.engine.JREmptyDataSource;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GridPembayaranDanaRutin {
     public static JDataGridOptions<PembayaranDanaRutin> createForUser(User user) {
@@ -66,7 +74,26 @@ public class GridPembayaranDanaRutin {
 
         JButton btnCetakKuitansi = new JButton("Cetak tanda terima");
         btnCetakKuitansi.addActionListener(e -> {
-            // todo
+            PembayaranDanaRutin sel = o.grid.getSelectedRecord();
+            if (sel == null) {
+                return;
+            }
+
+            Map<String, String> keperluanDana = HttpHelper.makeHttpRequest(App.config.url("/pembayaran_dana_rutin/get_keperluan"), HttpGetWithBody::new, sel, Map.class, String.class, String.class);
+
+            DialogPrepareTandaTerima dialog = new DialogPrepareTandaTerima(App.mainFrame, sel.umat.nama, sel.totalNominal, keperluanDana.get("keperluanDana"), sel.keterangan);
+            dialog.setVisible(true);
+            dialog.pack();
+
+//            Map<String, Object> params = new HashMap<>();
+//            params.put("NamaUmat", sel.umat.nama);
+//            params.put("NominalDana", sel.totalNominal);
+//            params.put("KeperluanDana", keperluanDana.get("keperluanDana"));
+//            params.put("KeteranganTambahan", sel.keterangan);
+//
+//            JasperReport jasperReport = JasperHelper.loadJasperFileFromResource(GridPembayaranDanaRutin.class, "tanda_terima_dana.jasper");
+//            JasperPrint jasperPrint = JasperHelper.fillReport(jasperReport, params, new JREmptyDataSource());
+//            JasperHelper.showReportPreview(jasperPrint);
         });
 
         o.additionalToolbarButtons.add(btnCetakKuitansi);

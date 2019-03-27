@@ -72,6 +72,7 @@ public class PendaftaranDanaRutinController extends BaseCrudController<Pendaftar
 
                 pembayaran.umat = new Umat();
                 pembayaran.umat.uuid = pendaftaranDanaRutin.umat.uuid;
+                pembayaran.umat.nama = handle1.select("select nama from umat where uuid=?", pendaftaranDanaRutin.umat.uuid).mapTo(String.class).findOnly();
 
                 pembayaran.tgl = input.tglTrans;
                 pembayaran.totalNominal = input.countBulan * pendaftaranDanaRutin.nominal;

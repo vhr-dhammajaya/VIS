@@ -1,6 +1,7 @@
 package com.skopware.vdjvis.desktop.keuangan;
 
 import com.skopware.javautils.Tuple2;
+import com.skopware.javautils.httpclient.HttpGetWithBody;
 import com.skopware.javautils.httpclient.HttpHelper;
 import com.skopware.javautils.swing.JDatePicker;
 import com.skopware.javautils.swing.SwingHelper;
@@ -14,6 +15,7 @@ import javax.swing.*;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Map;
 
 public class DialogBayarDanaSosialTetap extends JDialog {
     private PendaftaranDanaRutin danaRutin;
@@ -69,7 +71,12 @@ public class DialogBayarDanaSosialTetap extends JDialog {
             requestParam.keterangan = edKeterangan.getText();
 
             PembayaranDanaRutin pembayaran = HttpHelper.makeHttpRequest(App.config.url("/pendaftaran_dana_rutin/bayar_dana_sosial_tetap"), HttpPost::new, requestParam, PembayaranDanaRutin.class);
-            // todo tampilkan window cetak tanda terima
+            Map<String, String> keperluanDana = HttpHelper.makeHttpRequest(App.config.url("/pembayaran_dana_rutin/get_keperluan"), HttpGetWithBody::new, pembayaran, Map.class, String.class, String.class);
+
+            DialogPrepareTandaTerima dialog = new DialogPrepareTandaTerima(App.mainFrame, pembayaran.umat.nama, pembayaran.totalNominal, keperluanDana.get("keperluanDana"), pembayaran.keterangan);
+            dialog.setVisible(true);
+            dialog.pack();
+
             this.dispose();
         });
 

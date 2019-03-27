@@ -19,6 +19,7 @@ import com.skopware.vdjvis.api.entities.PembayaranDanaRutin;
 import com.skopware.vdjvis.api.entities.TarifSamanagara;
 import com.skopware.vdjvis.api.entities.Umat;
 import com.skopware.vdjvis.desktop.App;
+import com.skopware.vdjvis.desktop.keuangan.DialogPrepareTandaTerima;
 import org.apache.http.client.methods.HttpPost;
 
 import javax.swing.*;
@@ -173,7 +174,12 @@ public class DialogBayarIuranSamanagara extends JDialog {
             dto.keterangan = edKeterangan.getText();
 
             PembayaranDanaRutin pembayaran = HttpHelper.makeHttpRequest(App.config.url("/leluhur/bayar_iuran_samanagara"), HttpPost::new, dto, PembayaranDanaRutin.class);
-            // todo tampilkan window cetak tanda terima
+            Map<String, String> keperluanDana = HttpHelper.makeHttpRequest(App.config.url("/pembayaran_dana_rutin/get_keperluan"), HttpGetWithBody::new, pembayaran, Map.class, String.class, String.class);
+
+            DialogPrepareTandaTerima dialog = new DialogPrepareTandaTerima(App.mainFrame, pembayaran.umat.nama, pembayaran.totalNominal, keperluanDana.get("keperluanDana"), pembayaran.keterangan);
+            dialog.setVisible(true);
+            dialog.pack();
+
             this.dispose();
         });
 
