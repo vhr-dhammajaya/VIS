@@ -6,6 +6,7 @@ import com.skopware.javautils.db.DbRecord;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class PembayaranDanaRutin extends BaseRecord<PembayaranDanaRutin> {
@@ -17,5 +18,5 @@ public class PembayaranDanaRutin extends BaseRecord<PembayaranDanaRutin> {
 
     // relationships
     @JsonProperty public Umat umat;
-    @JsonProperty public Map<String, DetilPembayaranDanaRutin> mapDetilPembayaran = new HashMap<>();
+    @JsonProperty public Map<String, DetilPembayaranDanaRutin> mapDetilPembayaran = new LinkedHashMap<>();
 }

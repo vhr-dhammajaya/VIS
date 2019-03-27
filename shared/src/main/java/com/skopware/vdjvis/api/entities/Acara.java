@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.skopware.javautils.db.BaseRecord;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class Acara extends BaseRecord<Acara> {
@@ -13,8 +14,8 @@ public class Acara extends BaseRecord<Acara> {
     //#endregion
 
     //#region relationships
-    @JsonProperty public Map<String, Pendapatan> mapPendapatan = new HashMap<>();
-    @JsonProperty public Map<String, Pengeluaran> mapPengeluaran = new HashMap<>();
+    @JsonProperty public Map<String, Pendapatan> mapPendapatan = new LinkedHashMap<>();
+    @JsonProperty public Map<String, Pengeluaran> mapPengeluaran = new LinkedHashMap<>();
     //#endregion
 
     @Override

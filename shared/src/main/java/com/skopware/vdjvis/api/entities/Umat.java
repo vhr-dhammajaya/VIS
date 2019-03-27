@@ -5,6 +5,7 @@ import com.skopware.javautils.db.BaseRecord;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class Umat extends BaseRecord<Umat> {
@@ -42,9 +43,9 @@ public class Umat extends BaseRecord<Umat> {
     //#endregion
 
     //#region relationships
-    @JsonProperty public Map<String, Leluhur> mapLeluhurSamanagara = new HashMap<>();
-    @JsonProperty public Map<String, PendaftaranDanaRutin> mapPendaftaranDanaRutin = new HashMap<>();
-    @JsonProperty public Map<String, Pendapatan> mapDanaSukarela = new HashMap<>();
+    @JsonProperty public Map<String, Leluhur> mapLeluhurSamanagara = new LinkedHashMap<>();
+    @JsonProperty public Map<String, PendaftaranDanaRutin> mapPendaftaranDanaRutin = new LinkedHashMap<>();
+    @JsonProperty public Map<String, Pendapatan> mapDanaSukarela = new LinkedHashMap<>();
     //#endregion
 
     @Override
