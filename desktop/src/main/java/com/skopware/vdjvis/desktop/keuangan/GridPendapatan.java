@@ -99,16 +99,6 @@ public class GridPendapatan {
             DialogPrepareTandaTerima dialog = new DialogPrepareTandaTerima(App.mainFrame, sel.umat == null? "" : sel.umat.nama, sel.nominal, sel.getKeperluanDana(), sel.keterangan);
             dialog.setVisible(true);
             dialog.pack();
-
-//            Map<String, Object> params = new HashMap<>();
-//            params.put("NamaUmat", sel.umat == null? "" : sel.umat.nama);
-//            params.put("NominalDana", sel.nominal);
-//            params.put("KeperluanDana", sel.getKeperluanDana());
-//            params.put("KeteranganTambahan", sel.keterangan);
-//
-//            JasperReport jasperReport = JasperHelper.loadJasperFileFromResource(GridPendapatan.class, "tanda_terima_dana.jasper");
-//            JasperPrint jasperPrint = JasperHelper.fillReport(jasperReport, params, new JREmptyDataSource());
-//            JasperHelper.showReportPreview(jasperPrint);
         });
 
         o.additionalToolbarButtons.add(btnCetakKuitansi);

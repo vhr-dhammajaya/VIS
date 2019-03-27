@@ -86,7 +86,6 @@ public class GridPembayaranDanaRutin {
 
         o.enableAdd = false;
         o.enableEdit = false;
-//        o.fnShowEditForm = (rec, idx) -> new FormPembayaranDanaRutin(App.mainFrame, rec, idx);
 
         JButton btnCetakKuitansi = new JButton("Cetak tanda terima");
         btnCetakKuitansi.addActionListener(e -> {
@@ -100,16 +99,6 @@ public class GridPembayaranDanaRutin {
             DialogPrepareTandaTerima dialog = new DialogPrepareTandaTerima(App.mainFrame, sel.umat.nama, sel.totalNominal, keperluanDana.get("keperluanDana"), sel.keterangan);
             dialog.setVisible(true);
             dialog.pack();
-
-//            Map<String, Object> params = new HashMap<>();
-//            params.put("NamaUmat", sel.umat.nama);
-//            params.put("NominalDana", sel.totalNominal);
-//            params.put("KeperluanDana", keperluanDana.get("keperluanDana"));
-//            params.put("KeteranganTambahan", sel.keterangan);
-//
-//            JasperReport jasperReport = JasperHelper.loadJasperFileFromResource(GridPembayaranDanaRutin.class, "tanda_terima_dana.jasper");
-//            JasperPrint jasperPrint = JasperHelper.fillReport(jasperReport, params, new JREmptyDataSource());
-//            JasperHelper.showReportPreview(jasperPrint);
         });
 
         o.additionalToolbarButtons.add(btnCetakKuitansi);
@@ -143,36 +132,4 @@ public class GridPembayaranDanaRutin {
 
         return o;
     }
-
-//    public static class FormPembayaranDanaRutin extends BaseCrudForm<PembayaranDanaRutin> {
-//        private JForeignKeyPicker<Umat> edUmat;
-//        private JDatePicker edTgl;
-//        private JComboBox<String> edChannel;
-//        private JTextArea edKeterangan;
-//
-//
-//        public FormPembayaranDanaRutin(Frame owner, PembayaranDanaRutin record, int modelIdx) {
-//            super(owner, "Edit pembayaran iuran samanagara / dana sosial / dana tetap", PembayaranDanaRutin.class, record, modelIdx);
-//        }
-//
-//        @Override
-//        protected void initFormFields() {
-//
-//        }
-//
-//        @Override
-//        protected void syncModelToGui() {
-//
-//        }
-//
-//        @Override
-//        protected boolean validateFormFields() {
-//            return false;
-//        }
-//
-//        @Override
-//        protected void syncGuiToModel() {
-//
-//        }
-//    }
 }
