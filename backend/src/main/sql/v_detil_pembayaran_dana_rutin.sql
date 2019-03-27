@@ -1,3 +1,5 @@
+drop view v_detil_pembayaran_dana_rutin;
+
 create view v_detil_pembayaran_dana_rutin as
 select d.*,
     l.nama as leluhur_nama
