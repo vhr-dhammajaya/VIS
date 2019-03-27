@@ -10,14 +10,12 @@ import com.skopware.javautils.swing.grid.GridConfig;
 import com.skopware.vdjvis.api.entities.DetilPembayaranDanaRutin;
 import com.skopware.vdjvis.api.entities.PembayaranDanaRutin;
 import com.skopware.vdjvis.api.entities.PendaftaranDanaRutin;
+import com.skopware.vdjvis.api.entities.Pendapatan;
 import com.skopware.vdjvis.backend.jdbi.dao.PembayaranDanaRutinDAO;
 import org.jdbi.v3.core.Jdbi;
 
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.time.YearMonth;
 import java.util.Comparator;
@@ -70,5 +68,19 @@ public class PembayaranDanaRutinController extends BaseCrudController<Pembayaran
         });
 
         return result;
+    }
+
+    @POST
+    @Path("/request_koreksi")
+    public boolean requestKoreksi(@NotNull PembayaranDanaRutin x) {
+        jdbi.useHandle(handle -> {
+            handle.createUpdate("update pembayaran_samanagara_sosial_tetap set correction_status=1, corr_req_reason=:reason" +
+                    " where uuid=:uuid")
+                    .bind("reason", x.correctionRequestReason)
+                    .bind("uuid", x.uuid)
+                    .execute();
+        });
+
+        return true;
     }
 }

@@ -6,14 +6,20 @@ import com.skopware.javautils.httpclient.HttpHelper;
 import com.skopware.javautils.jasperreports.JasperHelper;
 import com.skopware.javautils.swing.BaseCrudForm;
 import com.skopware.javautils.swing.BaseCrudTableModel;
+import com.skopware.javautils.swing.JDatePicker;
+import com.skopware.javautils.swing.JForeignKeyPicker;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
 import com.skopware.vdjvis.api.entities.PembayaranDanaRutin;
+import com.skopware.vdjvis.api.entities.Pendapatan;
+import com.skopware.vdjvis.api.entities.Umat;
 import com.skopware.vdjvis.api.entities.User;
 import com.skopware.vdjvis.desktop.App;
+import com.skopware.vdjvis.desktop.DialogInputAlasanMintaPembetulan;
 import com.skopware.vdjvis.desktop.MainFrame;
 import net.sf.jasperreports.engine.JREmptyDataSource;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
+import org.apache.http.client.methods.HttpPost;
 
 import javax.swing.*;
 import java.awt.*;
@@ -61,6 +67,16 @@ public class GridPembayaranDanaRutin {
                     x.label = "Keterangan";
                     x.fieldName = "keterangan";
                     x.dbColumnName = "keterangan";
+                }),
+                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                    x.fieldName = "correctionStatus";
+                    x.dbColumnName = "correction_status";
+                    x.label = "Butuh pembetulan?";
+                }),
+                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                    x.fieldName = "correctionRequestReason";
+                    x.dbColumnName = "corr_req_reason";
+                    x.label = "Alasan";
                 })
         );
 
@@ -69,8 +85,8 @@ public class GridPembayaranDanaRutin {
         o.shortControllerUrl = "/pembayaran_dana_rutin";
 
         o.enableAdd = false;
-
-        o.fnShowEditForm = (rec, idx) -> new FormPembayaranDanaRutin(App.mainFrame, rec, idx);
+        o.enableEdit = false;
+//        o.fnShowEditForm = (rec, idx) -> new FormPembayaranDanaRutin(App.mainFrame, rec, idx);
 
         JButton btnCetakKuitansi = new JButton("Cetak tanda terima");
         btnCetakKuitansi.addActionListener(e -> {
@@ -107,7 +123,20 @@ public class GridPembayaranDanaRutin {
 
         JButton btnMintaPembetulan = new JButton("Minta pembetulan");
         btnMintaPembetulan.addActionListener(e -> {
-            // todo
+            PembayaranDanaRutin sel = o.grid.getSelectedRecord();
+            if (sel == null) {
+                return;
+            }
+            int selIdx = o.grid.getSelectedRecordIdx();
+
+            DialogInputAlasanMintaPembetulan dialogInput = new DialogInputAlasanMintaPembetulan(reason -> {
+                sel.correctionStatus = true;
+                sel.correctionRequestReason = reason;
+                HttpHelper.makeHttpRequest(App.config.url("/pembayaran_dana_rutin/request_koreksi"), HttpPost::new, sel, boolean.class);
+                o.grid.tableModel.fireTableRowsUpdated(selIdx, selIdx);
+            });
+            dialogInput.setVisible(true);
+            dialogInput.pack();
         });
 
         o.additionalToolbarButtons.add(btnMintaPembetulan);
@@ -115,30 +144,35 @@ public class GridPembayaranDanaRutin {
         return o;
     }
 
-    public static class FormPembayaranDanaRutin extends BaseCrudForm<PembayaranDanaRutin> {
-
-        public FormPembayaranDanaRutin(Frame owner, PembayaranDanaRutin record, int modelIdx) {
-            super(owner, "Edit pembayaran iuran samanagara / dana sosial / dana tetap", PembayaranDanaRutin.class, record, modelIdx);
-        }
-
-        @Override
-        protected void initFormFields() {
-
-        }
-
-        @Override
-        protected void syncModelToGui() {
-
-        }
-
-        @Override
-        protected boolean validateFormFields() {
-            return false;
-        }
-
-        @Override
-        protected void syncGuiToModel() {
-
-        }
-    }
+//    public static class FormPembayaranDanaRutin extends BaseCrudForm<PembayaranDanaRutin> {
+//        private JForeignKeyPicker<Umat> edUmat;
+//        private JDatePicker edTgl;
+//        private JComboBox<String> edChannel;
+//        private JTextArea edKeterangan;
+//
+//
+//        public FormPembayaranDanaRutin(Frame owner, PembayaranDanaRutin record, int modelIdx) {
+//            super(owner, "Edit pembayaran iuran samanagara / dana sosial / dana tetap", PembayaranDanaRutin.class, record, modelIdx);
+//        }
+//
+//        @Override
+//        protected void initFormFields() {
+//
+//        }
+//
+//        @Override
+//        protected void syncModelToGui() {
+//
+//        }
+//
+//        @Override
+//        protected boolean validateFormFields() {
+//            return false;
+//        }
+//
+//        @Override
+//        protected void syncGuiToModel() {
+//
+//        }
+//    }
 }

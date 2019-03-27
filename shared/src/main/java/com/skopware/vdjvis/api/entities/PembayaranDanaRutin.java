@@ -15,6 +15,8 @@ public class PembayaranDanaRutin extends BaseRecord<PembayaranDanaRutin> {
     @JsonProperty public int totalNominal;
     @JsonProperty public String channel;
     @JsonProperty public String keterangan;
+    @JsonProperty public boolean correctionStatus;
+    @JsonProperty public String correctionRequestReason;
 
     // relationships
     @JsonProperty public Umat umat;
