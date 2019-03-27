@@ -28,7 +28,8 @@ public class App extends BaseApp<Config> {
         jdbi.registerRowMapper(TarifSamanagara.class, new TarifSamanagaraRowMapper());
 
         jdbi.registerRowMapper(PendaftaranDanaRutin.class, new PendaftaranDanaRutinRowMapper());
-//        jdbi.registerRowMapper(DetilPembayaranDanaRutin.class, new DetilPembayaranDanaRutinRowMapper());
+        jdbi.registerRowMapper(PembayaranDanaRutin.class, new PembayaranDanaRutinRowMapper());
+        jdbi.registerRowMapper(DetilPembayaranDanaRutin.class, new DetilPembayaranDanaRutinRowMapper());
         jdbi.registerRowMapper(Pendapatan.class, new PendapatanRowMapper());
         jdbi.registerRowMapper(Pengeluaran.class, new PengeluaranRowMapper());
     }
@@ -47,7 +48,8 @@ public class App extends BaseApp<Config> {
         jersey.register(new LokasiFotoController(jdbi));
 
         jersey.register(new PendaftaranDanaRutinController(jdbi));
-//        jersey.register(new DetilPembayaranDanaRutinController(jdbi));
+        jersey.register(new PembayaranDanaRutinController(jdbi));
+        jersey.register(new DetilPembayaranDanaRutinController(jdbi));
         jersey.register(new PendapatanController(jdbi));
         jersey.register(new PengeluaranController(jdbi));
 

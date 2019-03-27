@@ -9,6 +9,7 @@ import com.skopware.javautils.swing.grid.JDataGridOptions;
 import com.skopware.vdjvis.api.entities.Acara;
 import com.skopware.vdjvis.api.entities.Pendapatan;
 import com.skopware.vdjvis.api.entities.Umat;
+import com.skopware.vdjvis.api.entities.User;
 import com.skopware.vdjvis.desktop.App;
 import com.skopware.vdjvis.desktop.DialogInputAlasanMintaPembetulan;
 import com.skopware.vdjvis.desktop.master.GridAcara;
@@ -27,6 +28,17 @@ import java.util.*;
 import java.util.List;
 
 public class GridPendapatan {
+    public static JDataGridOptions<Pendapatan> createForUser(User user) {
+        switch (user.tipe) {
+            case PENGURUS:
+                return createBaseOptions();
+            case OPERATOR:
+                return createOptionsForOperator();
+            default:
+                throw new IllegalStateException();
+        }
+    }
+
     public static JDataGridOptions<Pendapatan> createBaseOptions() {
         JDataGridOptions<Pendapatan> o = new JDataGridOptions<>();
 
