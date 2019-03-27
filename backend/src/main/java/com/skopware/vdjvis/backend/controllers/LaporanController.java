@@ -155,7 +155,6 @@ public class LaporanController {
             //#endregion
         }
 
-        // todo sort result
         // 1. kurang bayar > tepat waktu > lebih bayar
         // 2. nominal (descending / largest to smallest)
         Collections.sort(result, (a, b) -> {

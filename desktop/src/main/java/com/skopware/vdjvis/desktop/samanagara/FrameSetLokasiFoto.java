@@ -95,7 +95,7 @@ public class FrameSetLokasiFoto extends BaseCrudFrame {
         options.appConfig = App.config;
         options.shortControllerUrl = "/leluhur";
 
-        gridMendiang = new JDataGrid<>(options); // fixme add popup menu to place umat to board cell
+        gridMendiang = new JDataGrid<>(options);
         gridMendiang.glassPane = progressGlassPane;
 
         panelSemuaPapanFoto = new PanelSemuaPapanFoto();
