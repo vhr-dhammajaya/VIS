@@ -126,6 +126,11 @@ public class GridUmat {
                     x.label = ("Bidang Usaha");
                 }),
                 ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                    x.fieldName = "idBarcode";
+                    x.dbColumnName = "id_barcode";
+                    x.label = "ID umat (barcode kartu)";
+                }),
+                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
                     x.fieldName = ("namaKerabat");
                     x.dbColumnName = "nama_kerabat";
                     x.label = ("Nama Kerabat");
