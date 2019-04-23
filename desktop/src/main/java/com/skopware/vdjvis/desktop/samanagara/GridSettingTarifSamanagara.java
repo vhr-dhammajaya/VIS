@@ -2,7 +2,6 @@ package com.skopware.vdjvis.desktop.samanagara;
 
 import com.skopware.javautils.ObjectHelper;
 import com.skopware.javautils.httpclient.HttpHelper;
-import com.skopware.javautils.swing.BaseCrudSwingWorker;
 import com.skopware.javautils.swing.BaseCrudTableModel;
 import com.skopware.javautils.swing.SwingHelper;
 import com.skopware.javautils.swing.grid.JDataGrid;
@@ -14,7 +13,6 @@ import org.apache.http.client.methods.HttpPost;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.Arrays;
 
 public class GridSettingTarifSamanagara {
@@ -86,26 +84,17 @@ public class GridSettingTarifSamanagara {
 
                 int nominal = (int)txtNominal.getValue();
 
-                jDataGrid.glassPane.setVisible(true);
-                BaseCrudSwingWorker<Boolean> worker = new BaseCrudSwingWorker<>(jDataGrid.glassPane);
+                try {
+                    HttpHelper.makeHttpRequest(jDataGrid.controllerUrl, HttpPost::new, nominal, Boolean.class);
 
-                worker.onDoInBackground = () -> {
-                    return HttpHelper.makeHttpRequest(jDataGrid.controllerUrl, HttpPost::new, nominal, Boolean.class);
-                };
-
-                worker.onSuccess = dummy -> {
-                    // refresh grid
                     jDataGrid.refreshData();
                     this.dispose();
-                };
-
-                worker.onError = ex -> {
+                }
+                catch (Exception ex) {
                     SwingHelper.setEnabled(true, btnOk, btnCancel);
                     ex.printStackTrace();
                     SwingHelper.showErrorMessage(this, "Gagal mengupdate nominal iuran");
-                };
-
-                worker.execute();
+                }
             });
             btnCancel.addActionListener(e -> this.dispose());
 

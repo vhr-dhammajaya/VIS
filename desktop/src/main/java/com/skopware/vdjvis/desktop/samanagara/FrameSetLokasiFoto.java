@@ -1,12 +1,10 @@
 package com.skopware.vdjvis.desktop.samanagara;
 
 import com.skopware.javautils.ObjectHelper;
-import com.skopware.javautils.Tuple2;
 import com.skopware.javautils.db.PageData;
 import com.skopware.javautils.httpclient.HttpGetWithBody;
 import com.skopware.javautils.httpclient.HttpHelper;
 import com.skopware.javautils.swing.BaseCrudFrame;
-import com.skopware.javautils.swing.BaseCrudSwingWorker;
 import com.skopware.javautils.swing.BaseCrudTableModel;
 import com.skopware.javautils.swing.SwingHelper;
 import com.skopware.javautils.swing.grid.JDataGrid;
@@ -130,23 +128,15 @@ public class FrameSetLokasiFoto extends BaseCrudFrame {
 
         gridMendiang.setFilterAndSort();
 
-        // refresh daftar papan
-        BaseCrudSwingWorker<Tuple2<
-                        PageData<Leluhur>,
-                        List<PapanFoto>>> worker = new BaseCrudSwingWorker<>(progressGlassPane);
-
-        worker.onDoInBackground = () -> {
+        try {
             PageData<Leluhur> leluhurList = HttpHelper.makeHttpRequest(App.config.url("/leluhur"), HttpGetWithBody::new, gridMendiang.gridConfig, PageData.class, Leluhur.class);
             List<PapanFoto> papanFotoList = HttpHelper.makeHttpRequest(App.config.url("/lokasi_foto/list_papan"), HttpGetWithBody::new, null, List.class, PapanFoto.class);
-            return new Tuple2<>(leluhurList, papanFotoList);
-        };
 
-        worker.onSuccess = result -> {
-            gridMendiang.setTableRows(result.val1);
+            gridMendiang.setTableRows(leluhurList);
 //            listLeluhur = result.val1.rows;
 //            leluhurById = ObjectHelper.groupListById(listLeluhur, leluhur -> leluhur.uuid);
 
-            this.papanFotoList = result.val2;
+            this.papanFotoList = papanFotoList;
             papanById = ObjectHelper.groupListById(papanFotoList, papanFoto -> papanFoto.uuid);
 
             cellFotoById = new HashMap<>();
@@ -170,16 +160,13 @@ public class FrameSetLokasiFoto extends BaseCrudFrame {
             }
 
             panelSemuaPapanFoto.refresh();
-        };
-
-        worker.onError = ex -> {
+        }
+        catch (Exception ex) {
             gridMendiang.gridConfig.pagingConfig.revertPageNum();
 
             ex.printStackTrace();
             SwingHelper.showErrorMessage(this, "Error saat membaca database");
-        };
-
-        worker.execute();
+        }
     }
 
     private void placePhoto(Leluhur leluhur, CellFoto destCell, Runnable onSuccess) {
@@ -198,10 +185,9 @@ public class FrameSetLokasiFoto extends BaseCrudFrame {
         requestParam.idMendiang = leluhur.uuid;
         requestParam.destCellId = destCell.uuid;
 
-        BaseCrudSwingWorker<Boolean> worker = new BaseCrudSwingWorker<>(progressGlassPane);
-        worker.onDoInBackground = () -> HttpHelper.makeHttpRequest(App.config.url("/lokasi_foto"), HttpPost::new, requestParam, boolean.class);
+        try {
+            HttpHelper.makeHttpRequest(App.config.url("/lokasi_foto"), HttpPost::new, requestParam, boolean.class);
 
-        worker.onSuccess = dummy -> {
             CellFoto cellAsal = null;
             boolean kosongkanCellAsal = leluhur.cellFoto != null;
 
@@ -225,14 +211,11 @@ public class FrameSetLokasiFoto extends BaseCrudFrame {
             if (onSuccess != null) {
                 onSuccess.run();
             }
-        };
-
-        worker.onError = ex -> {
+        }
+        catch (Exception ex) {
             ex.printStackTrace();
             SwingHelper.showErrorMessage(this, "Gagal memindahkan foto");
-        };
-
-        worker.execute();
+        }
     }
 
     public void cutLeluhur() {

@@ -97,7 +97,7 @@ public class DialogPrepareTandaTerima extends JDialog {
             params.put("KeperluanDana", edKeperluanDana.getText());
             params.put("KeteranganTambahan", edKeteranganTambahan.getText());
 
-            JasperReport jasperReport = JasperHelper.loadJasperFileFromResource(GridPembayaranDanaRutin.class, "tanda_terima_dana.jasper");
+            JasperReport jasperReport = JasperHelper.loadJasperFileFromResource(GridHistoryPembayaranDanaRutin.class, "tanda_terima_dana.jasper");
             JasperPrint jasperPrint = JasperHelper.fillReport(jasperReport, params, new JREmptyDataSource());
             JasperHelper.showReportPreview(jasperPrint);
 

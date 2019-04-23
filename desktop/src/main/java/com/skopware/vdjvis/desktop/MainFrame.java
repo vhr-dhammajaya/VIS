@@ -151,7 +151,7 @@ public class MainFrame extends JFrame {
         menuLihatHistoryPembayaranDanaRutin = new JMenuItem("Lihat history pembayaran samanagara, dana sosial & tetap");
         menuLihatHistoryPembayaranDanaRutin.addActionListener(e -> {
             showWindow("frameLihatHistoryPembayaranDanaRutin", () -> {
-                JDataGrid<PembayaranDanaRutin> masterGrid = new JDataGrid<>(GridPembayaranDanaRutin.createForUser(App.currentUser));
+                JDataGrid<PembayaranDanaRutin> masterGrid = new JDataGrid<>(GridHistoryPembayaranDanaRutin.createForUser(App.currentUser));
                 JDataGrid<DetilPembayaranDanaRutin> detailGrid = new JDataGrid<>(GridDetilPembayaranDanaRutin.createBaseOptions());
                 return new MasterDetailFrame<>("History pembayaran iuran samanagara, dana sosial, dana tetap", "Pembayaran iuran samanagara, dana sosial & dana tetap", "Detil transaksi", masterGrid, detailGrid, "trx_id");
             });

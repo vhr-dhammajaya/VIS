@@ -4,7 +4,6 @@ import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.layout.FormLayout;
 import com.skopware.javautils.httpclient.HttpHelper;
-import com.skopware.javautils.swing.BaseSwingWorker;
 import com.skopware.javautils.swing.SwingHelper;
 import com.skopware.vdjvis.api.entities.User;
 import org.apache.http.client.methods.HttpPost;
@@ -54,25 +53,18 @@ public class FrameGantiPassword extends JInternalFrame {
             requestBody.uuid = App.currentUser.uuid;
             requestBody.password = password1;
 
-            BaseSwingWorker<Boolean> worker = new BaseSwingWorker<>();
-            worker.onDoInBackground = () -> {
-                boolean dummy = HttpHelper.makeHttpRequest(App.config.url("/user/set_password"), HttpPost::new, requestBody, boolean.class);
-                return dummy;
-            };
-
-            worker.onSuccess = dummy -> {
+            SwingHelper.setEnabled(false, btnOk, btnCancel);
+            try {
+                HttpHelper.makeHttpRequest(App.config.url("/user/set_password"), HttpPost::new, requestBody, boolean.class);
                 this.dispose();
-            };
-
-            worker.onError = ex -> {
+            }
+            catch (Exception ex) {
                 SwingHelper.setEnabled(true, btnOk, btnCancel);
 
                 ex.printStackTrace();
                 SwingHelper.showErrorMessage(FrameGantiPassword.this, "Gagal mengganti password. Terjadi error");
-            };
+            }
 
-            SwingHelper.setEnabled(false, btnOk, btnCancel);
-            worker.execute();
         };
 
         ActionListener onCancel = e -> {

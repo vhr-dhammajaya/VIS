@@ -62,7 +62,6 @@ public class DialogBayarDanaSosialTetap extends JDialog {
         JButton btnCancel = new JButton("Cancel");
 
         btnOk.addActionListener(e -> {
-            // fixme don't block ui thread
             DtoBayarDanaSosialDanTetap requestParam = new DtoBayarDanaSosialDanTetap();
             requestParam.idPendaftaran = danaRutin.uuid;
             requestParam.tglTrans = edTglTrans.getDate();

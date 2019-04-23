@@ -3,7 +3,6 @@ package com.skopware.vdjvis.desktop.keuangan;
 import com.skopware.javautils.ObjectHelper;
 import com.skopware.javautils.Tuple2;
 import com.skopware.javautils.httpclient.HttpHelper;
-import com.skopware.javautils.jasperreports.JasperHelper;
 import com.skopware.javautils.swing.*;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
 import com.skopware.vdjvis.api.entities.Acara;
@@ -14,11 +13,6 @@ import com.skopware.vdjvis.desktop.App;
 import com.skopware.vdjvis.desktop.DialogInputAlasanMintaPembetulan;
 import com.skopware.vdjvis.desktop.master.GridAcara;
 import com.skopware.vdjvis.desktop.master.GridUmat;
-import net.sf.jasperreports.engine.JREmptyDataSource;
-import net.sf.jasperreports.engine.JasperFillManager;
-import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.JasperReport;
-import net.sf.jasperreports.view.JasperViewer;
 import org.apache.http.client.methods.HttpPost;
 
 import javax.swing.*;
@@ -148,6 +142,15 @@ public class GridPendapatan {
 
         public FormPendapatan(Frame owner) {
             super(owner, "Input pendapatan", Pendapatan.class);
+
+            onBackendSuccess = () -> {
+                this.dispose();
+
+                Pendapatan record = this.editedRecord;
+                DialogPrepareTandaTerima dialog = new DialogPrepareTandaTerima(App.mainFrame, record.umat == null? "" : record.umat.nama, record.nominal, record.getKeperluanDana(), record.keterangan);
+                dialog.setVisible(true);
+                dialog.pack();
+            };
         }
 
         public FormPendapatan(Frame owner, Pendapatan record, int modelIdx) {

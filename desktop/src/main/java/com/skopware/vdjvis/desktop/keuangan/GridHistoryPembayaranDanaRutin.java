@@ -27,7 +27,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GridPembayaranDanaRutin {
+public class GridHistoryPembayaranDanaRutin {
     public static JDataGridOptions<PembayaranDanaRutin> createForUser(User user) {
         switch (user.tipe) {
             case PENGURUS:
