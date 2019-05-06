@@ -15,7 +15,7 @@ public class PendaftaranDanaRutin extends BaseRecord<PendaftaranDanaRutin> {
     //#region table columns
     @JsonProperty public LocalDate tglDaftar = LocalDate.now();
     @JsonProperty public int nominal;
-    @JsonProperty public Type tipe;
+    @JsonProperty public DetilPembayaranDanaRutin.Type tipe;
     //#endregion
 
     // calculated fields
@@ -84,7 +84,4 @@ public class PendaftaranDanaRutin extends BaseRecord<PendaftaranDanaRutin> {
         }
     }
 
-    public enum Type {
-        sosial(), tetap(), samanagara;
-    }
 }

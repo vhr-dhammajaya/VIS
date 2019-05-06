@@ -23,7 +23,7 @@ public class DetilPembayaranDanaRutinRowMapper implements RowMapper<DetilPembaya
         x.parentTrx = new PembayaranDanaRutin();
         x.parentTrx.uuid = rs.getString("trx_id");
 
-        x.jenis = PendaftaranDanaRutin.Type.valueOf(rs.getString("jenis"));
+        x.jenis = DetilPembayaranDanaRutin.Type.valueOf(rs.getString("jenis"));
 
         String danaRutinId = rs.getString("dana_rutin_id");
         if (danaRutinId != null) {

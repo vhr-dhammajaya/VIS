@@ -5,6 +5,7 @@ import com.skopware.javautils.Tuple2;
 import com.skopware.javautils.swing.*;
 import com.skopware.javautils.swing.grid.JDataGrid;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
+import com.skopware.vdjvis.api.entities.DetilPembayaranDanaRutin;
 import com.skopware.vdjvis.api.entities.PendaftaranDanaRutin;
 import com.skopware.vdjvis.api.entities.Umat;
 import com.skopware.vdjvis.desktop.App;
@@ -98,7 +99,7 @@ public class GridPendaftaranDanaRutin {
         private JSpinner txtNominal;
         private JRadioButton btnTipeSosial;
         private JRadioButton btnTipeTetap;
-        private EnumFormFieldMapper<PendaftaranDanaRutin.Type> mapperTipe;
+        private EnumFormFieldMapper<DetilPembayaranDanaRutin.Type> mapperTipe;
 
         public FormPendaftaranDanaRutin(Frame owner) {
             super(owner, "Pendaftaran dana sosial/tetap", PendaftaranDanaRutin.class);
@@ -127,8 +128,8 @@ public class GridPendaftaranDanaRutin {
             pnlTipe.add(btnTipeTetap);
 
             mapperTipe = new EnumFormFieldMapper<>(
-                    new Tuple2<>(PendaftaranDanaRutin.Type.sosial, btnTipeSosial),
-                    new Tuple2<>(PendaftaranDanaRutin.Type.tetap, btnTipeTetap));
+                    new Tuple2<>(DetilPembayaranDanaRutin.Type.sosial, btnTipeSosial),
+                    new Tuple2<>(DetilPembayaranDanaRutin.Type.tetap, btnTipeTetap));
 
             pnlFormFields = SwingHelper.buildForm1(Arrays.asList(
                     new Tuple2<>("Jenis", pnlTipe),

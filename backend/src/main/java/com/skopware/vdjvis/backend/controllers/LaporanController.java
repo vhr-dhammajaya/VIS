@@ -4,10 +4,7 @@ import com.skopware.javautils.DateTimeHelper;
 import com.skopware.javautils.ObjectHelper;
 import com.skopware.javautils.Tuple3;
 import com.skopware.vdjvis.api.dto.*;
-import com.skopware.vdjvis.api.entities.Leluhur;
-import com.skopware.vdjvis.api.entities.PendaftaranDanaRutin;
-import com.skopware.vdjvis.api.entities.StatusBayar;
-import com.skopware.vdjvis.api.entities.Umat;
+import com.skopware.vdjvis.api.entities.*;
 import com.skopware.vdjvis.api.laporan.pemasukan_pengeluaran_bulanan.DtoInputLaporanPemasukanPengeluaran;
 import com.skopware.vdjvis.api.laporan.pemasukan_pengeluaran_bulanan.DtoOutputLaporanPemasukanPengeluaran;
 import org.jdbi.v3.core.Handle;
@@ -67,7 +64,7 @@ public class LaporanController {
                         x.uuid = rs.getString("id");
                         x.tglDaftar = DateTimeHelper.toLocalDate(rs.getDate("tgl_daftar"));
                         x.nominal = rs.getInt("nominal");
-                        x.tipe = PendaftaranDanaRutin.Type.valueOf(rs.getString("tipe"));
+                        x.tipe = DetilPembayaranDanaRutin.Type.valueOf(rs.getString("tipe"));
 
                         x.umat = new Umat();
                         x.umat.uuid = rs.getString("umat_id");
@@ -141,7 +138,7 @@ public class LaporanController {
                     x.alamat = leluhur.penanggungJawab.alamat;
                     x.namaLeluhur = leluhur.nama;
 
-                    x.jenisDana = PendaftaranDanaRutin.Type.samanagara;
+                    x.jenisDana = DetilPembayaranDanaRutin.Type.samanagara;
 
                     x.statusBayar = statusBayar;
                 }));

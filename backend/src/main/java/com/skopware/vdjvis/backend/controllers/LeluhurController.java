@@ -19,7 +19,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Path("/leluhur")
@@ -144,7 +143,7 @@ public class LeluhurController extends BaseCrudController<Leluhur, LeluhurDAO> {
                     templateDetil.parentTrx = new PembayaranDanaRutin();
                     templateDetil.parentTrx.uuid = pembayaran.uuid;
 
-                    templateDetil.jenis = PendaftaranDanaRutin.Type.samanagara;
+                    templateDetil.jenis = DetilPembayaranDanaRutin.Type.samanagara;
 
                     templateDetil.leluhurSamanagara = new Leluhur();
                     templateDetil.leluhurSamanagara.uuid = leluhur.leluhurId;
