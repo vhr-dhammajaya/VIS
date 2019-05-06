@@ -235,4 +235,36 @@ public class LaporanController {
 
         return result;
     }
+
+    @GET
+    @Path("/absensi_siswa")
+    public List<DtoOutputLaporanAbsensiSiswa> computeLaporanAbsensiSiswa() {
+        LocalDate today = LocalDate.now();
+
+        try (Handle handle = jdbi.open()) {
+            List<DtoOutputLaporanAbsensiSiswa> result = handle.select("select s.nama, s.nama_ayah, s.nama_ibu, s.alamat, s.no_telpon, max(k.tgl) as tgl_terakhir_hadir" +
+                    " from siswa s" +
+                    " left join kehadiran_siswa k on k.siswa_uuid = s.uuid" +
+                    " group by s.uuid, s.nama, s.nama_ayah, s.nama_ibu, s.alamat, s.no_telpon" +
+                    " order by tgl_terakhir_hadir")
+                    .map((rs, ctx) -> {
+                        DtoOutputLaporanAbsensiSiswa x = new DtoOutputLaporanAbsensiSiswa();
+                        x.namaSiswa = rs.getString("nama");
+                        x.namaAyah = rs.getString("nama_ayah");
+                        x.namaIbu = rs.getString("nama_ibu");
+                        x.alamat = rs.getString("alamat");
+                        x.noTelpon = rs.getString("no_telpon");
+                        x.tglTerakhirHadir = DateTimeHelper.toLocalDate(rs.getDate("tgl_terakhir_hadir"));
+                        if (x.tglTerakhirHadir != null) {
+                            x.sdhBerapaLamaAbsen = Period.between(x.tglTerakhirHadir, today);
+                        }
+                        else {
+                            x.sdhBerapaLamaAbsen = null;
+                        }
+                        return x;
+                    })
+                    .list();
+            return result;
+        }
+    }
 }

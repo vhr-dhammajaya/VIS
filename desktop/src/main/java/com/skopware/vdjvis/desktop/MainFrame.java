@@ -12,6 +12,7 @@ import com.skopware.vdjvis.api.entities.User;
 import com.skopware.vdjvis.desktop.absensi.FrameAbsensiSiswa;
 import com.skopware.vdjvis.desktop.absensi.FrameAbsensiUmat;
 import com.skopware.vdjvis.desktop.keuangan.*;
+import com.skopware.vdjvis.desktop.laporan.FrameLaporanAbsensiSiswa;
 import com.skopware.vdjvis.desktop.laporan.FrameLaporanAbsensiUmat;
 import com.skopware.vdjvis.desktop.laporan.FrameLaporanDanaRutin;
 import com.skopware.vdjvis.desktop.laporan.FrameLaporanPemasukanPengeluaran;
@@ -63,6 +64,7 @@ public class MainFrame extends JFrame {
     private JMenuItem menuLaporanDanaRutin;
     private JMenuItem menuLaporanPemasukanPengeluaran;
     private JMenuItem menuLaporanAbsensiUmat;
+    private JMenuItem menuLaporanAbsensiSiswa;
 
     private JDesktopPane desktopPane;
 
@@ -86,6 +88,7 @@ public class MainFrame extends JFrame {
     private JInternalFrame frameLaporanDanaRutin;
     private JInternalFrame frameLaporanPemasukanPengeluaran;
     private JInternalFrame frameLaporanAbsensiUmat;
+    private JInternalFrame frameLaporanAbsensiSiswa;
 
     public MainFrame() {
         super("VIS VDJ");
@@ -198,6 +201,11 @@ public class MainFrame extends JFrame {
         menuLaporanAbsensiUmat.addActionListener(e -> {
             showWindow("frameLaporanAbsensiUmat", () -> new FrameLaporanAbsensiUmat());
         });
+
+        menuLaporanAbsensiSiswa = new JMenuItem("Laporan absensi siswa");
+        menuLaporanAbsensiSiswa.addActionListener(e -> {
+            showWindow("frameLaporanAbsensiSiswa", () -> new FrameLaporanAbsensiSiswa());
+        });
         //#endregion
 
         //#region menuAccount child
@@ -238,6 +246,7 @@ public class MainFrame extends JFrame {
         menuLaporan.add(menuLaporanDanaRutin);
         menuLaporan.add(menuLaporanPemasukanPengeluaran);
         menuLaporan.add(menuLaporanAbsensiUmat);
+        menuLaporan.add(menuLaporanAbsensiSiswa);
 
         menuAccount.add(menuGantiPassword);
         menuAccount.add(menuLogout);
