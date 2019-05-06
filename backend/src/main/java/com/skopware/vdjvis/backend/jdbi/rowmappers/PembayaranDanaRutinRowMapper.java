@@ -18,7 +18,9 @@ public class PembayaranDanaRutinRowMapper implements RowMapper<PembayaranDanaRut
         x.umat = new Umat();
         x.umat.uuid = rs.getString("umat_id");
         x.umat.nama = rs.getString("umat_nama");
+        x.tipe = PembayaranDanaRutin.Type.valueOf(rs.getString("tipe"));
         x.tgl = DateTimeHelper.toLocalDate(rs.getDate("tgl"));
+        x.noSeq = rs.getInt("no_seq");
         x.totalNominal = rs.getInt("total_nominal");
         x.channel = rs.getString("channel");
         x.keterangan = rs.getString("keterangan");

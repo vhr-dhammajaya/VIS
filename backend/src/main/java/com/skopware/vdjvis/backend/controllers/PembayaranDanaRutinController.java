@@ -12,6 +12,7 @@ import com.skopware.vdjvis.api.entities.PembayaranDanaRutin;
 import com.skopware.vdjvis.api.entities.PendaftaranDanaRutin;
 import com.skopware.vdjvis.api.entities.Pendapatan;
 import com.skopware.vdjvis.backend.jdbi.dao.PembayaranDanaRutinDAO;
+import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 
 import javax.validation.constraints.NotNull;
@@ -36,36 +37,41 @@ public class PembayaranDanaRutinController extends BaseCrudController<Pembayaran
     @GET
     public Map<String, String> getKeperluanDana(@NotNull PembayaranDanaRutin record) {
         Map<String, String> result = new HashMap<>();
+        StringBuilder sb = new StringBuilder();
 
-        jdbi.useHandle(handle -> {
-            List<DetilPembayaranDanaRutin> listDetilUngrouped = handle
-                    .select("select * from v_detil_pembayaran_dana_rutin where trx_id=?", record.uuid)
-                    .mapTo(DetilPembayaranDanaRutin.class)
-                    .list();
-            Map<Tuple2<PendaftaranDanaRutin.Type, String>, List<DetilPembayaranDanaRutin>> detilGroupedByJenisAndIdDanaRutinAndIdLeluhur = ObjectHelper.groupList(listDetilUngrouped, detil -> new Tuple2<>(detil.jenis, detil.jenis == PendaftaranDanaRutin.Type.samanagara? detil.leluhurSamanagara.uuid : detil.danaRutin.uuid));
-            StringBuilder sb = new StringBuilder();
+        try (Handle handle = jdbi.open()) {
+            if (record.tipe == PembayaranDanaRutin.Type.samanagara) {
+                List<DetilPembayaranDanaRutin> listDetilUngrouped = handle
+                        .select("select * from v_detil_pembayaran_dana_rutin where trx_id=?", record.uuid)
+                        .mapTo(DetilPembayaranDanaRutin.class)
+                        .list();
+                Map<String, List<DetilPembayaranDanaRutin>> detilGroupedByIdLeluhur = ObjectHelper.groupList(listDetilUngrouped, detil -> detil.leluhurSamanagara.uuid);
 
-            for (Map.Entry<Tuple2<PendaftaranDanaRutin.Type, String>, List<DetilPembayaranDanaRutin>> e : detilGroupedByJenisAndIdDanaRutinAndIdLeluhur.entrySet()) {
-                Tuple2<PendaftaranDanaRutin.Type, String> key = e.getKey();
-                List<DetilPembayaranDanaRutin> listDetil = e.getValue();
+                for (Map.Entry<String, List<DetilPembayaranDanaRutin>> e : detilGroupedByIdLeluhur.entrySet()) {
+                    List<DetilPembayaranDanaRutin> listDetil = e.getValue();
+                    String namaLeluhur = listDetil.get(0).leluhurSamanagara.nama;
 
-                PendaftaranDanaRutin.Type jenisDana = key.val1;
-                String namaLeluhur = jenisDana == PendaftaranDanaRutin.Type.samanagara? listDetil.get(0).leluhurSamanagara.nama : null;
+                    YearMonth smallestMonth = listDetil.stream().map(x -> x.untukBulan).min(Comparator.naturalOrder()).get();
+                    YearMonth largestMonth = listDetil.stream().map(x -> x.untukBulan).max(Comparator.naturalOrder()).get();
 
+                    sb.append(String.format("Bayar samanagara ut leluhur %s dari %s s/d %s%n", namaLeluhur, smallestMonth, largestMonth));
+                }
+            }
+            else {
+                List<DetilPembayaranDanaRutin> listDetil = handle
+                        .select("select * from v_detil_pembayaran_dana_rutin where trx_id=?", record.uuid)
+                        .mapTo(DetilPembayaranDanaRutin.class)
+                        .list();
+
+                String jenisDana = listDetil.get(0).jenis.name();
                 YearMonth smallestMonth = listDetil.stream().map(x -> x.untukBulan).min(Comparator.naturalOrder()).get();
                 YearMonth largestMonth = listDetil.stream().map(x -> x.untukBulan).max(Comparator.naturalOrder()).get();
 
-                if (jenisDana == PendaftaranDanaRutin.Type.samanagara) {
-                    sb.append(String.format("Bayar samanagara ut leluhur %s dari %s s/d %s", namaLeluhur, smallestMonth, largestMonth));
-                }
-                else {
-                    sb.append(String.format("Bayar dana %s dari %s s/d %s", jenisDana, smallestMonth, largestMonth));
-                }
-                sb.append('\n');
+                sb.append(String.format("Bayar dana %s dari %s s/d %s", jenisDana, smallestMonth, largestMonth));
             }
+        }
 
-            result.put("keperluanDana", sb.toString());
-        });
+        result.put("keperluanDana", sb.toString());
 
         return result;
     }

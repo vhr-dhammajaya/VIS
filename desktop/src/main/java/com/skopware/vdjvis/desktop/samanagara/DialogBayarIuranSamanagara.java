@@ -176,7 +176,10 @@ public class DialogBayarIuranSamanagara extends JDialog {
             PembayaranDanaRutin pembayaran = HttpHelper.makeHttpRequest(App.config.url("/leluhur/bayar_iuran_samanagara"), HttpPost::new, dto, PembayaranDanaRutin.class);
             Map<String, String> keperluanDana = HttpHelper.makeHttpRequest(App.config.url("/pembayaran_dana_rutin/get_keperluan"), HttpGetWithBody::new, pembayaran, Map.class, String.class, String.class);
 
-            DialogPrepareTandaTerima dialog = new DialogPrepareTandaTerima(App.mainFrame, pembayaran.umat.nama, pembayaran.totalNominal, keperluanDana.get("keperluanDana"), pembayaran.keterangan);
+            DialogPrepareTandaTerima.Input jasperParams = new DialogPrepareTandaTerima.Input();
+            jasperParams.set(pembayaran, keperluanDana.get("keperluanDana"));
+
+            DialogPrepareTandaTerima dialog = new DialogPrepareTandaTerima(App.mainFrame, jasperParams);
             dialog.setVisible(true);
             dialog.pack();
 

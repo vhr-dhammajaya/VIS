@@ -90,7 +90,10 @@ public class GridPendapatan {
                 return;
             }
 
-            DialogPrepareTandaTerima dialog = new DialogPrepareTandaTerima(App.mainFrame, sel.umat == null? "" : sel.umat.nama, sel.nominal, sel.getKeperluanDana(), sel.keterangan);
+            DialogPrepareTandaTerima.Input jasperParams = new DialogPrepareTandaTerima.Input();
+            jasperParams.set(sel);
+
+            DialogPrepareTandaTerima dialog = new DialogPrepareTandaTerima(App.mainFrame, jasperParams);
             dialog.setVisible(true);
             dialog.pack();
         });
@@ -143,11 +146,13 @@ public class GridPendapatan {
         public FormPendapatan(Frame owner) {
             super(owner, "Input pendapatan", Pendapatan.class);
 
-            onBackendSuccess = () -> {
+            onBackendSuccess = (createdRecord) -> {
                 this.dispose();
 
-                Pendapatan record = this.editedRecord;
-                DialogPrepareTandaTerima dialog = new DialogPrepareTandaTerima(App.mainFrame, record.umat == null? "" : record.umat.nama, record.nominal, record.getKeperluanDana(), record.keterangan);
+                DialogPrepareTandaTerima.Input jasperParams = new DialogPrepareTandaTerima.Input();
+                jasperParams.set(createdRecord);
+
+                DialogPrepareTandaTerima dialog = new DialogPrepareTandaTerima(App.mainFrame, jasperParams);
                 dialog.setVisible(true);
                 dialog.pack();
             };

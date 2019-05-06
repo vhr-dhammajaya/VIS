@@ -9,6 +9,7 @@ import java.time.LocalDate;
 public class Pendapatan extends BaseRecord<Pendapatan> {
     // table columns
     @JsonProperty public LocalDate tglTransaksi;
+    @JsonProperty public int noSeq;
     @JsonProperty public int nominal;
     @JsonProperty public String channel;
     @JsonProperty public JenisDana jenisDana;
@@ -19,6 +20,12 @@ public class Pendapatan extends BaseRecord<Pendapatan> {
     // relationships
     @JsonProperty public Umat umat;
     @JsonProperty public Acara acara;
+
+    @JsonIgnore
+    public String getIdTransaksi() {
+        String sb = String.format("M/Lain-2/%d/%02d/%06d", tglTransaksi.getYear(), tglTransaksi.getMonthValue(), noSeq);
+        return sb;
+    }
 
     @JsonIgnore
     public String getKeperluanDana() {

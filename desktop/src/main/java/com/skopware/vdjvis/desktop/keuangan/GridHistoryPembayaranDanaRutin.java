@@ -96,7 +96,10 @@ public class GridHistoryPembayaranDanaRutin {
 
             Map<String, String> keperluanDana = HttpHelper.makeHttpRequest(App.config.url("/pembayaran_dana_rutin/get_keperluan"), HttpGetWithBody::new, sel, Map.class, String.class, String.class);
 
-            DialogPrepareTandaTerima dialog = new DialogPrepareTandaTerima(App.mainFrame, sel.umat.nama, sel.totalNominal, keperluanDana.get("keperluanDana"), sel.keterangan);
+            DialogPrepareTandaTerima.Input jasperParams = new DialogPrepareTandaTerima.Input();
+            jasperParams.set(sel, keperluanDana.get("keperluanDana"));
+
+            DialogPrepareTandaTerima dialog = new DialogPrepareTandaTerima(App.mainFrame, jasperParams);
             dialog.setVisible(true);
             dialog.pack();
         });

@@ -121,15 +121,17 @@ public class LeluhurController extends BaseCrudController<Leluhur, LeluhurDAO> {
                 pembayaran.umat.uuid = input.umatId;
                 pembayaran.umat.nama = handle1.select("select nama from umat where uuid=?", input.umatId).mapTo(String.class).findOnly();
 
+                pembayaran.tipe = PembayaranDanaRutin.Type.samanagara;
                 pembayaran.tgl = input.tglTrans;
                 pembayaran.totalNominal = input.listLeluhur.stream().mapToInt(e -> e.nominalYgMauDibayarkan).reduce(0, (left, right) -> left + right);
                 pembayaran.channel = input.channel;
                 pembayaran.keterangan = input.keterangan;
 
-                handle1.createUpdate("insert into pembayaran_samanagara_sosial_tetap(uuid, umat_id, tgl, total_nominal, channel, keterangan)" +
-                        " values(:uuid, :umatId, :tgl, :totalNominal, :channel, :keterangan)")
+                handle1.createUpdate("insert into pembayaran_samanagara_sosial_tetap(uuid, umat_id, tipe, tgl, total_nominal, channel, keterangan)" +
+                        " values(:uuid, :umatId, :tipe, :tgl, :totalNominal, :channel, :keterangan)")
                         .bind("uuid", pembayaran.uuid)
                         .bind("umatId", pembayaran.umat.uuid)
+                        .bind("tipe", pembayaran.tipe.name())
                         .bind("tgl", pembayaran.tgl)
                         .bind("totalNominal", pembayaran.totalNominal)
                         .bind("channel", pembayaran.channel)

@@ -24,6 +24,7 @@ public class PendapatanRowMapper implements RowMapper<Pendapatan> {
         }
 
         x.tglTransaksi = DateTimeHelper.toLocalDate(rs.getDate("tgl_trx"));
+        x.noSeq = rs.getInt("no_seq");
         x.nominal = rs.getInt("nominal");
         x.channel = rs.getString("channel");
         x.jenisDana = Pendapatan.JenisDana.valueOf(rs.getString("jenis_dana"));

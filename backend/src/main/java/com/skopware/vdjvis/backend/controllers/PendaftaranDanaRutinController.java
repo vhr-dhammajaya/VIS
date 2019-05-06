@@ -74,19 +74,21 @@ public class PendaftaranDanaRutinController extends BaseCrudController<Pendaftar
                 pembayaran.umat.uuid = pendaftaranDanaRutin.umat.uuid;
                 pembayaran.umat.nama = handle1.select("select nama from umat where uuid=?", pendaftaranDanaRutin.umat.uuid).mapTo(String.class).findOnly();
 
+                pembayaran.tipe = PembayaranDanaRutin.Type.sosial_tetap;
                 pembayaran.tgl = input.tglTrans;
                 pembayaran.totalNominal = input.countBulan * pendaftaranDanaRutin.nominal;
                 pembayaran.channel = input.channel;
                 pembayaran.keterangan = input.keterangan;
 
-                handle1.createUpdate("insert into pembayaran_samanagara_sosial_tetap(uuid, umat_id, tgl, total_nominal, channel, keterangan)" +
-                        " values(?, ?, ?, ?, ?, ?)")
+                handle1.createUpdate("insert into pembayaran_samanagara_sosial_tetap(uuid, umat_id, tipe, tgl, total_nominal, channel, keterangan)" +
+                        " values(?, ?, ?, ?, ?, ?, ?)")
                         .bind(0, pembayaran.uuid)
                         .bind(1, pembayaran.umat.uuid)
-                        .bind(2, pembayaran.tgl)
-                        .bind(3, pembayaran.totalNominal)
-                        .bind(4, pembayaran.channel)
-                        .bind(5, pembayaran.keterangan)
+                        .bind(2, pembayaran.tipe.name())
+                        .bind(3, pembayaran.tgl)
+                        .bind(4, pembayaran.totalNominal)
+                        .bind(5, pembayaran.channel)
+                        .bind(6, pembayaran.keterangan)
                         .execute();
 
                 YearMonth lastPaidMonth = PendaftaranDanaRutin.fetchLastPaidMonth(handle1, pendaftaranDanaRutin.umat.uuid, input.idPendaftaran, pendaftaranDanaRutin.tglDaftar);
