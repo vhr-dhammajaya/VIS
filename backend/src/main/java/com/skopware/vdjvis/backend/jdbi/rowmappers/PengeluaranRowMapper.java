@@ -15,7 +15,9 @@ public class PengeluaranRowMapper implements RowMapper<Pengeluaran> {
         Pengeluaran x = new Pengeluaran();
         x.setUuid(rs.getString("id"));
 
+        x.noSeq = rs.getInt("no_seq");
         x.tglTransaksi = DateTimeHelper.toLocalDate(rs.getDate("tgl_trx"));
+        x.penerima = rs.getString("penerima");
         x.nominal = rs.getInt("nominal");
         x.keterangan = rs.getString("keterangan");
 
