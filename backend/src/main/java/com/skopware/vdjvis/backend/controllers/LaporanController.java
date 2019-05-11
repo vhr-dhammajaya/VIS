@@ -208,11 +208,13 @@ public class LaporanController {
         LocalDate today = LocalDate.now();
 
         try (Handle handle = jdbi.open()) {
+            // must use max(k.tgl) in order by
+            // if we use the alias (tgl_terakhir_hadir), query will return wrong result
             result = handle.select("select u.uuid, u.nama, u.alamat, u.no_telpon, max(k.tgl) as tgl_terakhir_hadir" +
                     " from umat u" +
                     " left join kehadiran k on k.umat_id = u.uuid" +
                     " group by u.uuid, u.nama, u.alamat, u.no_telpon" +
-                    " order by tgl_terakhir_hadir")
+                    " order by if(max(k.tgl) is not null, 1, 2), tgl_terakhir_hadir")
                     .map((rs, ctx) -> {
                         DtoOutputLaporanAbsensiUmat x = new DtoOutputLaporanAbsensiUmat();
                         x.namaUmat = rs.getString("nama");
@@ -243,7 +245,7 @@ public class LaporanController {
                     " from siswa s" +
                     " left join kehadiran_siswa k on k.siswa_uuid = s.uuid" +
                     " group by s.uuid, s.nama, s.nama_ayah, s.nama_ibu, s.alamat, s.no_telpon" +
-                    " order by tgl_terakhir_hadir")
+                    " order by if(max(k.tgl) is not null, 1, 2), tgl_terakhir_hadir")
                     .map((rs, ctx) -> {
                         DtoOutputLaporanAbsensiSiswa x = new DtoOutputLaporanAbsensiSiswa();
                         x.namaSiswa = rs.getString("nama");
