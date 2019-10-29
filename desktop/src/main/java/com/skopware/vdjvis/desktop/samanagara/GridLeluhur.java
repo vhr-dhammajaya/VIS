@@ -8,6 +8,7 @@ import com.skopware.javautils.swing.JDatePicker;
 import com.skopware.javautils.swing.SwingHelper;
 import com.skopware.javautils.swing.grid.JDataGrid;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
+import com.skopware.javautils.swing.grid.datasource.DropwizardDataSource;
 import com.skopware.vdjvis.api.entities.Leluhur;
 import com.skopware.vdjvis.api.entities.Umat;
 import com.skopware.vdjvis.desktop.App;
@@ -82,9 +83,8 @@ public class GridLeluhur {
                 })
         );
 
-        o.recordType = Leluhur.class;
         o.appConfig = App.config;
-        o.shortControllerUrl = "/leluhur";
+        o.dataSource = new DropwizardDataSource<>(App.config.url("/leluhur"), Leluhur.class);
 
         o.fnShowCreateForm = () -> new FormLeluhur(App.mainFrame);
         o.fnShowEditForm = (record, modelIdx) -> new FormLeluhur(App.mainFrame, record, modelIdx);

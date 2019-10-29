@@ -9,6 +9,7 @@ import com.skopware.javautils.swing.BaseCrudTableModel;
 import com.skopware.javautils.swing.JDatePicker;
 import com.skopware.javautils.swing.JForeignKeyPicker;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
+import com.skopware.javautils.swing.grid.datasource.DropwizardDataSource;
 import com.skopware.vdjvis.api.entities.PembayaranDanaRutin;
 import com.skopware.vdjvis.api.entities.Pendapatan;
 import com.skopware.vdjvis.api.entities.Umat;
@@ -80,9 +81,8 @@ public class GridHistoryPembayaranDanaRutin {
                 })
         );
 
-        o.recordType = PembayaranDanaRutin.class;
         o.appConfig = App.config;
-        o.shortControllerUrl = "/pembayaran_dana_rutin";
+        o.dataSource = new DropwizardDataSource<>(App.config.url("/pembayaran_dana_rutin"), PembayaranDanaRutin.class);
 
         o.enableAdd = false;
         o.enableEdit = false;

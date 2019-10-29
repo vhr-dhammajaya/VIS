@@ -7,6 +7,7 @@ import com.skopware.javautils.swing.SwingHelper;
 import com.skopware.javautils.swing.grid.JDataGrid;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
 import com.skopware.javautils.swing.grid.SortConfig;
+import com.skopware.javautils.swing.grid.datasource.DropwizardDataSource;
 import com.skopware.vdjvis.api.entities.TarifSamanagara;
 import com.skopware.vdjvis.desktop.App;
 import org.apache.http.client.methods.HttpPost;
@@ -41,9 +42,9 @@ public class GridSettingTarifSamanagara {
                 })
         );
 
-        o.recordType = TarifSamanagara.class;
         o.appConfig = App.config;
-        o.shortControllerUrl = "/tarif_samanagara";
+        o.dataSource = new DropwizardDataSource<>(App.config.url("/tarif_samanagara"), TarifSamanagara.class);
+
         o.initialSortConfig.add(ObjectHelper.apply(new SortConfig(), x -> {
             x.field = "start_date";
             x.dir = SortConfig.SortDir.DESC;
@@ -85,7 +86,8 @@ public class GridSettingTarifSamanagara {
                 int nominal = (int)txtNominal.getValue();
 
                 try {
-                    HttpHelper.makeHttpRequest(jDataGrid.controllerUrl, HttpPost::new, nominal, Boolean.class);
+                    // fixme
+                    HttpHelper.makeHttpRequest(((DropwizardDataSource) jDataGrid.options.dataSource).controllerUrl, HttpPost::new, nominal, Boolean.class);
 
                     jDataGrid.refreshData();
                     this.dispose();

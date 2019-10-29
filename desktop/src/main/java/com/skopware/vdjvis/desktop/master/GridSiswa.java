@@ -7,6 +7,7 @@ import com.skopware.javautils.swing.BaseCrudTableModel;
 import com.skopware.javautils.swing.JDatePicker;
 import com.skopware.javautils.swing.SwingHelper;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
+import com.skopware.javautils.swing.grid.datasource.DropwizardDataSource;
 import com.skopware.vdjvis.api.entities.Siswa;
 import com.skopware.vdjvis.desktop.App;
 import com.skopware.vdjvis.desktop.MainFrame;
@@ -68,9 +69,8 @@ public class GridSiswa {
                 })
         );
 
-        o.recordType = Siswa.class;
         o.appConfig = App.config;
-        o.shortControllerUrl = "/siswa";
+        o.dataSource = new DropwizardDataSource<>(App.config.url("/siswa"), Siswa.class);
 
         o.fnShowCreateForm = () -> new FormSiswa(App.mainFrame);
         o.fnShowEditForm = (record, modelIdx) -> new FormSiswa(App.mainFrame, record, modelIdx);

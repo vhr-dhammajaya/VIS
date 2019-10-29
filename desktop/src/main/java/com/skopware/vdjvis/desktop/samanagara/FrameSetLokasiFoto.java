@@ -9,6 +9,7 @@ import com.skopware.javautils.swing.BaseCrudTableModel;
 import com.skopware.javautils.swing.SwingHelper;
 import com.skopware.javautils.swing.grid.JDataGrid;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
+import com.skopware.javautils.swing.grid.datasource.DropwizardDataSource;
 import com.skopware.vdjvis.api.entities.CellFoto;
 import com.skopware.vdjvis.api.entities.Leluhur;
 import com.skopware.vdjvis.api.entities.PapanFoto;
@@ -89,9 +90,8 @@ public class FrameSetLokasiFoto extends BaseCrudFrame {
                 })
         );
 
-        options.recordType = Leluhur.class;
         options.appConfig = App.config;
-        options.shortControllerUrl = "/leluhur";
+        options.dataSource = new DropwizardDataSource<>(App.config.url("/leluhur"), Leluhur.class);
 
         gridMendiang = new JDataGrid<>(options);
         gridMendiang.glassPane = progressGlassPane;

@@ -8,6 +8,7 @@ import com.skopware.javautils.swing.BaseCrudForm;
 import com.skopware.javautils.swing.BaseCrudTableModel;
 import com.skopware.javautils.swing.grid.JDataGrid;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
+import com.skopware.javautils.swing.grid.datasource.DropwizardDataSource;
 import com.skopware.vdjvis.api.entities.Acara;
 import com.skopware.vdjvis.desktop.App;
 
@@ -41,9 +42,8 @@ public class GridAcara {
                 })
         );
 
-        o.recordType = Acara.class;
         o.appConfig = App.config;
-        o.shortControllerUrl = "/acara";
+        o.dataSource = new DropwizardDataSource<>(App.config.url("/acara"), Acara.class);
 
         o.fnShowCreateForm = () -> new FormAcara(App.mainFrame);
         o.fnShowEditForm = (record, modelIdx) -> new FormAcara(App.mainFrame, record, modelIdx);

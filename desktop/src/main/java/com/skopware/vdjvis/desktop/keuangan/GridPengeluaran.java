@@ -7,6 +7,7 @@ import com.skopware.javautils.jasperreports.JasperHelper;
 import com.skopware.javautils.swing.*;
 import com.skopware.javautils.swing.grid.JDataGrid;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
+import com.skopware.javautils.swing.grid.datasource.DropwizardDataSource;
 import com.skopware.vdjvis.api.entities.Acara;
 import com.skopware.vdjvis.api.entities.Pengeluaran;
 import com.skopware.vdjvis.desktop.App;
@@ -49,9 +50,8 @@ public class GridPengeluaran {
                 })
         );
 
-        o.recordType = Pengeluaran.class;
         o.appConfig = App.config;
-        o.shortControllerUrl = "/pengeluaran";
+        o.dataSource = new DropwizardDataSource<>(App.config.url("/pengeluaran"), Pengeluaran.class);
 
         o.fnShowCreateForm = () -> new FormPengeluaran(App.mainFrame);
         o.fnShowEditForm = (rec, idx) -> new FormPengeluaran(App.mainFrame, rec, idx);

@@ -5,6 +5,7 @@ import com.skopware.javautils.Tuple2;
 import com.skopware.javautils.swing.*;
 import com.skopware.javautils.swing.grid.JDataGrid;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
+import com.skopware.javautils.swing.grid.datasource.DropwizardDataSource;
 import com.skopware.vdjvis.api.entities.DetilPembayaranDanaRutin;
 import com.skopware.vdjvis.api.entities.PendaftaranDanaRutin;
 import com.skopware.vdjvis.api.entities.Umat;
@@ -70,9 +71,8 @@ public class GridPendaftaranDanaRutin {
                 })
         );
 
-        o.recordType = PendaftaranDanaRutin.class;
         o.appConfig = App.config;
-        o.shortControllerUrl = "/pendaftaran_dana_rutin";
+        o.dataSource = new DropwizardDataSource<>(App.config.url("/pendaftaran_dana_rutin"), PendaftaranDanaRutin.class);
 
         o.fnShowCreateForm = () -> new FormPendaftaranDanaRutin(App.mainFrame);
         o.fnShowEditForm = (record, modelIdx) -> new FormPendaftaranDanaRutin(App.mainFrame, record, modelIdx);

@@ -8,6 +8,8 @@ import com.skopware.javautils.Tuple2;
 import com.skopware.javautils.swing.*;
 import com.skopware.javautils.swing.grid.JDataGrid;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
+import com.skopware.javautils.swing.grid.datasource.DropwizardDataSource;
+import com.skopware.javautils.swing.grid.datasource.JdbiDataSource;
 import com.skopware.vdjvis.api.entities.Umat;
 import com.skopware.vdjvis.desktop.App;
 import com.skopware.vdjvis.desktop.samanagara.DialogBayarIuranSamanagara;
@@ -61,6 +63,9 @@ public class GridUmat {
                     x.fieldName = x.dbColumnName = ("alamat");
                     x.label = ("Alamat");
                     x.fitContentWidth = false;
+                    x.multiline = true;
+                    x.textAreaRows = 2;
+                    x.textAreaColumns = 10;
 //                    x.width = 10;
                 }),
                 ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
@@ -173,9 +178,9 @@ public class GridUmat {
                 })
         );
 
-        o.recordType = Umat.class;
         o.appConfig = App.config;
-        o.shortControllerUrl = "/umat";
+        o.dataSource = new DropwizardDataSource<>(App.config.url("/umat"), Umat.class);
+//        o.dataSource = new JdbiDataSource<>(Umat.class, jdbi, "umat", )
 
         o.fnShowCreateForm = () -> new FormUmat(App.mainFrame);
         o.fnShowEditForm = (record, modelIdx) -> new FormUmat(App.mainFrame, record, modelIdx);

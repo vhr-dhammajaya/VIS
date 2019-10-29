@@ -5,6 +5,7 @@ import java.util.Arrays;
 import com.skopware.javautils.ObjectHelper;
 import com.skopware.javautils.swing.BaseCrudTableModel;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
+import com.skopware.javautils.swing.grid.datasource.DropwizardDataSource;
 import com.skopware.vdjvis.api.entities.DetilPembayaranDanaRutin;
 import com.skopware.vdjvis.desktop.App;
 
@@ -32,9 +33,8 @@ public class GridDetilPembayaranDanaRutin {
         );
 
         o.enableAdd = o.enableEdit = o.enableDelete = o.enableFilter = false;
-        o.recordType = DetilPembayaranDanaRutin.class;
         o.appConfig = App.config;
-        o.shortControllerUrl = "/detil_pembayaran_dana_rutin";
+        o.dataSource = new DropwizardDataSource<>(App.config.url("/detil_pembayaran_dana_rutin"), DetilPembayaranDanaRutin.class);
         return o;
     }
 }

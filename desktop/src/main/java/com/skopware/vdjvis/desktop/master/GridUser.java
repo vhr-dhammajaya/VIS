@@ -8,6 +8,7 @@ import com.skopware.javautils.swing.BaseCrudForm;
 import com.skopware.javautils.swing.BaseCrudTableModel;
 import com.skopware.javautils.swing.grid.JDataGrid;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
+import com.skopware.javautils.swing.grid.datasource.DropwizardDataSource;
 import com.skopware.vdjvis.api.entities.User;
 import com.skopware.vdjvis.desktop.App;
 
@@ -35,9 +36,8 @@ public class GridUser {
                 })
         );
 
-        o.recordType = User.class;
         o.appConfig = App.config;
-        o.shortControllerUrl = "/user";
+        o.dataSource = new DropwizardDataSource<>(App.config.url("/user"), User.class);
 
         o.fnShowCreateForm = () -> new FormUser(App.mainFrame);
         o.fnShowEditForm = (record, modelIdx) -> new FormUser(App.mainFrame, record, modelIdx);
