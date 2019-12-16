@@ -1,14 +1,12 @@
 package com.skopware.vdjvis.desktop.absensi;
 
+import com.skopware.javautils.DateTimeHelper;
 import com.skopware.javautils.ObjectHelper;
-import com.skopware.javautils.httpclient.HttpGetWithBody;
-import com.skopware.javautils.httpclient.HttpHelper;
 import com.skopware.javautils.swing.BaseCrudTableModel;
 import com.skopware.javautils.swing.jtable.cellrenderer.LocalDateCellRenderer;
 import com.skopware.vdjvis.api.entities.Siswa;
-import com.skopware.vdjvis.api.entities.Umat;
 import com.skopware.vdjvis.desktop.App;
-import org.apache.http.client.methods.HttpPost;
+import org.jdbi.v3.core.Handle;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,7 +28,7 @@ public class FrameAbsensiSiswa extends JInternalFrame {
     private JTable tblSearchResult;
 
     private JLabel lblVisitorCount;
-    private List<BaseCrudTableModel.ColumnConfig> tblUmatHadirColumnConfigs;
+    private List<BaseCrudTableModel.ColumnConfig> tblOrangHadirColumnConfigs;
     private BaseCrudTableModel<Siswa> tblOrangHadirModel;
     private JTable tblOrangHadir;
 
@@ -40,10 +38,34 @@ public class FrameAbsensiSiswa extends JInternalFrame {
         super("Absensi siswa", true, true, true, true);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
-        listOrang = HttpHelper.makeHttpRequest(App.config.url("/absensi_siswa/list"), HttpGetWithBody::new, null, List.class, Siswa.class);
+        List<Siswa> prevHadirList;
+        try (Handle h = App.jdbi.open()) {
+            listOrang = h.createQuery("select uuid, nama, alamat, tgl_lahir, id_barcode from siswa where active=1")
+                    .map((rs, ctx) -> {
+                        Siswa x = new Siswa();
+                        x.uuid = rs.getString("uuid");
+                        x.nama = rs.getString("nama");
+                        x.alamat = rs.getString("alamat");
+                        x.tglLahir = DateTimeHelper.toLocalDate(rs.getDate("tgl_lahir"));
+                        x.idBarcode = rs.getString("id_barcode");
+                        return x;
+                    })
+                    .list();
+
+            prevHadirList = h.select("select u.uuid, u.nama from kehadiran_siswa k" +
+                    " join siswa u on u.uuid=k.siswa_uuid" +
+                    " where k.tgl=?", LocalDate.now())
+                    .map((rs, ctx) -> {
+                        Siswa x = new Siswa();
+                        x.uuid = rs.getString("uuid");
+                        x.nama = rs.getString("nama");
+                        return x;
+                    })
+                    .list();
+        }
 
         //#region init controls
-        JLabel lblInputNama = new JLabel("Nama / ID Umat");
+        JLabel lblInputNama = new JLabel("Nama / ID Siswa");
         txtInputNama = new JTextField(30);
         txtInputNama.addKeyListener(new KeyAdapter() {
             @Override
@@ -119,7 +141,7 @@ public class FrameAbsensiSiswa extends JInternalFrame {
             catatKehadiran(sel);
         });
 
-        tblUmatHadirColumnConfigs = Arrays.asList(
+        tblOrangHadirColumnConfigs = Arrays.asList(
                 ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
                     x.fieldName = "nama";
                     x.label = "Nama";
@@ -133,11 +155,9 @@ public class FrameAbsensiSiswa extends JInternalFrame {
         );
 
         tblOrangHadirModel = new BaseCrudTableModel<>();
-        tblOrangHadirModel.setColumnConfigs(tblUmatHadirColumnConfigs);
+        tblOrangHadirModel.setColumnConfigs(tblOrangHadirColumnConfigs);
         tblOrangHadirModel.setRecordType(Siswa.class);
-
-        List<Siswa> prevUmatHadirList = HttpHelper.makeHttpRequest(App.config.url("/absensi_siswa/daftar_hadir"), HttpGetWithBody::new, null, List.class, Siswa.class);
-        tblOrangHadirModel.setData(prevUmatHadirList);
+        tblOrangHadirModel.setData(prevHadirList);
 
         lblVisitorCount = new JLabel(String.format(VISITOR_COUNT_FORMAT, tblOrangHadirModel.getRowCount()));
 
@@ -165,13 +185,13 @@ public class FrameAbsensiSiswa extends JInternalFrame {
         searchResultsPanel.add(new JLabel("Hasil pencarian"), BorderLayout.NORTH);
         searchResultsPanel.add(new JScrollPane(tblSearchResult), BorderLayout.CENTER);
 
-        JPanel umatHadirPanel = new JPanel(new BorderLayout());
-        umatHadirPanel.add(lblVisitorCount, BorderLayout.NORTH);
-        umatHadirPanel.add(new JScrollPane(tblOrangHadir), BorderLayout.CENTER);
+        JPanel orangHadirPanel = new JPanel(new BorderLayout());
+        orangHadirPanel.add(lblVisitorCount, BorderLayout.NORTH);
+        orangHadirPanel.add(new JScrollPane(tblOrangHadir), BorderLayout.CENTER);
 
         JPanel centerPanel = new JPanel(new GridLayout(1, 2, 10, 5));
         centerPanel.add(searchResultsPanel);
-        centerPanel.add(umatHadirPanel);
+        centerPanel.add(orangHadirPanel);
 
         JPanel contentPane = new JPanel(new BorderLayout());
         contentPane.add(topPanel, BorderLayout.NORTH);
@@ -196,7 +216,7 @@ public class FrameAbsensiSiswa extends JInternalFrame {
         }
 
         List<Siswa> searchResult = listOrang.stream()
-                .filter(umat -> umat.nama.toLowerCase().contains(input.toLowerCase()))
+                .filter(x -> x.nama.toLowerCase().contains(input.toLowerCase()))
                 .collect(Collectors.toList());
         setSearchResult(searchResult);
     }
@@ -207,7 +227,7 @@ public class FrameAbsensiSiswa extends JInternalFrame {
 
     private void absenBarcode(String input) {
         Optional<Siswa> match = listOrang.stream()
-                .filter(umat -> input.equals(umat.idBarcode))
+                .filter(x -> input.equals(x.idBarcode))
                 .findFirst();
         if (match.isPresent()) {
             catatKehadiran(match.get());
@@ -216,7 +236,20 @@ public class FrameAbsensiSiswa extends JInternalFrame {
 
     private void catatKehadiran(Siswa u) {
         if (!tblOrangHadirModel.getData().contains(u)) {
-            HttpHelper.makeHttpRequest(App.config.url("/absensi_siswa/absen"), HttpPost::new, u, boolean.class);
+            App.jdbi.useHandle(handle -> {
+                LocalDate today = LocalDate.now();
+
+                Optional<String> id = handle.select("select siswa_uuid from kehadiran_siswa where siswa_uuid=? and tgl=?", u.uuid, today)
+                        .mapTo(String.class)
+                        .findFirst();
+
+                if (!id.isPresent()) {
+                    handle.createUpdate("insert into kehadiran_siswa(siswa_uuid, tgl) values(:siswa_uuid, :tgl)")
+                            .bind("siswa_uuid", u.uuid)
+                            .bind("tgl", today)
+                            .execute();
+                }
+            });
 
             tblOrangHadirModel.add(u);
 

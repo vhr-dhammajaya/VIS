@@ -8,10 +8,12 @@ import com.skopware.javautils.swing.*;
 import com.skopware.javautils.swing.grid.JDataGrid;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
 import com.skopware.javautils.swing.grid.datasource.DropwizardDataSource;
+import com.skopware.javautils.swing.grid.datasource.JdbiDataSource;
 import com.skopware.vdjvis.api.entities.Acara;
 import com.skopware.vdjvis.api.entities.Pengeluaran;
 import com.skopware.vdjvis.desktop.App;
 import com.skopware.vdjvis.desktop.master.GridAcara;
+import com.skopware.vdjvis.jdbi.dao.PengeluaranDAO;
 import net.sf.jasperreports.engine.JREmptyDataSource;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
@@ -51,7 +53,7 @@ public class GridPengeluaran {
         );
 
         o.appConfig = App.config;
-        o.dataSource = new DropwizardDataSource<>(App.config.url("/pengeluaran"), Pengeluaran.class);
+        o.dataSource = new JdbiDataSource<>(Pengeluaran.class, App.jdbi, "v_pengeluaran", PengeluaranDAO.class);
 
         o.fnShowCreateForm = () -> new FormPengeluaran(App.mainFrame);
         o.fnShowEditForm = (rec, idx) -> new FormPengeluaran(App.mainFrame, rec, idx);

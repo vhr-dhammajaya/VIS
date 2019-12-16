@@ -1,6 +1,8 @@
 package com.skopware.vdjvis.desktop.samanagara;
 
+import com.skopware.javautils.CollectionHelper;
 import com.skopware.javautils.ObjectHelper;
+import com.skopware.javautils.db.DbHelper;
 import com.skopware.javautils.db.PageData;
 import com.skopware.javautils.httpclient.HttpGetWithBody;
 import com.skopware.javautils.httpclient.HttpHelper;
@@ -10,12 +12,15 @@ import com.skopware.javautils.swing.SwingHelper;
 import com.skopware.javautils.swing.grid.JDataGrid;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
 import com.skopware.javautils.swing.grid.datasource.DropwizardDataSource;
+import com.skopware.javautils.swing.grid.datasource.JdbiDataSource;
 import com.skopware.vdjvis.api.entities.CellFoto;
 import com.skopware.vdjvis.api.entities.Leluhur;
 import com.skopware.vdjvis.api.entities.PapanFoto;
 import com.skopware.vdjvis.api.dto.DtoPlacePhoto;
 import com.skopware.vdjvis.desktop.App;
+import com.skopware.vdjvis.jdbi.dao.LeluhurDAO;
 import org.apache.http.client.methods.HttpPost;
+import org.jdbi.v3.core.Handle;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
@@ -91,7 +96,7 @@ public class FrameSetLokasiFoto extends BaseCrudFrame {
         );
 
         options.appConfig = App.config;
-        options.dataSource = new DropwizardDataSource<>(App.config.url("/leluhur"), Leluhur.class);
+        options.dataSource = new JdbiDataSource<>(Leluhur.class, App.jdbi, "v_leluhur", LeluhurDAO.class);
 
         gridMendiang = new JDataGrid<>(options);
         gridMendiang.glassPane = progressGlassPane;
@@ -124,20 +129,64 @@ public class FrameSetLokasiFoto extends BaseCrudFrame {
 
     @Override
     public void refreshData() {
-        progressGlassPane.setVisible(true);
-
         gridMendiang.setFilterAndSort();
 
         try {
-            PageData<Leluhur> leluhurList = HttpHelper.makeHttpRequest(App.config.url("/leluhur"), HttpGetWithBody::new, gridMendiang.gridConfig, PageData.class, Leluhur.class);
-            List<PapanFoto> papanFotoList = HttpHelper.makeHttpRequest(App.config.url("/lokasi_foto/list_papan"), HttpGetWithBody::new, null, List.class, PapanFoto.class);
+            PageData<Leluhur> leluhurList;
+            List<PapanFoto> papanFotoList;
+            try (Handle handle = App.jdbi.open()) {
+                leluhurList = DbHelper.fetchPageData(handle, "v_leluhur", gridMendiang.gridConfig, Leluhur.class);
+
+                papanFotoList = handle.select("select * from papan_smngr order by nama")
+                        .map((rs, ctx) -> {
+                            PapanFoto x = new PapanFoto();
+                            x.uuid = rs.getString("id");
+                            x.nama = rs.getString("nama");
+                            int width = rs.getInt("width");
+                            int height = rs.getInt("height");
+                            x.setDimension(width, height);
+                            return x;
+                        })
+                        .list();
+
+                Map<String, PapanFoto> mapPapanById = CollectionHelper.groupListById(papanFotoList, papanFoto -> papanFoto.uuid);
+
+                List<CellFoto> listCellFoto = handle.select("select c.*, l.nama as leluhur_nama" +
+                        " from cell_papan c" +
+                        " left join leluhur_smngr l on l.uuid=c.leluhur_smngr_id")
+                        .map((rs, ctx) -> {
+                            CellFoto x = new CellFoto();
+                            x.uuid = rs.getString("id");
+                            x.row = rs.getInt("row");
+                            x.col = rs.getInt("col");
+
+                            String leluhur_smngr_id = rs.getString("leluhur_smngr_id");
+                            if (leluhur_smngr_id != null) {
+                                x.leluhur = new Leluhur();
+                                x.leluhur.uuid = leluhur_smngr_id;
+                                x.leluhur.nama = rs.getString("leluhur_nama");
+                                x.leluhur.cellFoto = new CellFoto();
+                                x.leluhur.cellFoto.uuid = x.uuid;
+                            }
+
+                            x.papan = new PapanFoto();
+                            x.papan.uuid = rs.getString("papan_smngr_id");
+                            return x;
+                        })
+                        .list();
+
+                for (CellFoto cell : listCellFoto) {
+                    PapanFoto papan = mapPapanById.get(cell.papan.uuid);
+                    papan.arrCellFoto[cell.row][cell.col] = cell;
+                }
+            }
 
             gridMendiang.setTableRows(leluhurList);
 //            listLeluhur = result.val1.rows;
 //            leluhurById = ObjectHelper.groupListById(listLeluhur, leluhur -> leluhur.uuid);
 
             this.papanFotoList = papanFotoList;
-            papanById = ObjectHelper.groupListById(papanFotoList, papanFoto -> papanFoto.uuid);
+            papanById = CollectionHelper.groupListById(papanFotoList, papanFoto -> papanFoto.uuid);
 
             cellFotoById = new HashMap<>();
 
@@ -170,23 +219,44 @@ public class FrameSetLokasiFoto extends BaseCrudFrame {
     }
 
     private void placePhoto(Leluhur leluhur, CellFoto destCell, Runnable onSuccess) {
-        DtoPlacePhoto requestParam = new DtoPlacePhoto();
+        DtoPlacePhoto param = new DtoPlacePhoto();
 
         // if previously already placed somewhere else, need to repaint/clear that table too
         if (leluhur.cellFoto != null) {
-            requestParam.mendiangOriginCellId = leluhur.cellFoto.uuid;
+            param.mendiangOriginCellId = leluhur.cellFoto.uuid;
         }
 
         // if destination cell is already occupied by another photo
         if (destCell.leluhur != null) {
-            requestParam.existingIdMendiangInDestCell = destCell.leluhur.uuid;
+            param.existingIdMendiangInDestCell = destCell.leluhur.uuid;
         }
 
-        requestParam.idMendiang = leluhur.uuid;
-        requestParam.destCellId = destCell.uuid;
+        param.idMendiang = leluhur.uuid;
+        param.destCellId = destCell.uuid;
 
         try {
-            HttpHelper.makeHttpRequest(App.config.url("/lokasi_foto"), HttpPost::new, requestParam, boolean.class);
+            App.jdbi.useHandle(h -> {
+                h.useTransaction(h2 -> {
+                    if (param.mendiangOriginCellId != null) {
+                        h.createUpdate("update cell_papan set leluhur_smngr_id = null where id = ?").bind(0, param.mendiangOriginCellId).execute();
+                    }
+
+                    if (param.existingIdMendiangInDestCell != null) {
+                        h.createUpdate("update leluhur_smngr set cell_papan_id = null where uuid = ?").bind(0, param.existingIdMendiangInDestCell).execute();
+                    }
+
+                    String leluhurId = param.idMendiang;
+                    String cellFotoId = param.destCellId;
+                    h.createUpdate("update cell_papan set leluhur_smngr_id = ? where id = ?")
+                            .bind(0, leluhurId)
+                            .bind(1, cellFotoId)
+                            .execute();
+                    h.createUpdate("update leluhur_smngr set cell_papan_id = ? where uuid = ?")
+                            .bind(0, cellFotoId)
+                            .bind(1, leluhurId)
+                            .execute();
+                });
+            });
 
             CellFoto cellAsal = null;
             boolean kosongkanCellAsal = leluhur.cellFoto != null;

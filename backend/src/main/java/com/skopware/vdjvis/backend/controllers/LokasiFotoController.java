@@ -1,6 +1,6 @@
 package com.skopware.vdjvis.backend.controllers;
 
-import com.skopware.javautils.ObjectHelper;
+import com.skopware.javautils.CollectionHelper;
 import com.skopware.vdjvis.api.entities.CellFoto;
 import com.skopware.vdjvis.api.entities.Leluhur;
 import com.skopware.vdjvis.api.entities.PapanFoto;
@@ -40,7 +40,7 @@ public class LokasiFotoController {
                     })
                     .list();
 
-            Map<String, PapanFoto> mapPapanById = ObjectHelper.groupListById(listPapan, papanFoto -> papanFoto.uuid);
+            Map<String, PapanFoto> mapPapanById = CollectionHelper.groupListById(listPapan, papanFoto -> papanFoto.uuid);
 
             List<CellFoto> listCellFoto = handle.select("select c.*, l.nama as leluhur_nama" +
                     " from cell_papan c" +

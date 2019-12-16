@@ -1,5 +1,6 @@
 package com.skopware.vdjvis.desktop.absensi;
 
+import com.skopware.javautils.DateTimeHelper;
 import com.skopware.javautils.ObjectHelper;
 import com.skopware.javautils.httpclient.HttpGetWithBody;
 import com.skopware.javautils.httpclient.HttpHelper;
@@ -8,6 +9,7 @@ import com.skopware.javautils.swing.jtable.cellrenderer.LocalDateCellRenderer;
 import com.skopware.vdjvis.api.entities.Umat;
 import com.skopware.vdjvis.desktop.App;
 import org.apache.http.client.methods.HttpPost;
+import org.jdbi.v3.core.Handle;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -39,7 +41,31 @@ public class FrameAbsensiUmat extends JInternalFrame {
         super("Absensi umat", true, true, true, true);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
-        listOrang = HttpHelper.makeHttpRequest(App.config.url("/absensi_umat/list"), HttpGetWithBody::new, null, List.class, Umat.class);
+        List<Umat> prevOrangHadirList;
+        try (Handle h = App.jdbi.open()) {
+            listOrang = h.select("select uuid, nama, alamat, tgl_lahir, id_barcode from umat where active=1")
+                    .map((rs, ctx) -> {
+                        Umat x = new Umat();
+                        x.uuid = rs.getString("uuid");
+                        x.nama = rs.getString("nama");
+                        x.alamat = rs.getString("alamat");
+                        x.tglLahir = DateTimeHelper.toLocalDate(rs.getDate("tgl_lahir"));
+                        x.idBarcode = rs.getString("id_barcode");
+                        return x;
+                    })
+                    .list();
+
+            prevOrangHadirList = h.select("select u.uuid, u.nama from kehadiran k" +
+                    " join umat u on u.uuid=k.umat_id" +
+                    " where k.tgl=?", LocalDate.now())
+                    .map((rs, ctx) -> {
+                        Umat x = new Umat();
+                        x.uuid = rs.getString("uuid");
+                        x.nama = rs.getString("nama");
+                        return x;
+                    })
+                    .list();
+        }
 
         //#region init controls
         JLabel lblInputNama = new JLabel("Nama / ID Umat");
@@ -134,9 +160,7 @@ public class FrameAbsensiUmat extends JInternalFrame {
         tblOrangHadirModel = new BaseCrudTableModel<>();
         tblOrangHadirModel.setColumnConfigs(tblOrangHadirColumnConfigs);
         tblOrangHadirModel.setRecordType(Umat.class);
-
-        List<Umat> prevUmatHadirList = HttpHelper.makeHttpRequest(App.config.url("/absensi_umat/daftar_hadir"), HttpGetWithBody::new, null, List.class, Umat.class);
-        tblOrangHadirModel.setData(prevUmatHadirList);
+        tblOrangHadirModel.setData(prevOrangHadirList);
 
         lblVisitorCount = new JLabel(String.format(VISITOR_COUNT_FORMAT, tblOrangHadirModel.getRowCount()));
 
@@ -215,7 +239,20 @@ public class FrameAbsensiUmat extends JInternalFrame {
 
     private void catatKehadiran(Umat u) {
         if (!tblOrangHadirModel.getData().contains(u)) {
-            HttpHelper.makeHttpRequest(App.config.url("/absensi_umat/absen"), HttpPost::new, u, boolean.class);
+            App.jdbi.useHandle(handle -> {
+                LocalDate today = LocalDate.now();
+
+                Optional<String> id = handle.select("select umat_id from kehadiran where umat_id=? and tgl=?", u.uuid, today)
+                        .mapTo(String.class)
+                        .findFirst();
+
+                if (!id.isPresent()) {
+                    handle.createUpdate("insert into kehadiran(umat_id, tgl) values(:umat_id, :tgl)")
+                            .bind("umat_id", u.uuid)
+                            .bind("tgl", today)
+                            .execute();
+                }
+            });
 
             tblOrangHadirModel.add(u);
 

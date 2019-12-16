@@ -3,11 +3,16 @@ package com.skopware.vdjvis.desktop.keuangan;
 import java.util.Arrays;
 
 import com.skopware.javautils.ObjectHelper;
+import com.skopware.javautils.db.DbHelper;
+import com.skopware.javautils.db.PageData;
 import com.skopware.javautils.swing.BaseCrudTableModel;
+import com.skopware.javautils.swing.grid.GridConfig;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
 import com.skopware.javautils.swing.grid.datasource.DropwizardDataSource;
+import com.skopware.javautils.swing.grid.datasource.JdbiDataSource;
 import com.skopware.vdjvis.api.entities.DetilPembayaranDanaRutin;
 import com.skopware.vdjvis.desktop.App;
+import com.skopware.vdjvis.jdbi.dao.DetilPembayaranDanaRutinDAO;
 
 public class GridDetilPembayaranDanaRutin {
     public static JDataGridOptions<DetilPembayaranDanaRutin> createBaseOptions() {
@@ -34,7 +39,14 @@ public class GridDetilPembayaranDanaRutin {
 
         o.enableAdd = o.enableEdit = o.enableDelete = o.enableFilter = false;
         o.appConfig = App.config;
-        o.dataSource = new DropwizardDataSource<>(App.config.url("/detil_pembayaran_dana_rutin"), DetilPembayaranDanaRutin.class);
+        o.dataSource = new JdbiDataSource<DetilPembayaranDanaRutin, DetilPembayaranDanaRutinDAO>(DetilPembayaranDanaRutin.class, App.jdbi, "v_detil_pembayaran_dana_rutin", DetilPembayaranDanaRutinDAO.class) {
+
+			@Override
+			public PageData<DetilPembayaranDanaRutin> refreshData(GridConfig gridConfig) {
+				return jdbi.withHandle(h -> DbHelper.fetchPageData(h, tableNameForSelect, gridConfig, recordType, false));
+			}
+        	
+        };
         return o;
     }
 }

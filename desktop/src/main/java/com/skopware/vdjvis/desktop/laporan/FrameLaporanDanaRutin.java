@@ -1,23 +1,24 @@
 package com.skopware.vdjvis.desktop.laporan;
 
+import com.skopware.javautils.DateTimeHelper;
 import com.skopware.javautils.ObjectHelper;
-import com.skopware.javautils.httpclient.HttpGetWithBody;
-import com.skopware.javautils.httpclient.HttpHelper;
+import com.skopware.javautils.Tuple3;
 import com.skopware.javautils.swing.BaseCrudTableModel;
 import com.skopware.javautils.swing.JForeignKeyPicker;
-import com.skopware.vdjvis.api.dto.DtoInputLaporanStatusDanaRutin;
-import com.skopware.vdjvis.api.dto.DtoOutputLaporanStatusDanaRutin;
-import com.skopware.vdjvis.api.entities.Umat;
+import com.skopware.vdjvis.api.dto.laporan.DtoOutputLaporanStatusDanaRutin;
+import com.skopware.vdjvis.api.entities.*;
 import com.skopware.vdjvis.desktop.App;
 import com.skopware.vdjvis.desktop.master.GridUmat;
+import org.jdbi.v3.core.statement.Query;
 
 import javax.swing.*;
-import javax.swing.table.AbstractTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class FrameLaporanDanaRutin extends JInternalFrame {
@@ -95,11 +96,131 @@ public class FrameLaporanDanaRutin extends JInternalFrame {
     private void onRefresh(ActionEvent event) {
         Umat record = edUmat.getRecord();
 
-        String idUmat = record == null? null : record.uuid;
-        DtoInputLaporanStatusDanaRutin rq = new DtoInputLaporanStatusDanaRutin();
-        rq.idUmat = idUmat;
+        String idUmat = record == null ? null : record.uuid;
 
-        List<DtoOutputLaporanStatusDanaRutin> result = HttpHelper.makeHttpRequest(App.config.url("/laporan/status_dana_rutin"), HttpGetWithBody::new, rq, List.class, DtoOutputLaporanStatusDanaRutin.class);
+        List<DtoOutputLaporanStatusDanaRutin> result = App.jdbi.withHandle(handle -> {
+            List<DtoOutputLaporanStatusDanaRutin> result2 = new ArrayList<>();
+
+            YearMonth todayMonth = YearMonth.now();
+
+            //#region hitung status dana sosial & tetap
+            Query selPendaftaranDanaRutin;
+            if (idUmat != null) {
+                selPendaftaranDanaRutin = handle.select("select p.*, u.nama as nama_umat, u.no_telpon, u.alamat" +
+                        " from pendaftaran_dana_rutin p" +
+                        " join umat u on u.uuid = p.umat_id" +
+                        " where p.active=1 and p.umat_id=?", idUmat);
+            } else {
+                selPendaftaranDanaRutin = handle.select("select p.*, u.nama as nama_umat, u.no_telpon, u.alamat" +
+                        " from pendaftaran_dana_rutin p" +
+                        " join umat u on u.uuid = p.umat_id" +
+                        " where p.active=1");
+            }
+
+            List<PendaftaranDanaRutin> listDanaRutin = selPendaftaranDanaRutin
+                    .map((rs, ctx) -> {
+                        PendaftaranDanaRutin x = new PendaftaranDanaRutin();
+
+                        x.uuid = rs.getString("id");
+                        x.tglDaftar = DateTimeHelper.toLocalDate(rs.getDate("tgl_daftar"));
+                        x.nominal = rs.getInt("nominal");
+                        x.tipe = DetilPembayaranDanaRutin.Type.valueOf(rs.getString("tipe"));
+
+                        x.umat = new Umat();
+                        x.umat.uuid = rs.getString("umat_id");
+                        x.umat.nama = rs.getString("nama_umat");
+                        x.umat.noTelpon = rs.getString("no_telpon");
+                        x.umat.alamat = rs.getString("alamat");
+
+                        return x;
+                    })
+                    .list();
+            List<StatusBayar> listStatusBayarDanaRutin = PendaftaranDanaRutin.computeStatusBayar(handle, listDanaRutin, todayMonth);
+
+            for (int i = 0; i < listDanaRutin.size(); i++) {
+                PendaftaranDanaRutin danaRutin = listDanaRutin.get(i);
+                StatusBayar statusBayar = listStatusBayarDanaRutin.get(i);
+
+                result2.add(ObjectHelper.apply(new DtoOutputLaporanStatusDanaRutin(), x -> {
+                    x.namaUmat = danaRutin.umat.nama;
+                    x.noTelpon = danaRutin.umat.noTelpon;
+                    x.alamat = danaRutin.umat.alamat;
+
+                    x.jenisDana = danaRutin.tipe;
+
+                    x.statusBayar = statusBayar;
+                }));
+            }
+            //#endregion
+
+            //#region hitung status iuran samanagara
+            Query qSelLeluhur;
+
+            if (idUmat != null) {
+                qSelLeluhur = handle.select("select l.*, u.nama as nama_umat, u.no_telpon, u.alamat" +
+                        " from leluhur_smngr l" +
+                        " join umat u on u.uuid=l.umat_id" +
+                        " where l.active=1 and l.umat_id=?", idUmat);
+            } else {
+                qSelLeluhur = handle.select("select l.*, u.nama as nama_umat, u.no_telpon, u.alamat" +
+                        " from leluhur_smngr l" +
+                        " join umat u on u.uuid=l.umat_id" +
+                        " where l.active=1");
+            }
+
+            List<Leluhur> listLeluhur = qSelLeluhur
+                    .map((rs, ctx) -> {
+                        Leluhur x = new Leluhur();
+                        x.uuid = rs.getString("uuid");
+                        x.nama = rs.getString("nama");
+                        x.tglDaftar = DateTimeHelper.toLocalDate(rs.getDate("tgl_daftar"));
+
+                        x.penanggungJawab = new Umat();
+                        x.penanggungJawab.uuid = rs.getString("umat_id");
+                        x.penanggungJawab.nama = rs.getString("nama_umat");
+                        x.penanggungJawab.alamat = rs.getString("alamat");
+                        x.penanggungJawab.noTelpon = rs.getString("no_telpon");
+                        return x;
+                    })
+                    .list();
+
+            List<Tuple3<LocalDate, LocalDate, Integer>> listTarifSamanagara = Leluhur.fetchListTarifSamanagara(handle);
+            List<StatusBayar> listStatusBayarSamanagara = Leluhur.computeStatusBayar(handle, listLeluhur, todayMonth, listTarifSamanagara);
+
+            for (int i = 0; i < listLeluhur.size(); i++) {
+                Leluhur leluhur = listLeluhur.get(i);
+                StatusBayar statusBayar = listStatusBayarSamanagara.get(i);
+
+                result2.add(ObjectHelper.apply(new DtoOutputLaporanStatusDanaRutin(), x -> {
+                    x.namaUmat = leluhur.penanggungJawab.nama;
+                    x.noTelpon = leluhur.penanggungJawab.noTelpon;
+                    x.alamat = leluhur.penanggungJawab.alamat;
+                    x.namaLeluhur = leluhur.nama;
+
+                    x.jenisDana = DetilPembayaranDanaRutin.Type.samanagara;
+
+                    x.statusBayar = statusBayar;
+                }));
+            }
+            //#endregion
+
+            Collections.sort(result2, (a, b) -> {
+                // statusBayar can be < -1 or > 1. Need to normalize so that all "Kurang bayar", "Lebih bayar" is -1, 1
+                int statusBayarANormalized = a.statusBayar.status < 0 ? -1 : a.statusBayar.status == 0 ? 0 : 1;
+                int statusBayarBNormalized = b.statusBayar.status < 0 ? -1 : b.statusBayar.status == 0 ? 0 : 1;
+
+                int cmpStatusBayar = Integer.compare(statusBayarANormalized, statusBayarBNormalized);
+                if (cmpStatusBayar == 0) {
+                    // compare nominal
+                    int cmpNominalDesc = Long.compare(a.statusBayar.nominal, b.statusBayar.nominal);
+                    return -cmpNominalDesc;
+                } else {
+                    return cmpStatusBayar;
+                }
+            });
+
+            return result2;
+        });
         tableModel.setData(result);
     }
 }

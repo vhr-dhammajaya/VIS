@@ -1,11 +1,10 @@
 package com.skopware.vdjvis.desktop.laporan;
 
+import com.skopware.javautils.DateTimeHelper;
 import com.skopware.javautils.ObjectHelper;
-import com.skopware.javautils.httpclient.HttpGetWithBody;
-import com.skopware.javautils.httpclient.HttpHelper;
 import com.skopware.javautils.jasperreports.JRListOfPublicsFieldObjectDataSource;
 import com.skopware.javautils.swing.BaseCrudTableModel;
-import com.skopware.vdjvis.api.dto.DtoOutputLaporanAbsensiUmat;
+import com.skopware.vdjvis.api.dto.laporan.DtoOutputLaporanAbsensiUmat;
 import com.skopware.vdjvis.desktop.App;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperFillManager;
@@ -18,6 +17,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.InputStream;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -83,12 +84,38 @@ public class FrameLaporanAbsensiUmat extends JInternalFrame {
     }
 
     private void onRefresh(ActionEvent event) {
-        List<DtoOutputLaporanAbsensiUmat> data = HttpHelper.makeHttpRequest(App.config.url("/laporan/absensi_umat"), HttpGetWithBody::new, null, List.class, DtoOutputLaporanAbsensiUmat.class);
+        List<DtoOutputLaporanAbsensiUmat> data = computeLaporan();
         tableModel.setData(data);
     }
 
+    private List<DtoOutputLaporanAbsensiUmat> computeLaporan() {
+        return App.jdbi.withHandle(handle -> {
+            LocalDate today = LocalDate.now();
+
+            return handle.select("select u.uuid, u.nama, u.alamat, u.no_telpon, max(k.tgl) as tgl_terakhir_hadir" +
+                    " from umat u" +
+                    " left join kehadiran k on k.umat_id = u.uuid" +
+                    " group by u.uuid, u.nama, u.alamat, u.no_telpon" +
+                    " order by if(max(k.tgl) is not null, 1, 2), tgl_terakhir_hadir")
+                    .map((rs, ctx) -> {
+                        DtoOutputLaporanAbsensiUmat x = new DtoOutputLaporanAbsensiUmat();
+                        x.namaUmat = rs.getString("nama");
+                        x.alamat = rs.getString("alamat");
+                        x.noTelpon = rs.getString("no_telpon");
+                        x.tglTerakhirHadir = DateTimeHelper.toLocalDate(rs.getDate("tgl_terakhir_hadir"));
+                        if (x.tglTerakhirHadir != null) {
+                            x.sdhBerapaLamaAbsen = Period.between(x.tglTerakhirHadir, today);
+                        } else {
+                            x.sdhBerapaLamaAbsen = null;
+                        }
+                        return x;
+                    })
+                    .list();
+        });
+    }
+
     private void onPrintLaporan(ActionEvent event) {
-        List<DtoOutputLaporanAbsensiUmat> data = HttpHelper.makeHttpRequest(App.config.url("/laporan/absensi_umat"), HttpGetWithBody::new, null, List.class, DtoOutputLaporanAbsensiUmat.class);
+        List<DtoOutputLaporanAbsensiUmat> data = computeLaporan();
 
         try {
             InputStream compiledReportFile = getClass().getResourceAsStream("laporan_absensi_umat.jasper");

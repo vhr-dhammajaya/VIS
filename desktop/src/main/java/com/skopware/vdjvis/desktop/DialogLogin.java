@@ -7,9 +7,11 @@ import com.skopware.javautils.httpclient.HttpHelper;
 import com.skopware.javautils.swing.SwingHelper;
 import com.skopware.vdjvis.api.entities.User;
 import org.apache.http.client.methods.HttpPost;
+import org.jdbi.v3.core.Jdbi;
 
 import javax.swing.*;
 import java.awt.event.ActionListener;
+import java.util.Optional;
 
 public class DialogLogin extends JFrame {
     private JTextField txtUsername;
@@ -34,20 +36,21 @@ public class DialogLogin extends JFrame {
         JPanel pnlMain = builder.build();
 
         ActionListener onOk = event -> {
-            User requestBody = new User();
-            requestBody.username = txtUsername.getText();
-            requestBody.password = new String(txtPassword.getPassword());
-
             try {
-                User user = HttpHelper.makeHttpRequest(App.config.url("/user/login"), HttpPost::new, requestBody, User.class);
-                if (user == null) {
+                Optional<User> user = App.jdbi.withHandle(h -> h.createQuery("select id, username, nama, tipe from user where username=? and password=md5(?)")
+                        .bind(0, txtUsername.getText())
+                        .bind(1, new String(txtPassword.getPassword()))
+                        .mapTo(User.class)
+                        .findFirst()
+                );
+
+                if (!user.isPresent()) {
                     SwingHelper.showErrorMessage(this, "Username / password tidak ditemukan");
                     return;
                 }
 
-                App.login(user);
-            }
-            catch (Exception ex) {
+                App.login(user.get());
+            } catch (Exception ex) {
                 ex.printStackTrace();
                 SwingHelper.showErrorMessage(DialogLogin.this, "Terjadi error saat login");
             }

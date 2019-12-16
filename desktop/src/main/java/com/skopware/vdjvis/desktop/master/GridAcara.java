@@ -9,8 +9,10 @@ import com.skopware.javautils.swing.BaseCrudTableModel;
 import com.skopware.javautils.swing.grid.JDataGrid;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
 import com.skopware.javautils.swing.grid.datasource.DropwizardDataSource;
+import com.skopware.javautils.swing.grid.datasource.JdbiDataSource;
 import com.skopware.vdjvis.api.entities.Acara;
 import com.skopware.vdjvis.desktop.App;
+import com.skopware.vdjvis.jdbi.dao.AcaraDAO;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -43,7 +45,7 @@ public class GridAcara {
         );
 
         o.appConfig = App.config;
-        o.dataSource = new DropwizardDataSource<>(App.config.url("/acara"), Acara.class);
+        o.dataSource = new JdbiDataSource<>(Acara.class, App.jdbi, "acara", AcaraDAO.class);
 
         o.fnShowCreateForm = () -> new FormAcara(App.mainFrame);
         o.fnShowEditForm = (record, modelIdx) -> new FormAcara(App.mainFrame, record, modelIdx);

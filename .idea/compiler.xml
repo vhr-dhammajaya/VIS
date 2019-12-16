@@ -6,12 +6,14 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="backend" />
         <module name="desktop" />
         <module name="javautils" />
         <module name="migrasi_data" />
         <module name="shared" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="backend" target="8" />
+    </bytecodeTargetLevel>
   </component>
 </project>

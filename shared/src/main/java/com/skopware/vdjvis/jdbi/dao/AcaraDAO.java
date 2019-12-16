@@ -1,4 +1,4 @@
-package com.skopware.vdjvis.backend.jdbi.dao;
+package com.skopware.vdjvis.jdbi.dao;
 
 import com.skopware.javautils.db.BaseCrudDAO;
 import com.skopware.vdjvis.api.entities.Acara;

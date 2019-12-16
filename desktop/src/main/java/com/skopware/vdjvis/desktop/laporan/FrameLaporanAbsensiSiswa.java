@@ -1,15 +1,16 @@
 package com.skopware.vdjvis.desktop.laporan;
 
+import com.skopware.javautils.DateTimeHelper;
 import com.skopware.javautils.ObjectHelper;
-import com.skopware.javautils.httpclient.HttpGetWithBody;
-import com.skopware.javautils.httpclient.HttpHelper;
 import com.skopware.javautils.swing.BaseCrudTableModel;
-import com.skopware.vdjvis.api.dto.DtoOutputLaporanAbsensiSiswa;
+import com.skopware.vdjvis.api.dto.laporan.DtoOutputLaporanAbsensiSiswa;
 import com.skopware.vdjvis.desktop.App;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.Arrays;
 import java.util.List;
 
@@ -78,7 +79,30 @@ public class FrameLaporanAbsensiSiswa extends JInternalFrame {
     }
 
     private void onRefresh(ActionEvent event) {
-        List<DtoOutputLaporanAbsensiSiswa> data = HttpHelper.makeHttpRequest(App.config.url("/laporan/absensi_siswa"), HttpGetWithBody::new, null, List.class, DtoOutputLaporanAbsensiSiswa.class);
+        List<DtoOutputLaporanAbsensiSiswa> data = App.jdbi.withHandle(handle -> {
+            LocalDate today = LocalDate.now();
+            return handle.select("select s.nama, s.nama_ayah, s.nama_ibu, s.alamat, s.no_telpon, max(k.tgl) as tgl_terakhir_hadir" +
+                    " from siswa s" +
+                    " left join kehadiran_siswa k on k.siswa_uuid = s.uuid" +
+                    " group by s.uuid, s.nama, s.nama_ayah, s.nama_ibu, s.alamat, s.no_telpon" +
+                    " order by if(max(k.tgl) is not null, 1, 2), tgl_terakhir_hadir")
+                    .map((rs, ctx) -> {
+                        DtoOutputLaporanAbsensiSiswa x = new DtoOutputLaporanAbsensiSiswa();
+                        x.namaSiswa = rs.getString("nama");
+                        x.namaAyah = rs.getString("nama_ayah");
+                        x.namaIbu = rs.getString("nama_ibu");
+                        x.alamat = rs.getString("alamat");
+                        x.noTelpon = rs.getString("no_telpon");
+                        x.tglTerakhirHadir = DateTimeHelper.toLocalDate(rs.getDate("tgl_terakhir_hadir"));
+                        if (x.tglTerakhirHadir != null) {
+                            x.sdhBerapaLamaAbsen = Period.between(x.tglTerakhirHadir, today);
+                        } else {
+                            x.sdhBerapaLamaAbsen = null;
+                        }
+                        return x;
+                    })
+                    .list();
+        });
         tableModel.setData(data);
     }
 }

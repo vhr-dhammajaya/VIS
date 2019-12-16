@@ -1,17 +1,10 @@
 package com.skopware.vdjvis.backend.controllers;
 
-import com.skopware.javautils.ObjectHelper;
-import com.skopware.javautils.Tuple2;
-import com.skopware.javautils.db.BaseCrudDAO;
-import com.skopware.javautils.db.DbHelper;
-import com.skopware.javautils.db.PageData;
+import com.skopware.javautils.CollectionHelper;
 import com.skopware.javautils.dropwizard.BaseCrudController;
-import com.skopware.javautils.swing.grid.GridConfig;
 import com.skopware.vdjvis.api.entities.DetilPembayaranDanaRutin;
 import com.skopware.vdjvis.api.entities.PembayaranDanaRutin;
-import com.skopware.vdjvis.api.entities.PendaftaranDanaRutin;
-import com.skopware.vdjvis.api.entities.Pendapatan;
-import com.skopware.vdjvis.backend.jdbi.dao.PembayaranDanaRutinDAO;
+import com.skopware.vdjvis.jdbi.dao.PembayaranDanaRutinDAO;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 
@@ -45,7 +38,7 @@ public class PembayaranDanaRutinController extends BaseCrudController<Pembayaran
                         .select("select * from v_detil_pembayaran_dana_rutin where trx_id=?", record.uuid)
                         .mapTo(DetilPembayaranDanaRutin.class)
                         .list();
-                Map<String, List<DetilPembayaranDanaRutin>> detilGroupedByIdLeluhur = ObjectHelper.groupList(listDetilUngrouped, detil -> detil.leluhurSamanagara.uuid);
+                Map<String, List<DetilPembayaranDanaRutin>> detilGroupedByIdLeluhur = CollectionHelper.groupList(listDetilUngrouped, detil -> detil.leluhurSamanagara.uuid);
 
                 for (Map.Entry<String, List<DetilPembayaranDanaRutin>> e : detilGroupedByIdLeluhur.entrySet()) {
                     List<DetilPembayaranDanaRutin> listDetil = e.getValue();

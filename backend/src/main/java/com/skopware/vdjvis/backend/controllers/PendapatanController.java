@@ -2,7 +2,7 @@ package com.skopware.vdjvis.backend.controllers;
 
 import com.skopware.javautils.dropwizard.BaseCrudController;
 import com.skopware.vdjvis.api.entities.Pendapatan;
-import com.skopware.vdjvis.backend.jdbi.dao.PendapatanDAO;
+import com.skopware.vdjvis.jdbi.dao.PendapatanDAO;
 import org.jdbi.v3.core.Jdbi;
 
 import javax.validation.constraints.NotNull;

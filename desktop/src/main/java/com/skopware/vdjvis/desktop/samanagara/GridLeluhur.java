@@ -2,21 +2,29 @@ package com.skopware.vdjvis.desktop.samanagara;
 
 import com.skopware.javautils.ObjectHelper;
 import com.skopware.javautils.Tuple2;
+import com.skopware.javautils.db.PageData;
 import com.skopware.javautils.swing.BaseCrudForm;
 import com.skopware.javautils.swing.BaseCrudTableModel;
 import com.skopware.javautils.swing.JDatePicker;
 import com.skopware.javautils.swing.SwingHelper;
+import com.skopware.javautils.swing.grid.GridConfig;
 import com.skopware.javautils.swing.grid.JDataGrid;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
 import com.skopware.javautils.swing.grid.datasource.DropwizardDataSource;
+import com.skopware.javautils.swing.grid.datasource.JdbiDataSource;
 import com.skopware.vdjvis.api.entities.Leluhur;
+import com.skopware.vdjvis.api.entities.StatusBayar;
 import com.skopware.vdjvis.api.entities.Umat;
 import com.skopware.vdjvis.desktop.App;
+import com.skopware.vdjvis.jdbi.dao.LeluhurDAO;
+import org.jdbi.v3.core.Handle;
 
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.Arrays;
+import java.util.List;
 
 public class GridLeluhur {
     public static JDataGrid<Leluhur> createDefault() {
@@ -84,7 +92,37 @@ public class GridLeluhur {
         );
 
         o.appConfig = App.config;
-        o.dataSource = new DropwizardDataSource<>(App.config.url("/leluhur"), Leluhur.class);
+        o.dataSource = new JdbiDataSource<Leluhur, LeluhurDAO>(Leluhur.class, App.jdbi, "v_leluhur", LeluhurDAO.class) {
+            @Override
+            public PageData<Leluhur> refreshData(GridConfig gridConfig) {
+                PageData<Leluhur> pageData = super.refreshData(gridConfig);
+                List<Leluhur> rows = pageData.rows;
+
+                try (Handle handle = jdbi.open()) {
+                    List<StatusBayar> listStatusBayar = Leluhur.computeStatusBayar(handle, rows, YearMonth.now(), Leluhur.fetchListTarifSamanagara(handle));
+
+                    for (int i = 0; i < rows.size(); i++) {
+                        Leluhur leluhur = rows.get(i);
+                        StatusBayar statusBayar = listStatusBayar.get(i);
+
+                        leluhur.statusBayar = statusBayar;
+                    }
+                }
+
+                return pageData;
+            }
+
+            @Override
+            public Leluhur createRecord(Leluhur record) {
+                Leluhur leluhur = super.createRecord(record);
+
+                try (Handle handle = jdbi.open()) {
+                    leluhur.statusBayar = Leluhur.computeStatusBayar(handle, leluhur, YearMonth.now(), Leluhur.fetchListTarifSamanagara(handle));
+                }
+
+                return leluhur;
+            }
+        };
 
         o.fnShowCreateForm = () -> new FormLeluhur(App.mainFrame);
         o.fnShowEditForm = (record, modelIdx) -> new FormLeluhur(App.mainFrame, record, modelIdx);

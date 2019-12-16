@@ -49,13 +49,14 @@ public class FrameGantiPassword extends JInternalFrame {
                 return;
             }
 
-            User requestBody = new User();
-            requestBody.uuid = App.currentUser.uuid;
-            requestBody.password = password1;
-
             SwingHelper.setEnabled(false, btnOk, btnCancel);
             try {
-                HttpHelper.makeHttpRequest(App.config.url("/user/set_password"), HttpPost::new, requestBody, boolean.class);
+                App.jdbi.useHandle(h -> h.createUpdate("update user set password=md5(?) where id=?")
+                        .bind(0, password1)
+                        .bind(1, App.currentUser.uuid)
+                        .execute()
+                );
+
                 this.dispose();
             }
             catch (Exception ex) {

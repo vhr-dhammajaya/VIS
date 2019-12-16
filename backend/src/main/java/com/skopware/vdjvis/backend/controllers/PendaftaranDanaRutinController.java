@@ -5,7 +5,7 @@ import com.skopware.javautils.dropwizard.BaseCrudController;
 import com.skopware.javautils.swing.grid.GridConfig;
 import com.skopware.vdjvis.api.dto.DtoBayarDanaSosialDanTetap;
 import com.skopware.vdjvis.api.entities.*;
-import com.skopware.vdjvis.backend.jdbi.dao.PendaftaranDanaRutinDAO;
+import com.skopware.vdjvis.jdbi.dao.PendaftaranDanaRutinDAO;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 
@@ -16,7 +16,6 @@ import javax.ws.rs.core.MediaType;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Path("/pendaftaran_dana_rutin")

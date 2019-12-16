@@ -1,4 +1,4 @@
-package com.skopware.vdjvis.api.dto;
+package com.skopware.vdjvis.api.dto.laporan;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.skopware.vdjvis.api.entities.DetilPembayaranDanaRutin;

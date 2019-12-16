@@ -1,14 +1,12 @@
 package com.skopware.vdjvis.desktop.laporan;
 
+import com.skopware.javautils.DateTimeHelper;
 import com.skopware.javautils.ObjectHelper;
 import com.skopware.javautils.Tuple2;
-import com.skopware.javautils.httpclient.HttpGetWithBody;
-import com.skopware.javautils.httpclient.HttpHelper;
 import com.skopware.javautils.swing.BaseCrudTableModel;
 import com.skopware.javautils.swing.JDatePicker;
 import com.skopware.javautils.swing.SwingHelper;
-import com.skopware.vdjvis.api.laporan.pemasukan_pengeluaran_bulanan.DtoInputLaporanPemasukanPengeluaran;
-import com.skopware.vdjvis.api.laporan.pemasukan_pengeluaran_bulanan.DtoOutputLaporanPemasukanPengeluaran;
+import com.skopware.vdjvis.api.dto.laporan.DtoOutputLaporanPemasukanPengeluaran;
 import com.skopware.vdjvis.desktop.App;
 
 import javax.swing.*;
@@ -16,6 +14,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -93,11 +92,35 @@ public class FrameLaporanPemasukanPengeluaran extends JInternalFrame {
             return;
         }
 
-        DtoInputLaporanPemasukanPengeluaran rq = new DtoInputLaporanPemasukanPengeluaran();
-        rq.startInclusive = startMonth;
-        rq.endInclusive = endMonth;
+        List<DtoOutputLaporanPemasukanPengeluaran> result = App.jdbi.withHandle(handle -> {
+            List<DtoOutputLaporanPemasukanPengeluaran> result2 = new ArrayList<>();
 
-        List<DtoOutputLaporanPemasukanPengeluaran> result = HttpHelper.makeHttpRequest(App.config.url("/laporan/pemasukan_pengeluaran"), HttpGetWithBody::new, rq, List.class, DtoOutputLaporanPemasukanPengeluaran.class);
+            YearMonth curr = startMonth;
+            while (!curr.isAfter(endMonth)) {
+                int ymCurr = DateTimeHelper.computeMySQLYearMonth(curr);
+                int jmlPengeluaran = handle.select("select sum(nominal) from pengeluaran where active=1 and extract(year_month from tgl_trx) = ?", ymCurr)
+                        .mapTo(int.class)
+                        .findOnly();
+                int jmlPendapatanNonRutin = handle.select("select sum(nominal) from pendapatan where active=1 and extract(year_month from tgl_trx) = ?", ymCurr)
+                        .mapTo(int.class)
+                        .findOnly();
+                int jmlPendapatanRutin = handle.select("select sum(total_nominal) from pembayaran_samanagara_sosial_tetap where active=1 and extract(year_month from tgl) = ?", ymCurr)
+                        .mapTo(int.class)
+                        .findOnly();
+                int jmlPendapatan = jmlPendapatanNonRutin + jmlPendapatanRutin;
+
+                DtoOutputLaporanPemasukanPengeluaran x = new DtoOutputLaporanPemasukanPengeluaran();
+                x.tahun = curr.getYear();
+                x.bulan = curr.getMonthValue();
+                x.pemasukan = jmlPendapatan;
+                x.pengeluaran = jmlPengeluaran;
+                result2.add(x);
+
+                curr = curr.plusMonths(1);
+            }
+
+            return result2;
+        });
         tableModel.setData(result);
     }
 }

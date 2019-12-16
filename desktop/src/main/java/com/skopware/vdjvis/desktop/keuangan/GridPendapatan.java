@@ -6,6 +6,7 @@ import com.skopware.javautils.httpclient.HttpHelper;
 import com.skopware.javautils.swing.*;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
 import com.skopware.javautils.swing.grid.datasource.DropwizardDataSource;
+import com.skopware.javautils.swing.grid.datasource.JdbiDataSource;
 import com.skopware.vdjvis.api.entities.Acara;
 import com.skopware.vdjvis.api.entities.Pendapatan;
 import com.skopware.vdjvis.api.entities.Umat;
@@ -14,6 +15,7 @@ import com.skopware.vdjvis.desktop.App;
 import com.skopware.vdjvis.desktop.DialogInputAlasanMintaPembetulan;
 import com.skopware.vdjvis.desktop.master.GridAcara;
 import com.skopware.vdjvis.desktop.master.GridUmat;
+import com.skopware.vdjvis.jdbi.dao.PendapatanDAO;
 import org.apache.http.client.methods.HttpPost;
 
 import javax.swing.*;
@@ -78,7 +80,7 @@ public class GridPendapatan {
                 })
         );
         o.appConfig = App.config;
-        o.dataSource = new DropwizardDataSource<>(App.config.url("/pendapatan"), Pendapatan.class);
+        o.dataSource = new JdbiDataSource<>(Pendapatan.class, App.jdbi, "v_pendapatan", PendapatanDAO.class);
 
         o.fnShowCreateForm = () -> new FormPendapatan(App.mainFrame);
         o.fnShowEditForm = (rec, idx) -> new FormPendapatan(App.mainFrame, rec, idx);
@@ -118,7 +120,14 @@ public class GridPendapatan {
             DialogInputAlasanMintaPembetulan dialogInput = new DialogInputAlasanMintaPembetulan(reason -> {
                 sel.correctionStatus = true;
                 sel.correctionRequestReason = reason;
-                HttpHelper.makeHttpRequest(App.config.url("/pendapatan/request_koreksi"), HttpPost::new, sel, boolean.class);
+
+                App.jdbi.useHandle(h -> h.createUpdate("update pendapatan set correction_status=1, corr_req_reason=:reason" +
+                        " where id=:id")
+                        .bind("reason", sel.correctionRequestReason)
+                        .bind("id", sel.uuid)
+                        .execute()
+                );
+
                 o.grid.tableModel.fireTableRowsUpdated(selIdx, selIdx);
             });
             dialogInput.setVisible(true);

@@ -1,5 +1,6 @@
 package com.skopware.vdjvis.desktop.master;
 
+import com.skopware.javautils.DateTimeHelper;
 import com.skopware.javautils.ObjectHelper;
 import com.skopware.javautils.Tuple2;
 import com.skopware.javautils.swing.BaseCrudForm;
@@ -8,9 +9,11 @@ import com.skopware.javautils.swing.JDatePicker;
 import com.skopware.javautils.swing.SwingHelper;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
 import com.skopware.javautils.swing.grid.datasource.DropwizardDataSource;
+import com.skopware.javautils.swing.grid.datasource.JdbiDataSource;
 import com.skopware.vdjvis.api.entities.Siswa;
 import com.skopware.vdjvis.desktop.App;
 import com.skopware.vdjvis.desktop.MainFrame;
+import com.skopware.vdjvis.jdbi.dao.SiswaDAO;
 
 import javax.swing.*;
 import java.awt.*;
@@ -70,7 +73,28 @@ public class GridSiswa {
         );
 
         o.appConfig = App.config;
-        o.dataSource = new DropwizardDataSource<>(App.config.url("/siswa"), Siswa.class);
+        o.dataSource = new JdbiDataSource<Siswa, SiswaDAO>(Siswa.class, App.jdbi, "siswa", SiswaDAO.class) {
+            @Override
+            public Siswa createRecord(Siswa x) {
+                return jdbi.withHandle(handle -> {
+                    int ymTglDaftar = DateTimeHelper.computeMySQLYearMonth(x.tglDaftar);
+                    int seqNum = handle.select("select count(*) from siswa where extract(year_month from tgl_daftar) = ?", ymTglDaftar)
+                            .mapTo(int.class)
+                            .findOnly();
+                    seqNum++;
+
+                    x.idBarcode = String.format("%s%02d%02d%02d%05d",
+                            String.valueOf(x.tglDaftar.getYear()).substring(2), x.tglDaftar.getMonthValue(),
+                            x.tglLahir.getDayOfMonth(), x.tglLahir.getMonthValue(),
+                            seqNum);
+
+                    SiswaDAO dao = handle.attach(daoClass);
+                    dao.create(x);
+                    Siswa result = dao.get(x.getUuid());
+                    return result;
+                });
+            }
+        };
 
         o.fnShowCreateForm = () -> new FormSiswa(App.mainFrame);
         o.fnShowEditForm = (record, modelIdx) -> new FormSiswa(App.mainFrame, record, modelIdx);

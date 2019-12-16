@@ -2,19 +2,26 @@ package com.skopware.vdjvis.desktop.keuangan;
 
 import com.skopware.javautils.ObjectHelper;
 import com.skopware.javautils.Tuple2;
+import com.skopware.javautils.db.PageData;
 import com.skopware.javautils.swing.*;
+import com.skopware.javautils.swing.grid.GridConfig;
 import com.skopware.javautils.swing.grid.JDataGrid;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
-import com.skopware.javautils.swing.grid.datasource.DropwizardDataSource;
+import com.skopware.javautils.swing.grid.datasource.JdbiDataSource;
 import com.skopware.vdjvis.api.entities.DetilPembayaranDanaRutin;
 import com.skopware.vdjvis.api.entities.PendaftaranDanaRutin;
+import com.skopware.vdjvis.api.entities.StatusBayar;
 import com.skopware.vdjvis.api.entities.Umat;
 import com.skopware.vdjvis.desktop.App;
+import com.skopware.vdjvis.jdbi.dao.PendaftaranDanaRutinDAO;
+import org.jdbi.v3.core.Handle;
 
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.Arrays;
+import java.util.List;
 
 public class GridPendaftaranDanaRutin {
     public static JDataGrid<PendaftaranDanaRutin> createDefault() {
@@ -72,7 +79,34 @@ public class GridPendaftaranDanaRutin {
         );
 
         o.appConfig = App.config;
-        o.dataSource = new DropwizardDataSource<>(App.config.url("/pendaftaran_dana_rutin"), PendaftaranDanaRutin.class);
+        o.dataSource = new JdbiDataSource<PendaftaranDanaRutin, PendaftaranDanaRutinDAO>(PendaftaranDanaRutin.class, App.jdbi, "pendaftaran_dana_rutin", PendaftaranDanaRutinDAO.class) {
+            @Override
+            public PageData<PendaftaranDanaRutin> refreshData(GridConfig gridConfig) {
+                PageData<PendaftaranDanaRutin> pageData = super.refreshData(gridConfig);
+                List<PendaftaranDanaRutin> rows = pageData.rows;
+
+                try (Handle handle = jdbi.open()) {
+                    List<StatusBayar> statusBayarList = PendaftaranDanaRutin.computeStatusBayar(handle, rows, YearMonth.now());
+
+                    for (int i = 0; i < rows.size(); i++) {
+                        rows.get(i).statusBayar = statusBayarList.get(i);
+                    }
+                }
+
+                return pageData;
+            }
+
+            @Override
+            public PendaftaranDanaRutin createRecord(PendaftaranDanaRutin record) {
+                PendaftaranDanaRutin danaRutin = super.createRecord(record);
+
+                try (Handle handle = jdbi.open()) {
+                    danaRutin.statusBayar = PendaftaranDanaRutin.computeStatusBayar(handle, danaRutin, YearMonth.now());
+                }
+
+                return danaRutin;
+            }
+        };
 
         o.fnShowCreateForm = () -> new FormPendaftaranDanaRutin(App.mainFrame);
         o.fnShowEditForm = (record, modelIdx) -> new FormPendaftaranDanaRutin(App.mainFrame, record, modelIdx);

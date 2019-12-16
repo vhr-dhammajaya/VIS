@@ -9,7 +9,7 @@ import com.skopware.javautils.swing.grid.GridConfig;
 import com.skopware.vdjvis.api.dto.DtoPembayaranSamanagara;
 import com.skopware.vdjvis.api.dto.DtoStatusBayarLeluhur;
 import com.skopware.vdjvis.api.entities.*;
-import com.skopware.vdjvis.backend.jdbi.dao.LeluhurDAO;
+import com.skopware.vdjvis.jdbi.dao.LeluhurDAO;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 

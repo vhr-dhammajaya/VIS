@@ -3,9 +3,7 @@ package com.skopware.vdjvis.backend.controllers;
 import com.skopware.javautils.DateTimeHelper;
 import com.skopware.javautils.dropwizard.BaseCrudController;
 import com.skopware.vdjvis.api.entities.Siswa;
-import com.skopware.vdjvis.api.entities.Umat;
-import com.skopware.vdjvis.backend.jdbi.dao.SiswaDAO;
-import com.skopware.vdjvis.backend.jdbi.dao.UmatDAO;
+import com.skopware.vdjvis.jdbi.dao.SiswaDAO;
 import org.jdbi.v3.core.Jdbi;
 
 import javax.validation.Valid;

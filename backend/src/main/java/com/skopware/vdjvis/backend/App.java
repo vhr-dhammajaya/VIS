@@ -4,7 +4,7 @@ import com.skopware.javautils.dropwizard.BaseApp;
 import com.skopware.vdjvis.api.entities.*;
 import com.skopware.vdjvis.backend.config.Config;
 import com.skopware.vdjvis.backend.controllers.*;
-import com.skopware.vdjvis.backend.jdbi.rowmappers.*;
+import com.skopware.vdjvis.jdbi.rowmappers.*;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
 import io.dropwizard.setup.Environment;
 
@@ -19,19 +19,7 @@ public class App extends BaseApp<Config> {
 
     @Override
     protected void registerRowMappers(Config config, Environment env) {
-        jdbi.registerRowMapper(Acara.class, new AcaraRowMapper());
-        jdbi.registerRowMapper(Umat.class, new UmatRowMapper());
-        jdbi.registerRowMapper(Siswa.class, new SiswaRowMapper());
-        jdbi.registerRowMapper(User.class, new UserRowMapper());
 
-        jdbi.registerRowMapper(Leluhur.class, new LeluhurRowMapper());
-        jdbi.registerRowMapper(TarifSamanagara.class, new TarifSamanagaraRowMapper());
-
-        jdbi.registerRowMapper(PendaftaranDanaRutin.class, new PendaftaranDanaRutinRowMapper());
-        jdbi.registerRowMapper(PembayaranDanaRutin.class, new PembayaranDanaRutinRowMapper());
-        jdbi.registerRowMapper(DetilPembayaranDanaRutin.class, new DetilPembayaranDanaRutinRowMapper());
-        jdbi.registerRowMapper(Pendapatan.class, new PendapatanRowMapper());
-        jdbi.registerRowMapper(Pengeluaran.class, new PengeluaranRowMapper());
     }
 
     @Override

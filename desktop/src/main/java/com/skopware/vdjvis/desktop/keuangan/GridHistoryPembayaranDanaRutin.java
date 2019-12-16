@@ -1,32 +1,21 @@
 package com.skopware.vdjvis.desktop.keuangan;
 
+import com.skopware.javautils.CollectionHelper;
 import com.skopware.javautils.ObjectHelper;
-import com.skopware.javautils.httpclient.HttpGetWithBody;
 import com.skopware.javautils.httpclient.HttpHelper;
-import com.skopware.javautils.jasperreports.JasperHelper;
-import com.skopware.javautils.swing.BaseCrudForm;
 import com.skopware.javautils.swing.BaseCrudTableModel;
-import com.skopware.javautils.swing.JDatePicker;
-import com.skopware.javautils.swing.JForeignKeyPicker;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
 import com.skopware.javautils.swing.grid.datasource.DropwizardDataSource;
-import com.skopware.vdjvis.api.entities.PembayaranDanaRutin;
-import com.skopware.vdjvis.api.entities.Pendapatan;
-import com.skopware.vdjvis.api.entities.Umat;
-import com.skopware.vdjvis.api.entities.User;
+import com.skopware.javautils.swing.grid.datasource.JdbiDataSource;
+import com.skopware.vdjvis.api.entities.*;
 import com.skopware.vdjvis.desktop.App;
 import com.skopware.vdjvis.desktop.DialogInputAlasanMintaPembetulan;
-import com.skopware.vdjvis.desktop.MainFrame;
-import net.sf.jasperreports.engine.JREmptyDataSource;
-import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.JasperReport;
+import com.skopware.vdjvis.jdbi.dao.PembayaranDanaRutinDAO;
 import org.apache.http.client.methods.HttpPost;
 
 import javax.swing.*;
-import java.awt.*;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.YearMonth;
+import java.util.*;
 
 public class GridHistoryPembayaranDanaRutin {
     public static JDataGridOptions<PembayaranDanaRutin> createForUser(User user) {
@@ -82,7 +71,7 @@ public class GridHistoryPembayaranDanaRutin {
         );
 
         o.appConfig = App.config;
-        o.dataSource = new DropwizardDataSource<>(App.config.url("/pembayaran_dana_rutin"), PembayaranDanaRutin.class);
+        o.dataSource = new JdbiDataSource<>(PembayaranDanaRutin.class, App.jdbi, "v_pembayaran_samanagara_sosial_tetap", PembayaranDanaRutinDAO.class);
 
         o.enableAdd = false;
         o.enableEdit = false;
@@ -94,10 +83,10 @@ public class GridHistoryPembayaranDanaRutin {
                 return;
             }
 
-            Map<String, String> keperluanDana = HttpHelper.makeHttpRequest(App.config.url("/pembayaran_dana_rutin/get_keperluan"), HttpGetWithBody::new, sel, Map.class, String.class, String.class);
+            String keperluanDana = App.jdbi.withHandle(h -> sel.computeKeperluanDana(h));
 
             DialogPrepareTandaTerima.Input jasperParams = new DialogPrepareTandaTerima.Input();
-            jasperParams.set(sel, keperluanDana.get("keperluanDana"));
+            jasperParams.set(sel, keperluanDana);
 
             DialogPrepareTandaTerima dialog = new DialogPrepareTandaTerima(App.mainFrame, jasperParams);
             dialog.setVisible(true);
@@ -124,7 +113,14 @@ public class GridHistoryPembayaranDanaRutin {
             DialogInputAlasanMintaPembetulan dialogInput = new DialogInputAlasanMintaPembetulan(reason -> {
                 sel.correctionStatus = true;
                 sel.correctionRequestReason = reason;
-                HttpHelper.makeHttpRequest(App.config.url("/pembayaran_dana_rutin/request_koreksi"), HttpPost::new, sel, boolean.class);
+
+                App.jdbi.useHandle(h -> h.createUpdate("update pembayaran_samanagara_sosial_tetap set correction_status=1, corr_req_reason=:reason" +
+                        " where uuid=:uuid")
+                        .bind("reason", sel.correctionRequestReason)
+                        .bind("uuid", sel.uuid)
+                        .execute()
+                );
+
                 o.grid.tableModel.fireTableRowsUpdated(selIdx, selIdx);
             });
             dialogInput.setVisible(true);

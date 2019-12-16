@@ -3,14 +3,13 @@ package com.skopware.vdjvis.backend.controllers;
 import com.skopware.javautils.DateTimeHelper;
 import com.skopware.javautils.dropwizard.BaseCrudController;
 import com.skopware.vdjvis.api.entities.Umat;
-import com.skopware.vdjvis.backend.jdbi.dao.UmatDAO;
+import com.skopware.vdjvis.jdbi.dao.UmatDAO;
 import org.jdbi.v3.core.Jdbi;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.time.YearMonth;
 
 @Path("/umat")
 @Produces(MediaType.APPLICATION_JSON)

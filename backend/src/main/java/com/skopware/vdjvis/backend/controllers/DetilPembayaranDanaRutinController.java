@@ -5,7 +5,7 @@ import com.skopware.javautils.db.PageData;
 import com.skopware.javautils.dropwizard.BaseCrudController;
 import com.skopware.javautils.swing.grid.GridConfig;
 import com.skopware.vdjvis.api.entities.DetilPembayaranDanaRutin;
-import com.skopware.vdjvis.backend.jdbi.dao.DetilPembayaranDanaRutinDAO;
+import com.skopware.vdjvis.jdbi.dao.DetilPembayaranDanaRutinDAO;
 import org.jdbi.v3.core.Jdbi;
 
 import javax.validation.constraints.NotNull;
