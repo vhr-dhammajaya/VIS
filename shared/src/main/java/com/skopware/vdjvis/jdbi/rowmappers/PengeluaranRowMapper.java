@@ -1,4 +1,4 @@
-package com.skopware.vdjvis.backend.jdbi.rowmappers;
+package com.skopware.vdjvis.jdbi.rowmappers;
 
 import com.skopware.javautils.DateTimeHelper;
 import com.skopware.vdjvis.api.entities.Acara;
