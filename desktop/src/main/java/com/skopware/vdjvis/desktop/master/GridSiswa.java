@@ -129,21 +129,21 @@ public class GridSiswa {
 
         @Override
         protected void initFormFields() {
-            edNama = new JTextField(45);
+            edNama = new JTextField(20);
 
-            edNamaAyah = new JTextField(45);
-            edNamaIbu = new JTextField(45);
+            edNamaAyah = new JTextField(20);
+            edNamaIbu = new JTextField(20);
 
-            edAlamat = new JTextArea(5, 40);
-            edKota = new JTextField(45);
+            edAlamat = new JTextArea(5, 20);
+            edKota = new JTextField(20);
 
-            edNoTelpon = new JTextField(50);
+            edNoTelpon = new JTextField(25);
 
-            edTempatLahir = new JTextField(45);
+            edTempatLahir = new JTextField(20);
             edTglLahir = new JDatePicker();
 
-            edSekolah = new JTextField(45);
-            edAlamatSekolah = new JTextArea(5, 40);
+            edSekolah = new JTextField(20);
+            edAlamatSekolah = new JTextArea(5, 20);
 
             pnlFormFields = SwingHelper.buildForm2(
                     Arrays.asList(

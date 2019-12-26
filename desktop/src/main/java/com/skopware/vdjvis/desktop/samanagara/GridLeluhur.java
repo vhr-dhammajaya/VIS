@@ -148,10 +148,10 @@ public class GridLeluhur {
 
         @Override
         protected void initFormFields() {
-            txtNama = new JTextField(45);
-            txtTempatLahir = new JTextField(45);
+            txtNama = new JTextField(20);
+            txtTempatLahir = new JTextField(20);
             txtTglLahir = new JDatePicker();
-            txtTempatMati = new JTextField(45);
+            txtTempatMati = new JTextField(20);
             txtTglMati = new JDatePicker();
 
             String[] hubungan = {

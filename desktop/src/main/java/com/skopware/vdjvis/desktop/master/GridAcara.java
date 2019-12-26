@@ -65,7 +65,7 @@ public class GridAcara {
 
         @Override
         protected void initFormFields() {
-            txtNama = new JTextField(45);
+            txtNama = new JTextField(20);
 
             FormLayout formLayout = new FormLayout("right:pref, 4dlu, left:pref:grow");
             DefaultFormBuilder builder = new DefaultFormBuilder(formLayout);

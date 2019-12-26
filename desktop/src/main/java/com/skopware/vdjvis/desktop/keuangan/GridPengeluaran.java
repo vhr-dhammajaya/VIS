@@ -119,7 +119,7 @@ public class GridPengeluaran {
             edTglTrans = new JDatePicker();
             edTglTrans.setDate(LocalDate.now());
 
-            edPenerima = new JTextField(45);
+            edPenerima = new JTextField(20);
             edNominal = new JSpinner(new SpinnerNumberModel(1000, 1000, Integer.MAX_VALUE, 1000));
             edKeterangan = new JTextArea(10, 20);
             edAcara = new JForeignKeyPicker<>(App.mainFrame, GridAcara.createNoAddEditDelete());

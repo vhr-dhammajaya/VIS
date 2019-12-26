@@ -63,8 +63,8 @@ public class GridUser {
 
         @Override
         protected void initFormFields() {
-            txtUsername = new JTextField(45);
-            txtNama = new JTextField(45);
+            txtUsername = new JTextField(20);
+            txtNama = new JTextField(20);
             cmbTipeUser = new JComboBox<>(new User.Type[] {
                     User.Type.OPERATOR,
                     User.Type.PENGURUS
@@ -80,7 +80,7 @@ public class GridUser {
             builder.nextLine();
 
             if (isCreateNew) {
-                txtPassword = new JPasswordField(45);
+                txtPassword = new JPasswordField(20);
                 builder.append("Password", txtPassword);
                 builder.nextLine();
             }

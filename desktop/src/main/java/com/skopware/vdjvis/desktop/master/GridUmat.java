@@ -259,13 +259,13 @@ public class GridUmat {
 
         @Override
         protected void initFormFields() {
-            txtNama = new JTextField(45);
-            txtAlamat = new JTextArea(5, 40);
-            txtKota = new JTextField(45);
-            txtKodePos = new JTextField(45);
-            txtNoTelpon = new JTextField(50);
-            txtEmail = new JTextField(45);
-            txtTempatLahir = new JTextField(45);
+            txtNama = new JTextField(20);
+            txtAlamat = new JTextArea(5, 20);
+            txtKota = new JTextField(20);
+            txtKodePos = new JTextField(20);
+            txtNoTelpon = new JTextField(25);
+            txtEmail = new JTextField(20);
+            txtTempatLahir = new JTextField(20);
             txtTglLahir = new JDatePicker();
 
             btnGolDarahO = new JRadioButton("O");
@@ -296,19 +296,19 @@ public class GridUmat {
             txtPendidikanTerakhir = new JComboBox<>(new String[]{"S1", "S2", "S3", "D3", "SMA", "Lainnya (ketik)"});
             txtPendidikanTerakhir.setEditable(true);
 
-            txtJurusan = new JTextField(45);
-            txtPekerjaan = new JTextField(45);
-            txtBidangUsaha = new JTextField(45);
+            txtJurusan = new JTextField(20);
+            txtPekerjaan = new JTextField(20);
+            txtBidangUsaha = new JTextField(20);
 
-            txtNamaKerabat = new JTextField(45);
-            txtAlamatKerabat = new JTextArea(5, 40);
-            txtNoTelponKerabat = new JTextField(50);
-            txtKotaKerabat = new JTextField(45);
-            txtKodePosKerabat = new JTextField(45);
-            txtNoTelpon = new JTextField(50);
+            txtNamaKerabat = new JTextField(20);
+            txtAlamatKerabat = new JTextArea(5, 20);
+            txtNoTelponKerabat = new JTextField(25);
+            txtKotaKerabat = new JTextField(20);
+            txtKodePosKerabat = new JTextField(20);
+            txtNoTelpon = new JTextField(25);
 
-            txtNamaUpasaka = new JTextField(45);
-            txtNamaPenahbis = new JTextField(45);
+            txtNamaUpasaka = new JTextField(20);
+            txtNamaPenahbis = new JTextField(20);
             txtTglPenahbisan = new JDatePicker();
 
             FormLayout layout = new FormLayout("right:pref, 4dlu, left:pref:grow," +
