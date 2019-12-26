@@ -3,20 +3,30 @@ package com.skopware.vdjvis.desktop.laporan;
 import com.skopware.javautils.DateTimeHelper;
 import com.skopware.javautils.ObjectHelper;
 import com.skopware.javautils.Tuple2;
+import com.skopware.javautils.poi.excel.ExcelHelper;
 import com.skopware.javautils.swing.BaseCrudTableModel;
 import com.skopware.javautils.swing.JDatePicker;
 import com.skopware.javautils.swing.SwingHelper;
 import com.skopware.vdjvis.api.dto.laporan.DtoOutputLaporanPemasukanPengeluaran;
 import com.skopware.vdjvis.desktop.App;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class FrameLaporanPemasukanPengeluaran extends JInternalFrame {
     private List<BaseCrudTableModel.ColumnConfig> columnConfigs = Arrays.asList(
@@ -53,7 +63,60 @@ public class FrameLaporanPemasukanPengeluaran extends JInternalFrame {
         edTglEnd.setDate(LocalDate.now());
 
         JButton btnRefresh = new JButton("Lihat laporan");
-        btnRefresh.addActionListener(this::onRefresh);
+        btnRefresh.addActionListener(e -> {
+            onRefresh(data -> tableModel.setData(data));
+        });
+
+        JButton btnExcel = new JButton("Download laporan (Excel)");
+        btnExcel.addActionListener(e -> {
+            onRefresh(data -> {
+                JFileChooser jfc = new JFileChooser();
+                if (jfc.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                    ExcelHelper.saveListToXlsx(data, jfc.getSelectedFile(),
+                            (data2, workbook) -> {
+                                Sheet sheet1 = workbook.createSheet();
+                                Row headerRow = sheet1.createRow(0);
+                                CellStyle headerStyle = workbook.createCellStyle();
+                                XSSFFont headerFont = workbook.createFont();
+                                headerFont.setBold(true);
+                                headerStyle.setFont(headerFont);
+
+                                Cell headerCell = headerRow.createCell(0);
+                                headerCell.setCellValue("Tahun");
+                                headerCell.setCellStyle(headerStyle);
+
+                                headerCell = headerRow.createCell(1);
+                                headerCell.setCellValue("Bulan");
+                                headerCell.setCellStyle(headerStyle);
+
+                                headerCell = headerRow.createCell(2);
+                                headerCell.setCellValue("Pemasukan");
+                                headerCell.setCellStyle(headerStyle);
+
+                                headerCell = headerRow.createCell(3);
+                                headerCell.setCellValue("Pengeluaran");
+                                headerCell.setCellStyle(headerStyle);
+
+                                for (int i = 1; i <= data2.size(); i++) {
+                                    DtoOutputLaporanPemasukanPengeluaran record = data2.get(i - 1);
+                                    Row row = sheet1.createRow(i);
+                                    Cell cell = row.createCell(0);
+                                    cell.setCellValue(record.tahun);
+
+                                    cell = row.createCell(1);
+                                    cell.setCellValue(record.bulan);
+
+                                    cell = row.createCell(2);
+                                    cell.setCellValue(record.pemasukan);
+
+                                    cell = row.createCell(3);
+                                    cell.setCellValue(record.pengeluaran);
+                                }
+                            },
+                            ex -> SwingHelper.showErrorMessage(this, "Error: gagal menyimpan laporan"));
+                }
+            });
+        });
 
         JPanel top = new JPanel(new FlowLayout(FlowLayout.LEADING));
         top.add(new JLabel("Bulan awal"));
@@ -61,6 +124,7 @@ public class FrameLaporanPemasukanPengeluaran extends JInternalFrame {
         top.add(new JLabel("Bulan akhir"));
         top.add(edTglEnd);
         top.add(btnRefresh);
+        top.add(btnExcel);
 
         tableModel = new BaseCrudTableModel<>();
         tableModel.setColumnConfigs(columnConfigs);
@@ -74,7 +138,7 @@ public class FrameLaporanPemasukanPengeluaran extends JInternalFrame {
         setContentPane(contentPane);
     }
 
-    private void onRefresh(ActionEvent event) {
+    private void onRefresh(Consumer<List<DtoOutputLaporanPemasukanPengeluaran>> fnDisplayReportData) {
         LocalDate startDate = edTglStart.getDate();
         LocalDate endDate = edTglEnd.getDate();
 
@@ -92,6 +156,11 @@ public class FrameLaporanPemasukanPengeluaran extends JInternalFrame {
             return;
         }
 
+        List<DtoOutputLaporanPemasukanPengeluaran> data = fetchReportData(startMonth, endMonth);
+        fnDisplayReportData.accept(data);
+    }
+
+    private List<DtoOutputLaporanPemasukanPengeluaran> fetchReportData(YearMonth startMonth, YearMonth endMonth) {
         List<DtoOutputLaporanPemasukanPengeluaran> result = App.jdbi.withHandle(handle -> {
             List<DtoOutputLaporanPemasukanPengeluaran> result2 = new ArrayList<>();
 
@@ -121,6 +190,6 @@ public class FrameLaporanPemasukanPengeluaran extends JInternalFrame {
 
             return result2;
         });
-        tableModel.setData(result);
+        return result;
     }
 }

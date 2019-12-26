@@ -3,7 +3,9 @@ package com.skopware.vdjvis.desktop.laporan;
 import com.skopware.javautils.DateTimeHelper;
 import com.skopware.javautils.ObjectHelper;
 import com.skopware.javautils.jasperreports.JRListOfPublicsFieldObjectDataSource;
+import com.skopware.javautils.poi.excel.ExcelHelper;
 import com.skopware.javautils.swing.BaseCrudTableModel;
+import com.skopware.javautils.swing.SwingHelper;
 import com.skopware.vdjvis.api.dto.laporan.DtoOutputLaporanAbsensiUmat;
 import com.skopware.vdjvis.desktop.App;
 import net.sf.jasperreports.engine.JRException;
@@ -12,10 +14,15 @@ import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.util.JRLoader;
 import net.sf.jasperreports.view.JasperViewer;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.Period;
@@ -64,8 +71,88 @@ public class FrameLaporanAbsensiUmat extends JInternalFrame {
         JButton btnRefresh = new JButton("Lihat laporan");
         btnRefresh.addActionListener(this::onRefresh);
 
-        JButton btnPrintLaporan = new JButton("Print laporan");
-        btnPrintLaporan.addActionListener(this::onPrintLaporan);
+        JButton btnExcel = new JButton("Download laporan (Excel)");
+        btnExcel.addActionListener(e -> {
+            JFileChooser jfc = new JFileChooser();
+            if (jfc.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                List<DtoOutputLaporanAbsensiUmat> data = computeReportData();
+
+                ExcelHelper.saveListToXlsx(data, jfc.getSelectedFile(),
+                        (data2, workbook) -> {
+                            Sheet sheet1 = workbook.createSheet();
+                            Row headerRow = sheet1.createRow(0);
+                            CellStyle headerStyle = workbook.createCellStyle();
+                            XSSFFont headerFont = workbook.createFont();
+                            headerFont.setBold(true);
+                            headerStyle.setFont(headerFont);
+
+                            Cell headerCell = headerRow.createCell(1);
+                            headerCell.setCellValue("Sdh berapa lama tidak hadir");
+                            headerCell.setCellStyle(headerStyle);
+
+                            headerRow = sheet1.createRow(1);
+                            headerCell = headerRow.createCell(0);
+                            headerCell.setCellValue("Nama umat");
+                            headerCell.setCellStyle(headerStyle);
+
+                            headerCell = headerRow.createCell(1);
+                            headerCell.setCellValue("Tahun");
+                            headerCell.setCellStyle(headerStyle);
+
+                            headerCell = headerRow.createCell(2);
+                            headerCell.setCellValue("Bulan");
+                            headerCell.setCellStyle(headerStyle);
+
+                            headerCell = headerRow.createCell(3);
+                            headerCell.setCellValue("Hari");
+                            headerCell.setCellStyle(headerStyle);
+
+                            headerCell = headerRow.createCell(4);
+                            headerCell.setCellValue("Tgl terakhir hadir");
+                            headerCell.setCellStyle(headerStyle);
+
+                            headerCell = headerRow.createCell(5);
+                            headerCell.setCellValue("No. telpon");
+                            headerCell.setCellStyle(headerStyle);
+
+                            headerCell = headerRow.createCell(6);
+                            headerCell.setCellValue("Alamat");
+                            headerCell.setCellStyle(headerStyle);
+
+                            CellStyle dateCellStyle = workbook.createCellStyle();
+                            dateCellStyle.setDataFormat(workbook.getCreationHelper().createDataFormat().getFormat("dd/mm/yyyy"));
+
+                            for (int i=1; i <= data2.size(); i++) {
+                                DtoOutputLaporanAbsensiUmat record = data2.get(i-1);
+                                Row row = sheet1.createRow(i+1);
+                                Cell cell = row.createCell(0);
+                                cell.setCellValue(record.namaUmat);
+
+                                if (record.sdhBerapaLamaAbsen != null) {
+                                    cell = row.createCell(1);
+                                    cell.setCellValue(record.sdhBerapaLamaAbsen.getYears());
+
+                                    cell = row.createCell(2);
+                                    cell.setCellValue(record.sdhBerapaLamaAbsen.getMonths());
+
+                                    cell = row.createCell(3);
+                                    cell.setCellValue(record.sdhBerapaLamaAbsen.getDays());
+                                }
+
+                                cell = row.createCell(4);
+                                cell.setCellValue(DateTimeHelper.toCalendar(record.tglTerakhirHadir));
+                                cell.setCellStyle(dateCellStyle);
+
+                                cell = row.createCell(5);
+                                cell.setCellValue(record.noTelpon);
+
+                                cell = row.createCell(6);
+                                cell.setCellValue(record.alamat);
+                            }
+                        },
+                        ex -> SwingHelper.showErrorMessage(this, "Error: gagal menyimpan laporan"));
+            }
+        });
 
         tableModel = new BaseCrudTableModel<>();
         tableModel.setColumnConfigs(columnConfigs);
@@ -75,7 +162,7 @@ public class FrameLaporanAbsensiUmat extends JInternalFrame {
 
         JPanel top = new JPanel(new FlowLayout(FlowLayout.LEADING));
         top.add(btnRefresh);
-//        top.add(btnPrintLaporan);
+        top.add(btnExcel);
 
         JPanel contentPane = new JPanel(new BorderLayout());
         contentPane.add(top, BorderLayout.NORTH);
@@ -84,11 +171,11 @@ public class FrameLaporanAbsensiUmat extends JInternalFrame {
     }
 
     private void onRefresh(ActionEvent event) {
-        List<DtoOutputLaporanAbsensiUmat> data = computeLaporan();
+        List<DtoOutputLaporanAbsensiUmat> data = computeReportData();
         tableModel.setData(data);
     }
 
-    private List<DtoOutputLaporanAbsensiUmat> computeLaporan() {
+    private List<DtoOutputLaporanAbsensiUmat> computeReportData() {
         return App.jdbi.withHandle(handle -> {
             LocalDate today = LocalDate.now();
 
@@ -114,19 +201,4 @@ public class FrameLaporanAbsensiUmat extends JInternalFrame {
         });
     }
 
-    private void onPrintLaporan(ActionEvent event) {
-        List<DtoOutputLaporanAbsensiUmat> data = computeLaporan();
-
-        try {
-            InputStream compiledReportFile = getClass().getResourceAsStream("laporan_absensi_umat.jasper");
-            JasperReport jasperReport = (JasperReport) JRLoader.loadObject(compiledReportFile);
-            JRListOfPublicsFieldObjectDataSource ds = new JRListOfPublicsFieldObjectDataSource(data);
-            JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, new HashMap<>(), ds);
-            JasperViewer viewer = new JasperViewer(jasperPrint, false);
-            viewer.setVisible(true);
-            viewer.pack();
-        } catch (JRException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }

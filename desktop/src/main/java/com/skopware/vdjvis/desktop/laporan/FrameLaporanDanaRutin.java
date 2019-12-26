@@ -3,17 +3,24 @@ package com.skopware.vdjvis.desktop.laporan;
 import com.skopware.javautils.DateTimeHelper;
 import com.skopware.javautils.ObjectHelper;
 import com.skopware.javautils.Tuple3;
+import com.skopware.javautils.poi.excel.ExcelHelper;
 import com.skopware.javautils.swing.BaseCrudTableModel;
 import com.skopware.javautils.swing.JForeignKeyPicker;
+import com.skopware.javautils.swing.SwingHelper;
 import com.skopware.vdjvis.api.dto.laporan.DtoOutputLaporanStatusDanaRutin;
 import com.skopware.vdjvis.api.entities.*;
 import com.skopware.vdjvis.desktop.App;
 import com.skopware.vdjvis.desktop.master.GridUmat;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jdbi.v3.core.statement.Query;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
@@ -71,12 +78,115 @@ public class FrameLaporanDanaRutin extends JInternalFrame {
         edUmat = new JForeignKeyPicker<>(App.mainFrame, GridUmat.createNoAddEditDelete());
 
         JButton btnRefresh = new JButton("Lihat laporan");
-        btnRefresh.addActionListener(this::onRefresh);
+        btnRefresh.addActionListener(e -> {
+            List<DtoOutputLaporanStatusDanaRutin> data = fetchReportData();
+            tableModel.setData(data);
+        });
+
+        JButton btnExcel = new JButton("Download laporan (Excel)");
+        btnExcel.addActionListener(e -> {
+            JFileChooser jfc = new JFileChooser();
+            if (jfc.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                List<DtoOutputLaporanStatusDanaRutin> data = fetchReportData();
+
+                ExcelHelper.saveListToXlsx(data, jfc.getSelectedFile(),
+                        (data2, workbook) -> {
+                            Sheet sheet1 = workbook.createSheet();
+                            Row headerRow = sheet1.createRow(0);
+                            CellStyle headerStyle = workbook.createCellStyle();
+                            XSSFFont headerFont = workbook.createFont();
+                            headerFont.setBold(true);
+                            headerStyle.setFont(headerFont);
+
+                            Cell headerCell = headerRow.createCell(8);
+                            headerCell.setCellValue("Pembayaran terakhir pada");
+                            headerCell.setCellStyle(headerStyle);
+
+                            headerRow = sheet1.createRow(1);
+                            headerCell = headerRow.createCell(0);
+                            headerCell.setCellValue("Nama umat");
+                            headerCell.setCellStyle(headerStyle);
+
+                            headerCell = headerRow.createCell(1);
+                            headerCell.setCellValue("No. telpon");
+                            headerCell.setCellStyle(headerStyle);
+
+                            headerCell = headerRow.createCell(2);
+                            headerCell.setCellValue("Alamat");
+                            headerCell.setCellStyle(headerStyle);
+
+                            headerCell = headerRow.createCell(3);
+                            headerCell.setCellValue("Jenis dana");
+                            headerCell.setCellStyle(headerStyle);
+
+                            headerCell = headerRow.createCell(4);
+                            headerCell.setCellValue("Nama leluhur (ut iuran samanagara)");
+                            headerCell.setCellStyle(headerStyle);
+
+                            headerCell = headerRow.createCell(5);
+                            headerCell.setCellValue("Status bayar");
+                            headerCell.setCellStyle(headerStyle);
+
+                            headerCell = headerRow.createCell(6);
+                            headerCell.setCellValue("Berapa bulan");
+                            headerCell.setCellStyle(headerStyle);
+
+                            headerCell = headerRow.createCell(7);
+                            headerCell.setCellValue("Kurang bayar (Rp)");
+                            headerCell.setCellStyle(headerStyle);
+
+                            headerCell = headerRow.createCell(8);
+                            headerCell.setCellValue("Tahun");
+                            headerCell.setCellStyle(headerStyle);
+
+                            headerCell = headerRow.createCell(9);
+                            headerCell.setCellValue("Bulan");
+                            headerCell.setCellStyle(headerStyle);
+
+                            for (int i = 1; i <= data2.size(); i++) {
+                                DtoOutputLaporanStatusDanaRutin record = data2.get(i - 1);
+                                Row row = sheet1.createRow(i+1);
+                                Cell cell = row.createCell(0);
+                                cell.setCellValue(record.namaUmat);
+
+                                cell = row.createCell(1);
+                                cell.setCellValue(record.noTelpon);
+
+                                cell = row.createCell(2);
+                                cell.setCellValue(record.alamat);
+
+                                cell = row.createCell(3);
+                                cell.setCellValue(record.jenisDana.name());
+
+                                cell = row.createCell(4);
+                                cell.setCellValue(record.namaLeluhur);
+
+                                cell = row.createCell(5);
+                                cell.setCellValue(record.statusBayar.strStatus);
+
+                                cell = row.createCell(6);
+                                cell.setCellValue(record.statusBayar.countBulan);
+
+                                cell = row.createCell(7);
+                                cell.setCellValue(record.statusBayar.nominal);
+
+                                cell = row.createCell(8);
+                                cell.setCellValue(record.statusBayar.lastPaidMonth.getYear());
+                                cell = row.createCell(9);
+                                cell.setCellValue(record.statusBayar.lastPaidMonth.getMonthValue());
+                            }
+                        },
+                        (ex) -> {
+                            SwingHelper.showErrorMessage(this, "Error: gagal menyimpan laporan");
+                        });
+            }
+        });
 
         JPanel pnlFilter = new JPanel(new FlowLayout(FlowLayout.LEADING));
         pnlFilter.add(new JLabel("Pilih umat"));
         pnlFilter.add(edUmat);
         pnlFilter.add(btnRefresh);
+        pnlFilter.add(btnExcel);
 
         tableModel = new BaseCrudTableModel<>();
         tableModel.setColumnConfigs(columnConfigs);
@@ -93,7 +203,7 @@ public class FrameLaporanDanaRutin extends JInternalFrame {
         setContentPane(contentPane);
     }
 
-    private void onRefresh(ActionEvent event) {
+    private List<DtoOutputLaporanStatusDanaRutin> fetchReportData() {
         Umat record = edUmat.getRecord();
 
         String idUmat = record == null ? null : record.uuid;
@@ -221,6 +331,6 @@ public class FrameLaporanDanaRutin extends JInternalFrame {
 
             return result2;
         });
-        tableModel.setData(result);
+        return result;
     }
 }
