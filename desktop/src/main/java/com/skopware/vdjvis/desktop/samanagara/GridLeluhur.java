@@ -99,14 +99,7 @@ public class GridLeluhur {
                 List<Leluhur> rows = pageData.rows;
 
                 try (Handle handle = jdbi.open()) {
-                    List<StatusBayar> listStatusBayar = Leluhur.computeStatusBayar(handle, rows, YearMonth.now(), Leluhur.fetchListTarifSamanagara(handle));
-
-                    for (int i = 0; i < rows.size(); i++) {
-                        Leluhur leluhur = rows.get(i);
-                        StatusBayar statusBayar = listStatusBayar.get(i);
-
-                        leluhur.statusBayar = statusBayar;
-                    }
+                    Leluhur.computeStatusBayar(handle, rows, YearMonth.now(), Leluhur.fetchListTarifSamanagara(handle));
                 }
 
                 return pageData;
@@ -115,6 +108,17 @@ public class GridLeluhur {
             @Override
             public Leluhur createRecord(Leluhur record) {
                 Leluhur leluhur = super.createRecord(record);
+
+                try (Handle handle = jdbi.open()) {
+                    leluhur.statusBayar = Leluhur.computeStatusBayar(handle, leluhur, YearMonth.now(), Leluhur.fetchListTarifSamanagara(handle));
+                }
+
+                return leluhur;
+            }
+
+            @Override
+            public Leluhur updateRecord(Leluhur record) {
+                Leluhur leluhur = super.updateRecord(record);
 
                 try (Handle handle = jdbi.open()) {
                     leluhur.statusBayar = Leluhur.computeStatusBayar(handle, leluhur, YearMonth.now(), Leluhur.fetchListTarifSamanagara(handle));

@@ -24,15 +24,11 @@ public class PendaftaranDanaRutin extends BaseRecord<PendaftaranDanaRutin> {
     // relationships
     @JsonProperty public Umat umat;
 
-    public static List<StatusBayar> computeStatusBayar(Handle handle, List<PendaftaranDanaRutin> listDanaRutin, YearMonth todayMonth) {
-        List<StatusBayar> result = new ArrayList<>();
-
+    public static void computeStatusBayar(Handle handle, List<PendaftaranDanaRutin> listDanaRutin, YearMonth todayMonth) {
         for (PendaftaranDanaRutin danaRutin : listDanaRutin) {
             StatusBayar statusBayar = computeStatusBayar(handle, danaRutin, todayMonth);
-            result.add(statusBayar);
+            danaRutin.statusBayar = statusBayar;
         }
-
-        return result;
     }
 
     public static StatusBayar computeStatusBayar(Handle handle, PendaftaranDanaRutin danaRutin, YearMonth todayMonth) {

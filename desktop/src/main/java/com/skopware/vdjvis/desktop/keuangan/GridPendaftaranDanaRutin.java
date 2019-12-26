@@ -86,11 +86,7 @@ public class GridPendaftaranDanaRutin {
                 List<PendaftaranDanaRutin> rows = pageData.rows;
 
                 try (Handle handle = jdbi.open()) {
-                    List<StatusBayar> statusBayarList = PendaftaranDanaRutin.computeStatusBayar(handle, rows, YearMonth.now());
-
-                    for (int i = 0; i < rows.size(); i++) {
-                        rows.get(i).statusBayar = statusBayarList.get(i);
-                    }
+                    PendaftaranDanaRutin.computeStatusBayar(handle, rows, YearMonth.now());
                 }
 
                 return pageData;
@@ -99,6 +95,17 @@ public class GridPendaftaranDanaRutin {
             @Override
             public PendaftaranDanaRutin createRecord(PendaftaranDanaRutin record) {
                 PendaftaranDanaRutin danaRutin = super.createRecord(record);
+
+                try (Handle handle = jdbi.open()) {
+                    danaRutin.statusBayar = PendaftaranDanaRutin.computeStatusBayar(handle, danaRutin, YearMonth.now());
+                }
+
+                return danaRutin;
+            }
+
+            @Override
+            public PendaftaranDanaRutin updateRecord(PendaftaranDanaRutin record) {
+                PendaftaranDanaRutin danaRutin = super.updateRecord(record);
 
                 try (Handle handle = jdbi.open()) {
                     danaRutin.statusBayar = PendaftaranDanaRutin.computeStatusBayar(handle, danaRutin, YearMonth.now());

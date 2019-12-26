@@ -34,15 +34,11 @@ public class Leluhur extends BaseRecord<Leluhur> {
     @JsonProperty public CellFoto cellFoto;
     //#endregion
 
-    public static List<StatusBayar> computeStatusBayar(Handle handle, List<Leluhur> listLeluhur, YearMonth todayMonth, List<Tuple3<LocalDate, LocalDate, Integer>> listTarifSamanagara) {
-        List<StatusBayar> result = new ArrayList<>(listLeluhur.size());
-
+    public static void computeStatusBayar(Handle handle, List<Leluhur> listLeluhur, YearMonth todayMonth, List<Tuple3<LocalDate, LocalDate, Integer>> listTarifSamanagara) {
         for (Leluhur leluhur : listLeluhur) {
             StatusBayar statusBayar = computeStatusBayar(handle, leluhur, todayMonth, listTarifSamanagara);
-            result.add(statusBayar);
+            leluhur.statusBayar = statusBayar;
         }
-
-        return result;
     }
 
     public static StatusBayar computeStatusBayar(Handle handle, Leluhur leluhur, YearMonth todayMonth, List<Tuple3<LocalDate, LocalDate, Integer>> listTarifSamanagara) {

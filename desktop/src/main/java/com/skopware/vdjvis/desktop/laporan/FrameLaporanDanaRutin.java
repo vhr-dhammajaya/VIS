@@ -245,11 +245,11 @@ public class FrameLaporanDanaRutin extends JInternalFrame {
                         return x;
                     })
                     .list();
-            List<StatusBayar> listStatusBayarDanaRutin = PendaftaranDanaRutin.computeStatusBayar(handle, listDanaRutin, todayMonth);
+            PendaftaranDanaRutin.computeStatusBayar(handle, listDanaRutin, todayMonth);
 
             for (int i = 0; i < listDanaRutin.size(); i++) {
                 PendaftaranDanaRutin danaRutin = listDanaRutin.get(i);
-                StatusBayar statusBayar = listStatusBayarDanaRutin.get(i);
+                StatusBayar statusBayar = danaRutin.statusBayar;
 
                 result2.add(ObjectHelper.apply(new DtoOutputLaporanStatusDanaRutin(), x -> {
                     x.namaUmat = danaRutin.umat.nama;
@@ -295,11 +295,11 @@ public class FrameLaporanDanaRutin extends JInternalFrame {
                     .list();
 
             List<Tuple3<LocalDate, LocalDate, Integer>> listTarifSamanagara = Leluhur.fetchListTarifSamanagara(handle);
-            List<StatusBayar> listStatusBayarSamanagara = Leluhur.computeStatusBayar(handle, listLeluhur, todayMonth, listTarifSamanagara);
+            Leluhur.computeStatusBayar(handle, listLeluhur, todayMonth, listTarifSamanagara);
 
             for (int i = 0; i < listLeluhur.size(); i++) {
                 Leluhur leluhur = listLeluhur.get(i);
-                StatusBayar statusBayar = listStatusBayarSamanagara.get(i);
+                StatusBayar statusBayar = leluhur.statusBayar;
 
                 result2.add(ObjectHelper.apply(new DtoOutputLaporanStatusDanaRutin(), x -> {
                     x.namaUmat = leluhur.penanggungJawab.nama;
