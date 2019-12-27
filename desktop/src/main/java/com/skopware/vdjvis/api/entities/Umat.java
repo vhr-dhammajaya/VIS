@@ -38,6 +38,8 @@ public class Umat extends BaseRecord<Umat> {
 
     public String idBarcode;
     public LocalDate tglDaftar;
+
+    public String idLama;
     //#endregion
 
     //#region relationships

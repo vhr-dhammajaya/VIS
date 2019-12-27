@@ -2,7 +2,7 @@ package com.skopware.vdjvis.migrasidata;
 
 import com.skopware.javautils.DateTimeHelper;
 import com.skopware.javautils.ObjectHelper;
-import com.skopware.vdjvis.api.api.entities.Umat;
+import com.skopware.vdjvis.api.entities.Umat;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 
@@ -12,10 +12,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-public class Main {
+public class MigrasiUmat {
     public static void main(String[] args) throws Exception {
         Properties props = new Properties();
-        props.load(new FileReader("config.properties"));
+        props.load(new FileReader("datamigration.properties"));
         String srcJdbcUrl = props.getProperty("srcJdbcUrl");
         String srcUsername = props.getProperty("srcUsername");
         String srcPassword = props.getProperty("srcPassword");
@@ -70,6 +70,7 @@ public class Main {
                         x.penahbis = rs.getString("oleh");
                         x.tglPenahbisan = DateTimeHelper.toLocalDate(rs.getDate("tanggal_upasaka"));
                         x.tglDaftar = DateTimeHelper.toLocalDate(rs.getDate("tanggal_daftar"));
+                        x.idLama = rs.getString("id_umat");
 
                         return x;
                     })
@@ -92,7 +93,7 @@ public class Main {
                             "pekerjaan, bidang_usaha," +
                             "nama_kerabat, alamat_kerabat, kota_kerabat, kode_pos_kerabat, no_telp_kerabat," +
                             "nama_upasaka, penahbis, tgl_penahbisan," +
-                            "active, id_barcode, tgl_daftar)" +
+                            "active, id_barcode, tgl_daftar, id_lama)" +
                             " values(?," +
                             "?, ?, ?, ?, ?, ?," +
                             "?, ?," +
@@ -102,7 +103,7 @@ public class Main {
                             "?, ?," +
                             "?, ?, ?, ?, ?," +
                             "?, ?, ?," +
-                            "1, ?, ?)")
+                            "1, ?, ?, ?)")
                             .bind(param++, x.uuid)
                             .bind(param++, x.nama)
                             .bind(param++, x.alamat)
@@ -129,6 +130,7 @@ public class Main {
                             .bind(param++, x.tglPenahbisan)
                             .bind(param++, x.idBarcode)
                             .bind(param++, x.tglDaftar)
+                            .bind(param, x.idLama)
                             .execute();
                 }
             });
