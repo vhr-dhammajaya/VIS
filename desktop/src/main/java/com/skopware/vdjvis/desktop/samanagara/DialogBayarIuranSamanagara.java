@@ -201,6 +201,9 @@ public class DialogBayarIuranSamanagara extends JDialog {
                             .bind("channel", pembayaran.channel)
                             .bind("keterangan", pembayaran.keterangan)
                             .execute();
+                    pembayaran.noSeq = handle1.select("select no_seq from pembayaran_samanagara_sosial_tetap where uuid=?", pembayaran.uuid)
+                            .mapTo(int.class)
+                            .findOnly();
 
                     for (DtoStatusBayarLeluhur leluhur : listStatusLeluhur) {
                         DetilPembayaranDanaRutin templateDetil = new DetilPembayaranDanaRutin();

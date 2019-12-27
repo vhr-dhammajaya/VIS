@@ -92,6 +92,9 @@ public class DialogBayarDanaSosialTetap extends JDialog {
                             .bind(5, pembayaran.channel)
                             .bind(6, pembayaran.keterangan)
                             .execute();
+                    pembayaran.noSeq = handle1.select("select no_seq from pembayaran_samanagara_sosial_tetap where uuid=?", pembayaran.uuid)
+                            .mapTo(int.class)
+                            .findOnly();
 
                     YearMonth lastPaidMonth = PendaftaranDanaRutin.fetchLastPaidMonth(handle1, danaRutin.umat.uuid, danaRutin.uuid, danaRutin.tglDaftar);
                     YearMonth currentMonth = lastPaidMonth.plusMonths(1);
