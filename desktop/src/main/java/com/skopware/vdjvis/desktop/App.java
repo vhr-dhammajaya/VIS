@@ -22,7 +22,7 @@ public class App {
     public static void main(String[] args) {
         config = new BaseCrudAppConfig();
 
-        jdbi = Jdbi.create("jdbc:mysql://localhost:3306/vis_vdj", "root", "T3kn0s!123"); // todo read from properties
+        jdbi = Jdbi.create(config.serverUrl, "root", "T3kn0s!123"); // todo read from properties
         jdbi.installPlugin(new SqlObjectPlugin());
 
         jdbi.registerRowMapper(Acara.class, new AcaraRowMapper());
