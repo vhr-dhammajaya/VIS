@@ -2,7 +2,7 @@ package com.skopware.vdjvis.migrasidata;
 
 import com.skopware.javautils.DateTimeHelper;
 import com.skopware.javautils.ObjectHelper;
-import com.skopware.vdjvis.api.entities.Umat;
+import com.skopware.vdjvis.api.api.entities.Umat;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 

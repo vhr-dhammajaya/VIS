@@ -8,11 +8,9 @@ import com.skopware.javautils.swing.BaseCrudTableModel;
 import com.skopware.javautils.swing.JDatePicker;
 import com.skopware.javautils.swing.SwingHelper;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
-import com.skopware.javautils.swing.grid.datasource.DropwizardDataSource;
 import com.skopware.javautils.swing.grid.datasource.JdbiDataSource;
 import com.skopware.vdjvis.api.entities.Siswa;
 import com.skopware.vdjvis.desktop.App;
-import com.skopware.vdjvis.desktop.MainFrame;
 import com.skopware.vdjvis.jdbi.dao.SiswaDAO;
 
 import javax.swing.*;

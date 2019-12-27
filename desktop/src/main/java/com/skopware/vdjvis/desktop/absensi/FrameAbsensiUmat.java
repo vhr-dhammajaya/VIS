@@ -2,13 +2,10 @@ package com.skopware.vdjvis.desktop.absensi;
 
 import com.skopware.javautils.DateTimeHelper;
 import com.skopware.javautils.ObjectHelper;
-import com.skopware.javautils.httpclient.HttpGetWithBody;
-import com.skopware.javautils.httpclient.HttpHelper;
 import com.skopware.javautils.swing.BaseCrudTableModel;
 import com.skopware.javautils.swing.jtable.cellrenderer.LocalDateCellRenderer;
 import com.skopware.vdjvis.api.entities.Umat;
 import com.skopware.vdjvis.desktop.App;
-import org.apache.http.client.methods.HttpPost;
 import org.jdbi.v3.core.Handle;
 
 import java.time.LocalDate;

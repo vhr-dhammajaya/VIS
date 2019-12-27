@@ -51,7 +51,7 @@ public class MainFrame extends JFrame {
     private JMenuItem menuSettingBiayaSamanagara;
 
     private JMenu menuPendapatanPengeluaran;
-    private JMenuItem menuPendaftaranDanaRutin; // todo hitung status bayar saat refresh & create data
+    private JMenuItem menuPendaftaranDanaRutin;
     private JMenuItem menuLihatHistoryPembayaranDanaRutin;
     private JMenuItem menuCatatDanaLain;
     private JMenuItem menuCatatPengeluaran;

@@ -8,26 +8,15 @@ import com.skopware.javautils.swing.BaseCrudTableModel;
 import com.skopware.javautils.swing.SwingHelper;
 import com.skopware.vdjvis.api.dto.laporan.DtoOutputLaporanAbsensiUmat;
 import com.skopware.vdjvis.desktop.App;
-import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.JasperFillManager;
-import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.JasperReport;
-import net.sf.jasperreports.engine.util.JRLoader;
-import net.sf.jasperreports.view.JasperViewer;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 public class FrameLaporanAbsensiUmat extends JInternalFrame {

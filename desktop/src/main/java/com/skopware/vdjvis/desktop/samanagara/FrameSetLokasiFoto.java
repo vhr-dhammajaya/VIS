@@ -2,16 +2,13 @@ package com.skopware.vdjvis.desktop.samanagara;
 
 import com.skopware.javautils.CollectionHelper;
 import com.skopware.javautils.ObjectHelper;
-import com.skopware.javautils.db.DbHelper;
 import com.skopware.javautils.db.PageData;
-import com.skopware.javautils.httpclient.HttpGetWithBody;
-import com.skopware.javautils.httpclient.HttpHelper;
 import com.skopware.javautils.swing.BaseCrudFrame;
 import com.skopware.javautils.swing.BaseCrudTableModel;
 import com.skopware.javautils.swing.SwingHelper;
 import com.skopware.javautils.swing.grid.JDataGrid;
+import com.skopware.javautils.swing.grid.JDataGridHelper;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
-import com.skopware.javautils.swing.grid.datasource.DropwizardDataSource;
 import com.skopware.javautils.swing.grid.datasource.JdbiDataSource;
 import com.skopware.vdjvis.api.entities.CellFoto;
 import com.skopware.vdjvis.api.entities.Leluhur;
@@ -19,7 +16,6 @@ import com.skopware.vdjvis.api.entities.PapanFoto;
 import com.skopware.vdjvis.api.dto.DtoPlacePhoto;
 import com.skopware.vdjvis.desktop.App;
 import com.skopware.vdjvis.jdbi.dao.LeluhurDAO;
-import org.apache.http.client.methods.HttpPost;
 import org.jdbi.v3.core.Handle;
 
 import javax.swing.*;
@@ -135,7 +131,7 @@ public class FrameSetLokasiFoto extends BaseCrudFrame {
             PageData<Leluhur> leluhurList;
             List<PapanFoto> papanFotoList;
             try (Handle handle = App.jdbi.open()) {
-                leluhurList = DbHelper.fetchPageData(handle, "v_leluhur", gridMendiang.gridConfig, Leluhur.class);
+                leluhurList = JDataGridHelper.fetchPageData(handle, "v_leluhur", gridMendiang.gridConfig, Leluhur.class);
 
                 papanFotoList = handle.select("select * from papan_smngr order by nama")
                         .map((rs, ctx) -> {

@@ -10,7 +10,6 @@ import com.skopware.javautils.swing.grid.JDataGridOptions;
 import com.skopware.javautils.swing.grid.datasource.JdbiDataSource;
 import com.skopware.vdjvis.api.entities.DetilPembayaranDanaRutin;
 import com.skopware.vdjvis.api.entities.PendaftaranDanaRutin;
-import com.skopware.vdjvis.api.entities.StatusBayar;
 import com.skopware.vdjvis.api.entities.Umat;
 import com.skopware.vdjvis.desktop.App;
 import com.skopware.vdjvis.jdbi.dao.PendaftaranDanaRutinDAO;

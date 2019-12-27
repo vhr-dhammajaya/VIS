@@ -2,10 +2,8 @@ package com.skopware.vdjvis.desktop.keuangan;
 
 import com.skopware.javautils.ObjectHelper;
 import com.skopware.javautils.Tuple2;
-import com.skopware.javautils.httpclient.HttpHelper;
 import com.skopware.javautils.swing.*;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
-import com.skopware.javautils.swing.grid.datasource.DropwizardDataSource;
 import com.skopware.javautils.swing.grid.datasource.JdbiDataSource;
 import com.skopware.vdjvis.api.entities.Acara;
 import com.skopware.vdjvis.api.entities.Pendapatan;
@@ -16,7 +14,6 @@ import com.skopware.vdjvis.desktop.DialogInputAlasanMintaPembetulan;
 import com.skopware.vdjvis.desktop.master.GridAcara;
 import com.skopware.vdjvis.desktop.master.GridUmat;
 import com.skopware.vdjvis.jdbi.dao.PendapatanDAO;
-import org.apache.http.client.methods.HttpPost;
 
 import javax.swing.*;
 import java.awt.*;

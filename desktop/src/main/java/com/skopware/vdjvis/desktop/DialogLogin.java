@@ -3,11 +3,8 @@ package com.skopware.vdjvis.desktop;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.layout.FormLayout;
-import com.skopware.javautils.httpclient.HttpHelper;
 import com.skopware.javautils.swing.SwingHelper;
 import com.skopware.vdjvis.api.entities.User;
-import org.apache.http.client.methods.HttpPost;
-import org.jdbi.v3.core.Jdbi;
 
 import javax.swing.*;
 import java.awt.event.ActionListener;

@@ -11,29 +11,31 @@
 
     <artifactId>desktop</artifactId>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.jdbi</groupId>
-                <artifactId>jdbi3-bom</artifactId>
-                <type>pom</type>
-                <version>3.3.0</version>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
         <dependency>
-            <groupId>com.skopware</groupId>
-            <artifactId>javautils</artifactId>
+            <groupId>com.skopware.javautils</groupId>
+            <artifactId>base-utils</artifactId>
             <version>1.0.0</version>
         </dependency>
-
         <dependency>
-            <groupId>com.skopware.vdjvis</groupId>
-            <artifactId>shared</artifactId>
-            <version>${project.version}</version>
+            <groupId>com.skopware.javautils</groupId>
+            <artifactId>db-utils</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.skopware.javautils</groupId>
+            <artifactId>jasper-utils</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.skopware.javautils</groupId>
+            <artifactId>poi-utils</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.skopware.javautils</groupId>
+            <artifactId>swing-utils</artifactId>
+            <version>1.0.0</version>
         </dependency>
 
         <dependency>
@@ -54,14 +56,16 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- version is specified in dependencyManagement -->
+        <!--
         <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-core</artifactId>
+            <version>3.3.0</version>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-sqlobject</artifactId>
+            <version>3.3.0</version>
         </dependency>
 
         <dependency>
@@ -80,6 +84,7 @@
             <artifactId>poi-ooxml</artifactId>
             <version>4.0.1</version>
         </dependency>
+        -->
     </dependencies>
 
 </project>

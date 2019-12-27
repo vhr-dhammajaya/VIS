@@ -7,13 +7,13 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="desktop" />
-        <module name="javautils" />
-        <module name="migrasi_data" />
-        <module name="shared" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="backend" target="8" />
+      <module name="javautils" target="8" />
+      <module name="migrasi_data" target="8" />
+      <module name="shared" target="8" />
     </bytecodeTargetLevel>
   </component>
 </project>

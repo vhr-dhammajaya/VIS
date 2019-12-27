@@ -2,19 +2,15 @@ package com.skopware.vdjvis.desktop.keuangan;
 
 import com.skopware.javautils.CollectionHelper;
 import com.skopware.javautils.ObjectHelper;
-import com.skopware.javautils.httpclient.HttpHelper;
 import com.skopware.javautils.swing.BaseCrudTableModel;
 import com.skopware.javautils.swing.grid.JDataGridOptions;
-import com.skopware.javautils.swing.grid.datasource.DropwizardDataSource;
 import com.skopware.javautils.swing.grid.datasource.JdbiDataSource;
 import com.skopware.vdjvis.api.entities.*;
 import com.skopware.vdjvis.desktop.App;
 import com.skopware.vdjvis.desktop.DialogInputAlasanMintaPembetulan;
 import com.skopware.vdjvis.jdbi.dao.PembayaranDanaRutinDAO;
-import org.apache.http.client.methods.HttpPost;
 
 import javax.swing.*;
-import java.time.YearMonth;
 import java.util.*;
 
 public class GridHistoryPembayaranDanaRutin {

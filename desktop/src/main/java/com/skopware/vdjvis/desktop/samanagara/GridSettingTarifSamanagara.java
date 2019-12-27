@@ -2,20 +2,13 @@ package com.skopware.vdjvis.desktop.samanagara;
 
 import com.skopware.javautils.ObjectHelper;
 import com.skopware.javautils.db.BaseCrudDAO;
-import com.skopware.javautils.db.DbHelper;
 import com.skopware.javautils.db.PageData;
-import com.skopware.javautils.httpclient.HttpHelper;
 import com.skopware.javautils.swing.BaseCrudTableModel;
 import com.skopware.javautils.swing.SwingHelper;
-import com.skopware.javautils.swing.grid.GridConfig;
-import com.skopware.javautils.swing.grid.JDataGrid;
-import com.skopware.javautils.swing.grid.JDataGridOptions;
-import com.skopware.javautils.swing.grid.SortConfig;
-import com.skopware.javautils.swing.grid.datasource.DropwizardDataSource;
+import com.skopware.javautils.swing.grid.*;
 import com.skopware.javautils.swing.grid.datasource.JdbiDataSource;
 import com.skopware.vdjvis.api.entities.TarifSamanagara;
 import com.skopware.vdjvis.desktop.App;
-import org.apache.http.client.methods.HttpPost;
 
 import javax.swing.*;
 import java.awt.*;
@@ -55,7 +48,7 @@ public class GridSettingTarifSamanagara {
             @Override
             public PageData refreshData(GridConfig gridConfig) {
                 return jdbi.withHandle(h -> {
-                    PageData<TarifSamanagara> result = DbHelper.fetchPageData(h, "hist_biaya_smngr", gridConfig, TarifSamanagara.class, false);
+                    PageData<TarifSamanagara> result = JDataGridHelper.fetchPageData(h, "hist_biaya_smngr", gridConfig, TarifSamanagara.class, false);
                     return result;
                 });
             }
