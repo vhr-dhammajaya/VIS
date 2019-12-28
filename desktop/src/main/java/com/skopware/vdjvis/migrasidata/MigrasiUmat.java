@@ -130,7 +130,7 @@ public class MigrasiUmat {
                             .bind(param++, x.tglPenahbisan)
                             .bind(param++, x.idBarcode)
                             .bind(param++, x.tglDaftar)
-                            .bind(param, x.idLama)
+                            .bind(param++, x.idLama)
                             .execute();
                 }
             });
