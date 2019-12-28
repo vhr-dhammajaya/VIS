@@ -10,7 +10,7 @@ begin
         set j = 0; -- IMPORTANT!
 
 		while j < width do
-			insert into cell_papan values(concat(nama_papan, ' ', i, ' ', j), nama_papan, null, i, j);
+			insert into cell_papan(id, papan_smngr_id, row, col) values(concat(nama_papan, ' ', i, ' ', j), nama_papan, i, j);
 			set j = j+1;
         end while;
 
