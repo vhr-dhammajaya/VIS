@@ -63,11 +63,10 @@ public class GridUmat {
                 ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
                     x.fieldName = x.dbColumnName = ("alamat");
                     x.label = ("Alamat");
-                    x.fitContentWidth = false;
-                    x.multiline = true;
-                    x.textAreaRows = 2;
-                    x.textAreaColumns = 10;
-//                    x.width = 10;
+//                    x.fitContentWidth = false;
+//                    x.multiline = true;
+//                    x.textAreaRows = 2;
+//                    x.textAreaColumns = 10;
                 }),
                 ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
                     x.fieldName = x.dbColumnName = ("kota");
@@ -82,7 +81,7 @@ public class GridUmat {
                     x.fieldName = ("noTelpon");
                     x.dbColumnName = "no_telpon";
                     x.label = ("No. Telpon");
-                    x.fitContentWidth = false;
+//                    x.fitContentWidth = false;
                 }),
                 ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
                     x.fieldName = x.dbColumnName = ("email");
@@ -145,7 +144,7 @@ public class GridUmat {
                     x.fieldName = ("alamatKerabat");
                     x.dbColumnName = "alamat_kerabat";
                     x.label = ("Alamat Kerabat");
-                    x.fitContentWidth = false;
+//                    x.fitContentWidth = false;
                 }),
                 ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
                     x.fieldName = ("kotaKerabat");
@@ -161,7 +160,7 @@ public class GridUmat {
                     x.fieldName = ("noTelpKerabat");
                     x.dbColumnName = "no_telp_kerabat";
                     x.label = ("No Telpon Kerabat");
-                    x.fitContentWidth = false;
+//                    x.fitContentWidth = false;
                 }),
                 ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
                     x.fieldName = ("namaUpasaka");
