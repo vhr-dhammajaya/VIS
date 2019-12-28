@@ -22,7 +22,7 @@ import java.time.YearMonth;
 import java.util.Arrays;
 import java.util.List;
 
-public class GridPendaftaranDanaRutin {
+public class GridPendaftaranDanaSosialTetap {
     public static JDataGrid<PendaftaranDanaRutin> createDefault() {
         return new JDataGrid<>(createDefaultOptions());
     }
@@ -129,7 +129,22 @@ public class GridPendaftaranDanaRutin {
             d.setVisible(true);
             d.pack();
         });
+
+        JButton btnPemutihan = new JButton("Pemutihan");
+        btnPemutihan.addActionListener(e -> {
+            PendaftaranDanaRutin selectedRecord = o.grid.getSelectedRecord();
+            if (selectedRecord == null) {
+                SwingHelper.showErrorMessage(App.mainFrame, "Anda harus memilih satu baris dana sosial/tetap");
+                return;
+            }
+
+            JDialog d = new DialogPemutihanDanaSosialTetap(selectedRecord);
+            d.setVisible(true);
+            d.pack();
+        });
+
         o.additionalToolbarButtons.add(btnBayar);
+        o.additionalToolbarButtons.add(btnPemutihan);
 
         return o;
     }

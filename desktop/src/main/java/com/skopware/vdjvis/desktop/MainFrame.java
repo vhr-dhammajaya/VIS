@@ -51,7 +51,7 @@ public class MainFrame extends JFrame {
     private JMenuItem menuSettingBiayaSamanagara;
 
     private JMenu menuPendapatanPengeluaran;
-    private JMenuItem menuPendaftaranDanaRutin;
+    private JMenuItem menuPendaftaranDanaSosialTetap;
     private JMenuItem menuLihatHistoryPembayaranDanaRutin;
     private JMenuItem menuCatatDanaLain;
     private JMenuItem menuCatatPengeluaran;
@@ -77,7 +77,7 @@ public class MainFrame extends JFrame {
     private JInternalFrame frameSetLokasiFoto;
     private JInternalFrame frameSettingIuranSamanagara;
 
-    private JInternalFrame framePendaftaranDanaRutin;
+    private JInternalFrame framePendaftaranDanaSosialTetap;
     private JInternalFrame frameLihatHistoryPembayaranDanaRutin;
     private JInternalFrame framePendapatanNonRutin;
     private JInternalFrame framePengeluaran;
@@ -146,9 +146,9 @@ public class MainFrame extends JFrame {
         //#endregion
 
         //#region menuPendapatanPengeluaran child
-        menuPendaftaranDanaRutin = new JMenuItem("Dana sosial & tetap");
-        menuPendaftaranDanaRutin.addActionListener(e -> {
-            showWindow("framePendaftaranDanaRutin", () -> new MasterDetailFrame<>("Dana sosial / tetap", "Pilih umat", "Daftar dana sosial & tetap untuk umat yg dipilih", GridUmat.createNoAddEditDelete(), GridPendaftaranDanaRutin.createDefault(), "umat_id"));
+        menuPendaftaranDanaSosialTetap = new JMenuItem("Dana sosial & tetap");
+        menuPendaftaranDanaSosialTetap.addActionListener(e -> {
+            showWindow("framePendaftaranDanaSosialTetap", () -> new MasterDetailFrame<>("Dana sosial / tetap", "Pilih umat", "Daftar dana sosial & tetap untuk umat yg dipilih", GridUmat.createNoAddEditDelete(), GridPendaftaranDanaSosialTetap.createDefault(), "umat_id"));
         });
 
         menuLihatHistoryPembayaranDanaRutin = new JMenuItem("Lihat history pembayaran samanagara, dana sosial & tetap");
@@ -235,7 +235,7 @@ public class MainFrame extends JFrame {
         menuSamanagara.add(menuLokasiFoto);
         menuSamanagara.add(menuSettingBiayaSamanagara);
 
-        menuPendapatanPengeluaran.add(menuPendaftaranDanaRutin);
+        menuPendapatanPengeluaran.add(menuPendaftaranDanaSosialTetap);
         menuPendapatanPengeluaran.add(menuLihatHistoryPembayaranDanaRutin);
         menuPendapatanPengeluaran.add(menuCatatDanaLain);
         menuPendapatanPengeluaran.add(menuCatatPengeluaran);

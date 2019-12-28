@@ -13,6 +13,7 @@ import com.skopware.javautils.swing.grid.datasource.JdbiDataSource;
 import com.skopware.vdjvis.api.entities.Umat;
 import com.skopware.vdjvis.desktop.App;
 import com.skopware.vdjvis.desktop.samanagara.DialogBayarIuranSamanagara;
+import com.skopware.vdjvis.desktop.samanagara.DialogPemutihanSamanagara;
 import com.skopware.vdjvis.jdbi.dao.UmatDAO;
 
 import javax.swing.*;
@@ -47,7 +48,22 @@ public class GridUmat {
             d.setVisible(true);
             d.pack();
         });
+
+        JButton btnPemutihan = new JButton("Pemutihan");
+        btnPemutihan.addActionListener(e -> {
+            Umat record = o.grid.getSelectedRecord();
+            if (record == null) {
+                SwingHelper.showErrorMessage(App.mainFrame, "Anda harus memilih 1 baris umat");
+                return;
+            }
+
+            DialogPemutihanSamanagara d = new DialogPemutihanSamanagara(record);
+            d.setVisible(true);
+            d.pack();
+        });
+
         o.additionalToolbarButtons.add(btnBayar);
+        o.additionalToolbarButtons.add(btnPemutihan);
 
         return new JDataGrid<>(o);
     }
