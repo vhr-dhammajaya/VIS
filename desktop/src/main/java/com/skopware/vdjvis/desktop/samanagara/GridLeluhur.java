@@ -139,6 +139,7 @@ public class GridLeluhur {
         private JTextField txtTempatMati;
         private JDatePicker txtTglMati;
         private JComboBox<String> txtHubunganDgnUmat;
+        private JDatePicker txtTglDaftar;
 
         public FormLeluhur(Frame owner) {
             super(owner, "Daftarkan leluhur", Leluhur.class);
@@ -165,11 +166,18 @@ public class GridLeluhur {
             txtHubunganDgnUmat = new JComboBox<>(hubungan);
             txtHubunganDgnUmat.setEditable(true);
 
+            txtTglDaftar = new JDatePicker();
+            txtTglDaftar.setDate(LocalDate.now());
+            if (!this.isCreateNew) {
+                txtTglDaftar.setEnabled(false);
+            }
+
             pnlFormFields = SwingHelper.buildForm2(Arrays.asList(
                     Arrays.asList(new Tuple2<>("Nama Mendiang", txtNama)),
                     Arrays.asList(new Tuple2<>("Tempat Lahir", txtTempatLahir), new Tuple2<>("Tgl Lahir", txtTglLahir)),
                     Arrays.asList(new Tuple2<>("Meninggal di", txtTempatMati), new Tuple2<>("Tgl Meninggal", txtTglMati)),
-                    Arrays.asList(new Tuple2<>("Hubungan dgn penanggung jawab", txtHubunganDgnUmat))
+                    Arrays.asList(new Tuple2<>("Hubungan dgn penanggung jawab", txtHubunganDgnUmat)),
+                    Arrays.asList(new Tuple2<>("Tgl daftar", txtTglDaftar))
             ));
         }
 
@@ -182,13 +190,15 @@ public class GridLeluhur {
             txtTempatMati.setText(r.tempatMati);
             txtTglMati.setDate(r.tglMati);
             txtHubunganDgnUmat.setSelectedItem(r.hubunganDgnUmat);
+            txtTglDaftar.setDate(r.tglDaftar);
         }
 
         @Override
         protected boolean validateFormFields() {
             return SwingHelper.validateFormFields(
                     this,
-                    new Tuple2<>(txtNama.getText().isEmpty(), "Nama tidak boleh kosong"));
+                    new Tuple2<>(txtNama.getText().isEmpty(), "Nama tidak boleh kosong"),
+                    new Tuple2<>(txtTglDaftar.getDate() == null, "Tgl daftar tidak boleh kosong"));
         }
 
         @Override
@@ -200,7 +210,7 @@ public class GridLeluhur {
             r.tempatMati = txtTempatMati.getText();
             r.tglMati = txtTglMati.getDate();
             r.hubunganDgnUmat = (String) txtHubunganDgnUmat.getSelectedItem();
-            r.tglDaftar = LocalDate.now();
+            r.tglDaftar = txtTglDaftar.getDate();
             r.penanggungJawab = new Umat();
             r.penanggungJawab.uuid = jDataGrid.parentRecordId;
         }

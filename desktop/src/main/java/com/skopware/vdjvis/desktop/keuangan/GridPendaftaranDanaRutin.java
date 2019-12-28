@@ -189,7 +189,8 @@ public class GridPendaftaranDanaRutin {
         @Override
         protected boolean validateFormFields() {
             return SwingHelper.validateFormFields(this,
-                    new Tuple2<>(!btnTipeSosial.isSelected() && !btnTipeTetap.isSelected(), "Anda harus memilih jenis dana"));
+                    new Tuple2<>(!btnTipeSosial.isSelected() && !btnTipeTetap.isSelected(), "Anda harus memilih jenis dana"),
+                    new Tuple2<>(txtTglDaftar.getDate() == null, "Tgl daftar tidak boleh kosong"));
         }
 
         @Override
