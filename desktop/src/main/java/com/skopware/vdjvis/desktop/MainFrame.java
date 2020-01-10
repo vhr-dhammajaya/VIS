@@ -1,5 +1,6 @@
 package com.skopware.vdjvis.desktop;
 
+import com.skopware.javautils.ExceptionHelper;
 import com.skopware.javautils.swing.BaseCrudFrame;
 import com.skopware.javautils.swing.BasicCrudFrame;
 import com.skopware.javautils.swing.MasterDetailFrame;
@@ -192,7 +193,7 @@ public class MainFrame extends JFrame {
             showWindow("frameLaporanDanaRutin", () -> new FrameLaporanDanaRutin());
         });
 
-        menuLaporanPemasukanPengeluaran = new JMenuItem("Laporan pemasukan & pengeluaran");
+        menuLaporanPemasukanPengeluaran = new JMenuItem("Pemasukan & pengeluaran bulanan");
         menuLaporanPemasukanPengeluaran.addActionListener(e -> {
             showWindow("frameLaporanPemasukanPengeluaran", () -> new FrameLaporanPemasukanPengeluaran());
         });
@@ -285,11 +286,7 @@ public class MainFrame extends JFrame {
                             windowField.set(MainFrame.this, null);
                         }
                         catch (Exception ex) {
-                            if (ex instanceof RuntimeException) {
-                                throw (RuntimeException) ex;
-                            }
-
-                            throw new RuntimeException(ex);
+                            ExceptionHelper.rethrowSilently(ex);
                         }
                     }
                 });
@@ -302,11 +299,7 @@ public class MainFrame extends JFrame {
             }
         }
         catch (Exception e) {
-            if (e instanceof RuntimeException) {
-                throw (RuntimeException) e;
-            }
-
-            throw new RuntimeException(e);
+            ExceptionHelper.rethrowSilently(e);
         }
     }
 }

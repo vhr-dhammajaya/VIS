@@ -2,10 +2,9 @@ package com.skopware.vdjvis.desktop.laporan;
 
 import com.skopware.javautils.DateTimeHelper;
 import com.skopware.javautils.ObjectHelper;
-import com.skopware.javautils.Tuple2;
 import com.skopware.javautils.poi.excel.ExcelHelper;
 import com.skopware.javautils.swing.BaseCrudTableModel;
-import com.skopware.javautils.swing.JDatePicker;
+import com.skopware.javautils.swing.JMonthPicker;
 import com.skopware.javautils.swing.SwingHelper;
 import com.skopware.vdjvis.api.dto.laporan.DtoOutputLaporanPemasukanPengeluaran;
 import com.skopware.vdjvis.desktop.App;
@@ -17,7 +16,6 @@ import org.apache.poi.xssf.usermodel.XSSFFont;
 
 import javax.swing.*;
 import java.awt.*;
-import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,19 +42,17 @@ public class FrameLaporanPemasukanPengeluaran extends JInternalFrame {
             })
     );
 
-    private JDatePicker edTglStart;
-    private JDatePicker edTglEnd;
+    private JMonthPicker edStartMonth;
+    private JMonthPicker edEndMonth;
     private JTable table;
     private BaseCrudTableModel<DtoOutputLaporanPemasukanPengeluaran> tableModel;
 
     public FrameLaporanPemasukanPengeluaran() {
         super("Laporan pemasukan & pengeluaran", true, true, true, true);
 
-        edTglStart = new JDatePicker();
-        edTglStart.setDate(LocalDate.now());
+        edStartMonth = new JMonthPicker();
 
-        edTglEnd = new JDatePicker();
-        edTglEnd.setDate(LocalDate.now());
+        edEndMonth = new JMonthPicker();
 
         JButton btnRefresh = new JButton("Lihat laporan");
         btnRefresh.addActionListener(e -> {
@@ -116,9 +112,9 @@ public class FrameLaporanPemasukanPengeluaran extends JInternalFrame {
 
         JPanel top = new JPanel(new FlowLayout(FlowLayout.LEADING));
         top.add(new JLabel("Bulan awal"));
-        top.add(edTglStart);
+        top.add(edStartMonth);
         top.add(new JLabel("Bulan akhir"));
-        top.add(edTglEnd);
+        top.add(edEndMonth);
         top.add(btnRefresh);
         top.add(btnExcel);
 
@@ -135,20 +131,10 @@ public class FrameLaporanPemasukanPengeluaran extends JInternalFrame {
     }
 
     private void onRefresh(Consumer<List<DtoOutputLaporanPemasukanPengeluaran>> fnDisplayReportData) {
-        LocalDate startDate = edTglStart.getDate();
-        LocalDate endDate = edTglEnd.getDate();
-
-        if (!SwingHelper.validateFormFields(App.mainFrame,
-                new Tuple2<>(startDate == null, "Tanggal awal tidak boleh kosong"),
-                new Tuple2<>(endDate == null, "Tanggal akhir tidak boleh kosong")
-        )) {
-            return;
-        }
-
-        YearMonth startMonth = YearMonth.from(startDate);
-        YearMonth endMonth = YearMonth.from(endDate);
+        YearMonth startMonth = edStartMonth.getValue();
+        YearMonth endMonth = edEndMonth.getValue();
         if (startMonth.isAfter(endMonth)) {
-            SwingHelper.showErrorMessage(App.mainFrame, "Tanggal awal harus lebih kecil dari tanggal akhir");
+            SwingHelper.showErrorMessage(App.mainFrame, "Bulan awal harus lebih kecil dari bulan akhir");
             return;
         }
 
