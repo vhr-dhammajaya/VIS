@@ -1,5 +1,6 @@
 package com.skopware.vdjvis.desktop;
 
+import com.skopware.javautils.ExceptionHelper;
 import com.skopware.javautils.swing.BaseCrudAppConfig;
 import com.skopware.javautils.swing.JDatePicker;
 import com.skopware.vdjvis.api.entities.*;
@@ -38,6 +39,12 @@ public class App {
         jdbi.registerRowMapper(DetilPembayaranDanaRutin.class, new DetilPembayaranDanaRutinRowMapper());
         jdbi.registerRowMapper(Pendapatan.class, new PendapatanRowMapper());
         jdbi.registerRowMapper(Pengeluaran.class, new PengeluaranRowMapper());
+
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception ex) {
+            ExceptionHelper.rethrowSilently(ex);
+        }
 
         SwingUtilities.invokeLater(() -> {
             formLogin = new DialogLogin();
