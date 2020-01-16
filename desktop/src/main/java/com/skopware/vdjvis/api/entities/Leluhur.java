@@ -21,6 +21,7 @@ public class Leluhur extends BaseRecord<Leluhur> {
     public LocalDate tglMati;
     public String hubunganDgnUmat;
     public LocalDate tglDaftar;
+    public String lokasiFoto;
     //#endregion
 
     //#region calculated fields

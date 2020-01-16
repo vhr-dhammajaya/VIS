@@ -88,6 +88,11 @@ public class FrameSetLokasiFoto extends BaseCrudFrame {
                     x.fieldName = "tglDaftar";
                     x.dbColumnName = "tgl_daftar";
                     x.label = "Tgl daftar";
+                }),
+                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                    x.fieldName = "lokasiFoto";
+                    x.dbColumnName = "lokasi_foto";
+                    x.label = "Lokasi foto";
                 })
         );
 
@@ -144,8 +149,7 @@ public class FrameSetLokasiFoto extends BaseCrudFrame {
                             return x;
                         })
                         .list();
-
-                Map<String, PapanFoto> mapPapanById = CollectionHelper.groupListById(papanFotoList, papanFoto -> papanFoto.uuid);
+                papanById = CollectionHelper.groupListById(papanFotoList, papanFoto -> papanFoto.uuid);
 
                 List<CellFoto> listCellFoto = handle.select("select c.*, l.nama as leluhur_nama" +
                         " from cell_papan c" +
@@ -161,18 +165,16 @@ public class FrameSetLokasiFoto extends BaseCrudFrame {
                                 x.leluhur = new Leluhur();
                                 x.leluhur.uuid = leluhur_smngr_id;
                                 x.leluhur.nama = rs.getString("leluhur_nama");
-                                x.leluhur.cellFoto = new CellFoto();
-                                x.leluhur.cellFoto.uuid = x.uuid;
+                                x.leluhur.cellFoto = x;
                             }
 
-                            x.papan = new PapanFoto();
-                            x.papan.uuid = rs.getString("papan_smngr_id");
+                            x.papan = papanById.get(rs.getString("papan_smngr_id"));
                             return x;
                         })
                         .list();
 
                 for (CellFoto cell : listCellFoto) {
-                    PapanFoto papan = mapPapanById.get(cell.papan.uuid);
+                    PapanFoto papan = papanById.get(cell.papan.uuid);
                     papan.arrCellFoto[cell.row][cell.col] = cell;
                 }
             }
@@ -182,7 +184,6 @@ public class FrameSetLokasiFoto extends BaseCrudFrame {
 //            leluhurById = ObjectHelper.groupListById(listLeluhur, leluhur -> leluhur.uuid);
 
             this.papanFotoList = papanFotoList;
-            papanById = CollectionHelper.groupListById(papanFotoList, papanFoto -> papanFoto.uuid);
 
             cellFotoById = new HashMap<>();
 
@@ -215,6 +216,20 @@ public class FrameSetLokasiFoto extends BaseCrudFrame {
     }
 
     private void placePhoto(Leluhur leluhur, CellFoto destCell, Runnable onSuccess) {
+        StringBuilder sbConfirmMessage = new StringBuilder();
+        sbConfirmMessage.append("Anda akan meletakkan foto leluhur " + leluhur.nama + " di kotak " + destCell.getLabel());
+        if (leluhur.cellFoto != null) {
+            String kotakAsal = cellFotoById.get(leluhur.cellFoto.getUuid()).getLabel();
+            sbConfirmMessage.append("\n\nLeluhur ini sebelumnya sudah ditempatkan di kotak " + kotakAsal + ".\nKotak " + kotakAsal + " akan jadi kosong.");
+        }
+        if (destCell.leluhur != null) {
+            sbConfirmMessage.append("\n\nKotak " + destCell.getLabel() + " sudah ditempati leluhur " + destCell.leluhur.nama + ".\nLeluhur " + destCell.leluhur.nama + " akan diganti dengan leluhur " + leluhur.nama);
+        }
+
+        if (JOptionPane.OK_OPTION != JOptionPane.showConfirmDialog(this, sbConfirmMessage.toString(), "Jadi letakkan foto?", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE)) {
+            return;
+        }
+
         DtoPlacePhoto param = new DtoPlacePhoto();
 
         // if previously already placed somewhere else, need to repaint/clear that table too

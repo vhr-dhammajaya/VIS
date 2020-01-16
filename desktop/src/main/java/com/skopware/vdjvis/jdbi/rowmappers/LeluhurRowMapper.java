@@ -22,6 +22,7 @@ public class LeluhurRowMapper implements RowMapper<Leluhur> {
         x.tglMati = DateTimeHelper.toLocalDate(rs.getDate("tgl_mati"));
         x.hubunganDgnUmat = rs.getString("hubungan_dgn_umat");
         x.tglDaftar = DateTimeHelper.toLocalDate(rs.getDate("tgl_daftar"));
+        x.lokasiFoto = rs.getString("lokasi_foto");
 
         String umat_id = rs.getString("umat_id");
         if (umat_id != null) {

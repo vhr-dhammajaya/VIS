@@ -22,4 +22,8 @@ public class CellFoto extends BaseRecord<CellFoto> {
     	result.val2 = col;
     	return result;
     }
+
+    public String getLabel() {
+        return String.format("%s %02d", papan.nama, row*papan.width + col + 1);
+    }
 }
