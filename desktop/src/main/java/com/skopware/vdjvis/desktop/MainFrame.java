@@ -13,10 +13,7 @@ import com.skopware.vdjvis.api.entities.User;
 import com.skopware.vdjvis.desktop.absensi.FrameAbsensiSiswa;
 import com.skopware.vdjvis.desktop.absensi.FrameAbsensiUmat;
 import com.skopware.vdjvis.desktop.keuangan.*;
-import com.skopware.vdjvis.desktop.laporan.FrameLaporanAbsensiSiswa;
-import com.skopware.vdjvis.desktop.laporan.FrameLaporanAbsensiUmat;
-import com.skopware.vdjvis.desktop.laporan.FrameLaporanDanaRutin;
-import com.skopware.vdjvis.desktop.laporan.FrameLaporanPemasukanPengeluaran;
+import com.skopware.vdjvis.desktop.laporan.*;
 import com.skopware.vdjvis.desktop.master.GridAcara;
 import com.skopware.vdjvis.desktop.master.GridSiswa;
 import com.skopware.vdjvis.desktop.master.GridUmat;
@@ -64,6 +61,7 @@ public class MainFrame extends JFrame {
     private JMenu menuLaporan;
     private JMenuItem menuLaporanDanaRutin;
     private JMenuItem menuLaporanPemasukanPengeluaran;
+    private JMenuItem menuLaporanPemasukanPengeluaranHarian;
     private JMenuItem menuLaporanAbsensiUmat;
     private JMenuItem menuLaporanAbsensiSiswa;
 
@@ -88,6 +86,7 @@ public class MainFrame extends JFrame {
 
     private JInternalFrame frameLaporanDanaRutin;
     private JInternalFrame frameLaporanPemasukanPengeluaran;
+    private JInternalFrame frameLaporanPemasukanPengeluaranHarian;
     private JInternalFrame frameLaporanAbsensiUmat;
     private JInternalFrame frameLaporanAbsensiSiswa;
 
@@ -198,6 +197,11 @@ public class MainFrame extends JFrame {
             showWindow("frameLaporanPemasukanPengeluaran", () -> new FrameLaporanPemasukanPengeluaran());
         });
 
+        menuLaporanPemasukanPengeluaranHarian = new JMenuItem("Pemasukan & pengeluaran harian");
+        menuLaporanPemasukanPengeluaranHarian.addActionListener(e -> {
+            showWindow("frameLaporanPemasukanPengeluaranHarian", () -> new FrameLaporanPemasukanPengeluaranHarian());
+        });
+
         menuLaporanAbsensiUmat = new JMenuItem("Laporan absensi umat");
         menuLaporanAbsensiUmat.addActionListener(e -> {
             showWindow("frameLaporanAbsensiUmat", () -> new FrameLaporanAbsensiUmat());
@@ -246,6 +250,7 @@ public class MainFrame extends JFrame {
 
         menuLaporan.add(menuLaporanDanaRutin);
         menuLaporan.add(menuLaporanPemasukanPengeluaran);
+        menuLaporan.add(menuLaporanPemasukanPengeluaranHarian);
         menuLaporan.add(menuLaporanAbsensiUmat);
         menuLaporan.add(menuLaporanAbsensiSiswa);
 

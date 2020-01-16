@@ -48,7 +48,7 @@ public class FrameLaporanPemasukanPengeluaran extends JInternalFrame {
     private BaseCrudTableModel<DtoOutputLaporanPemasukanPengeluaran> tableModel;
 
     public FrameLaporanPemasukanPengeluaran() {
-        super("Laporan pemasukan & pengeluaran", true, true, true, true);
+        super("Laporan pemasukan & pengeluaran bulanan", true, true, true, true);
 
         edStartMonth = new JMonthPicker();
 
