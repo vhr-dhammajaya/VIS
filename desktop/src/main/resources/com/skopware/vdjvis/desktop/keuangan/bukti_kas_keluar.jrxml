@@ -24,91 +24,91 @@
 	<title>
 		<band height="380" splitType="Stretch">
 			<staticText>
-				<reportElement x="0" y="0" width="150" height="30" uuid="d51c9a38-9cd2-46ae-a510-19ceda8e5f03"/>
+				<reportElement x="410" y="0" width="144" height="30" uuid="d51c9a38-9cd2-46ae-a510-19ceda8e5f03"/>
 				<textElement>
 					<font size="18" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Bukti kas keluar]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="1" y="80" width="100" height="14" uuid="e3b7fba9-f1a4-4079-a19f-2e2afb3f0092"/>
+				<reportElement x="389" y="40" width="100" height="14" uuid="e3b7fba9-f1a4-4079-a19f-2e2afb3f0092"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
-				<text><![CDATA[Nomor]]></text>
+				<text><![CDATA[ID Transaksi]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="1" y="100" width="100" height="14" uuid="f0b435aa-f421-4319-9e89-4bd2170a720f"/>
+				<reportElement x="1" y="80" width="100" height="14" uuid="f0b435aa-f421-4319-9e89-4bd2170a720f"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
 				<text><![CDATA[Tanggal]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="1" y="120" width="100" height="14" uuid="62cbfd69-1d0e-4ac1-b453-01b9ab3ab46f"/>
+				<reportElement x="1" y="100" width="100" height="14" uuid="62cbfd69-1d0e-4ac1-b453-01b9ab3ab46f"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
 				<text><![CDATA[Dibayarkan kepada]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="1" y="140" width="100" height="14" uuid="46d4bd8c-9120-456d-834a-2ece090b11ad"/>
+				<reportElement x="1" y="120" width="100" height="14" uuid="46d4bd8c-9120-456d-834a-2ece090b11ad"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
 				<text><![CDATA[Nominal]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="1" y="210" width="100" height="14" uuid="1fada86d-89ea-4817-9750-b5cdd1a1d1eb"/>
+				<reportElement x="1" y="190" width="100" height="14" uuid="1fada86d-89ea-4817-9750-b5cdd1a1d1eb"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
 				<text><![CDATA[Keterangan]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="1" y="190" width="100" height="14" uuid="d6710b4e-0afe-4229-972b-49d1ea0d3973"/>
+				<reportElement x="1" y="170" width="100" height="14" uuid="d6710b4e-0afe-4229-972b-49d1ea0d3973"/>
 				<textElement>
 					<font isBold="true"/>
 				</textElement>
 				<text><![CDATA[Untuk acara]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="111" y="80" width="434" height="14" uuid="a8c95917-36c3-496a-a480-9533a1f76e3d"/>
+				<reportElement x="389" y="55" width="165" height="14" uuid="a8c95917-36c3-496a-a480-9533a1f76e3d"/>
 				<textFieldExpression><![CDATA[$P{IdTransaksi}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="111" y="100" width="434" height="14" uuid="13346f05-183c-4ea3-b88a-6ec6ead9a09b"/>
+				<reportElement x="111" y="80" width="434" height="14" uuid="13346f05-183c-4ea3-b88a-6ec6ead9a09b"/>
 				<textFieldExpression><![CDATA[$P{TglTransaksi}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="111" y="120" width="434" height="14" uuid="a62c1c77-b814-493d-be78-f2ddbe2a33c4"/>
+				<reportElement x="111" y="100" width="434" height="14" uuid="a62c1c77-b814-493d-be78-f2ddbe2a33c4"/>
 				<textFieldExpression><![CDATA[$P{Penerima}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="111" y="140" width="434" height="14" uuid="70772a3c-ead4-47c4-b670-28c90b8ebd44"/>
+				<reportElement x="111" y="120" width="434" height="14" uuid="70772a3c-ead4-47c4-b670-28c90b8ebd44"/>
 				<textFieldExpression><![CDATA[new java.text.DecimalFormat("#,##0").format($P{Nominal})]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="1" y="160" width="545" height="14" uuid="445ec657-6916-4a35-a28f-bf0e2f3bd359"/>
+				<reportElement x="1" y="140" width="545" height="14" uuid="445ec657-6916-4a35-a28f-bf0e2f3bd359"/>
 				<textFieldExpression><![CDATA[$P{NominalKata2}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="111" y="190" width="435" height="14" uuid="797b8fe6-1f4b-42f8-94e0-358bac5f1d4f"/>
+				<reportElement x="111" y="170" width="435" height="14" uuid="797b8fe6-1f4b-42f8-94e0-358bac5f1d4f"/>
 				<textFieldExpression><![CDATA[$P{Acara}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="0" y="224" width="544" height="145" uuid="a2e58ce3-fe2c-4e63-8ae3-54d15b132bc5"/>
+				<reportElement x="0" y="204" width="544" height="165" uuid="a2e58ce3-fe2c-4e63-8ae3-54d15b132bc5"/>
 				<textFieldExpression><![CDATA[$P{Keterangan}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="280" y="0" width="260" height="30" forecolor="#FF0000" uuid="68623e54-6d73-49bf-952a-ae44691e21f3"/>
+				<reportElement x="0" y="0" width="260" height="30" forecolor="#FF0000" uuid="68623e54-6d73-49bf-952a-ae44691e21f3"/>
 				<textElement textAlignment="Left" verticalAlignment="Middle">
 					<font size="22" isBold="true"/>
 				</textElement>
 				<text><![CDATA[VIHARA DHAMMA JAYA]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="280" y="30" width="270" height="39" uuid="90248390-ecb7-4f57-a3f9-8129dd78ec8d"/>
+				<reportElement x="0" y="30" width="270" height="39" uuid="90248390-ecb7-4f57-a3f9-8129dd78ec8d"/>
 				<textElement textAlignment="Left" verticalAlignment="Middle"/>
 				<text><![CDATA[Jl. Bulu Java V / 19, Surabaya - 60216; Telp. 031 734 9600
 Email: vihara.dhammajaya@yahoo.co.id]]></text>
