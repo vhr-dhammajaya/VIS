@@ -3,6 +3,7 @@ package com.skopware.vdjvis.jdbi.rowmappers;
 import com.skopware.javautils.DateTimeHelper;
 import com.skopware.vdjvis.api.entities.PembayaranDanaRutin;
 import com.skopware.vdjvis.api.entities.Umat;
+import com.skopware.vdjvis.api.entities.User;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.statement.StatementContext;
 
@@ -18,6 +19,9 @@ public class PembayaranDanaRutinRowMapper implements RowMapper<PembayaranDanaRut
         x.umat = new Umat();
         x.umat.uuid = rs.getString("umat_id");
         x.umat.nama = rs.getString("umat_nama");
+        x.user = new User();
+        x.user.uuid = rs.getString("user_id");
+        x.user.nama = rs.getString("user_nama");
         x.tipe = PembayaranDanaRutin.Type.valueOf(rs.getString("tipe"));
         x.tgl = DateTimeHelper.toLocalDate(rs.getDate("tgl"));
         x.noSeq = rs.getInt("no_seq");

@@ -191,8 +191,8 @@ public class DialogBayarIuranSamanagara extends JDialog {
                     pembayaran.channel = (String) edChannel.getSelectedItem();
                     pembayaran.keterangan = edKeterangan.getText();
 
-                    handle1.createUpdate("insert into pembayaran_samanagara_sosial_tetap(uuid, umat_id, tipe, tgl, total_nominal, channel, keterangan)" +
-                            " values(:uuid, :umatId, :tipe, :tgl, :totalNominal, :channel, :keterangan)")
+                    handle1.createUpdate("insert into pembayaran_samanagara_sosial_tetap(uuid, umat_id, tipe, tgl, total_nominal, channel, keterangan, user_id)" +
+                            " values(:uuid, :umatId, :tipe, :tgl, :totalNominal, :channel, :keterangan, :user_id)")
                             .bind("uuid", pembayaran.uuid)
                             .bind("umatId", pembayaran.umat.uuid)
                             .bind("tipe", pembayaran.tipe.name())
@@ -200,6 +200,7 @@ public class DialogBayarIuranSamanagara extends JDialog {
                             .bind("totalNominal", pembayaran.totalNominal)
                             .bind("channel", pembayaran.channel)
                             .bind("keterangan", pembayaran.keterangan)
+                            .bind("user_id", App.currentUser.uuid)
                             .execute();
                     pembayaran.noSeq = handle1.select("select no_seq from pembayaran_samanagara_sosial_tetap where uuid=?", pembayaran.uuid)
                             .mapTo(int.class)

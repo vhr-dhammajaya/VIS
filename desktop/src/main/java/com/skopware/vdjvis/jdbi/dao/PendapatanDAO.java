@@ -11,8 +11,8 @@ public interface PendapatanDAO extends BaseCrudDAO<Pendapatan> {
     @Override
     Pendapatan get(String id);
 
-    @SqlUpdate("insert into pendapatan(id, umat_id, tgl_trx, nominal, channel, jenis_dana, keterangan, acara_id)" +
-            " values(:uuid, :umat.uuid, :tglTransaksi, :nominal, :channel, :jenisDana, :keterangan, :acara.uuid)")
+    @SqlUpdate("insert into pendapatan(id, umat_id, tgl_trx, nominal, channel, jenis_dana, keterangan, acara_id, user_id)" +
+            " values(:uuid, :umat.uuid, :tglTransaksi, :nominal, :channel, :jenisDana, :keterangan, :acara.uuid, :user.uuid)")
     @Override
     void create(@BindFields Pendapatan x);
 

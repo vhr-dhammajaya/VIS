@@ -23,7 +23,7 @@ public class PembayaranDanaRutin extends BaseRecord<PembayaranDanaRutin> {
     // relationships
     public Umat umat;
     public Map<String, DetilPembayaranDanaRutin> mapDetilPembayaran = new LinkedHashMap<>();
-
+    public User user;
 
     public String getIdTransaksi() {
         String sb;

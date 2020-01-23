@@ -262,7 +262,7 @@ public class MainFrame extends JFrame {
         menuBar.add(menuPendapatanPengeluaran);
         menuBar.add(menuAbsensi);
         menuBar.add(menuLaporan);
-        menuBar.add(Box.createHorizontalGlue());
+//        menuBar.add(Box.createHorizontalGlue());
         menuBar.add(menuAccount);
 
         setJMenuBar(menuBar);

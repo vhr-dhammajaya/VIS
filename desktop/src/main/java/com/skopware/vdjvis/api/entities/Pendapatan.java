@@ -18,6 +18,7 @@ public class Pendapatan extends BaseRecord<Pendapatan> {
     // relationships
     public Umat umat;
     public Acara acara;
+    public User user;
 
     public String getIdTransaksi() {
         String sb = String.format("M/Lain-2/%d/%02d/%06d", tglTransaksi.getYear(), tglTransaksi.getMonthValue(), noSeq);

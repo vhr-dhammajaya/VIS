@@ -2,6 +2,8 @@ drop view v_pembayaran_samanagara_sosial_tetap;
 
 create view v_pembayaran_samanagara_sosial_tetap as
 select p.*,
-    u.nama as umat_nama
+    u.nama as umat_nama,
+    usr.nama as user_nama
 from pembayaran_samanagara_sosial_tetap p
-join umat u on u.uuid = p.umat_id;
+join umat u on u.uuid = p.umat_id
+join `user` usr on usr.id = p.user_id;

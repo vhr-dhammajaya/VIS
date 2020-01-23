@@ -11,8 +11,8 @@ public interface PengeluaranDAO extends BaseCrudDAO<Pengeluaran> {
     @Override
     Pengeluaran get(String id);
 
-    @SqlUpdate("insert into pengeluaran(id, tgl_trx, penerima, nominal, keterangan, acara_id)" +
-            " values(:uuid, :tglTransaksi, :penerima, :nominal, :keterangan, :acara.uuid)")
+    @SqlUpdate("insert into pengeluaran(id, tgl_trx, penerima, nominal, keterangan, acara_id, user_id)" +
+            " values(:uuid, :tglTransaksi, :penerima, :nominal, :keterangan, :acara.uuid, :user.uuid)")
     @Override
     void create(@BindFields Pengeluaran x);
 

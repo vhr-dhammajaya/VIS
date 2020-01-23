@@ -3,6 +3,7 @@ package com.skopware.vdjvis.jdbi.rowmappers;
 import com.skopware.javautils.DateTimeHelper;
 import com.skopware.vdjvis.api.entities.Acara;
 import com.skopware.vdjvis.api.entities.Pengeluaran;
+import com.skopware.vdjvis.api.entities.User;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.statement.StatementContext;
 
@@ -27,6 +28,10 @@ public class PengeluaranRowMapper implements RowMapper<Pengeluaran> {
             x.acara.uuid = acara_id;
             x.acara.nama = rs.getString("acara_nama");
         }
+
+        x.user = new User();
+        x.user.uuid = rs.getString("user_id");
+        x.user.nama = rs.getString("user_nama");
 
         return x;
     }

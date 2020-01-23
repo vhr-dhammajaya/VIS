@@ -258,6 +258,10 @@ public class GridPendapatan {
                 r.acara = acara;
             }
 
+            if (isCreateNew) {
+                r.user = App.currentUser;
+            }
+
             if (!isCreateNew) {
                 r.correctionStatus = edButuhPembetulan.isSelected();
                 if (!r.correctionStatus) {

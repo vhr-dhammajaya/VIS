@@ -6,6 +6,7 @@ public class DtoOutputLaporanPemasukanPengeluaranHarian {
     public int nominalKeluar;
     public String keterangan;
     public String namaAcara;
+    public String namaUser;
     //#endregion
 
     //#region dana masuk

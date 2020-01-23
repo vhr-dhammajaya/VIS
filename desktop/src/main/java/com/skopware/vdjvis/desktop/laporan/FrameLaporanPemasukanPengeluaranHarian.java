@@ -40,6 +40,10 @@ public class FrameLaporanPemasukanPengeluaranHarian extends JInternalFrame {
                 x.label = "Untuk acara";
             }),
             ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                x.fieldName = "namaUser";
+                x.label = "User yg input";
+            }),
+            ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
                 x.fieldName = "jenisDanaMasuk";
                 x.label = "Jenis dana masuk";
             }),
@@ -103,73 +107,82 @@ public class FrameLaporanPemasukanPengeluaranHarian extends JInternalFrame {
 
 
                             headerRow = sheet1.createRow(1);
-                            headerCell = headerRow.createCell(4);
+                            headerCell = headerRow.createCell(5);
                             headerCell.setCellValue("Dana masuk");
                             headerCell.setCellStyle(headerStyle);
 
-                            headerCell = headerRow.createCell(7);
+                            headerCell = headerRow.createCell(8);
                             headerCell.setCellValue("Dana keluar");
                             headerCell.setCellStyle(headerStyle);
 
-
+                            int colNum = 0;
                             headerRow = sheet1.createRow(2);
-                            headerCell = headerRow.createCell(0);
+                            headerCell = headerRow.createCell(colNum++);
                             headerCell.setCellValue("Masuk (Rp)");
                             headerCell.setCellStyle(headerStyle);
 
-                            headerCell = headerRow.createCell(1);
+                            headerCell = headerRow.createCell(colNum++);
                             headerCell.setCellValue("Keluar (Rp)");
                             headerCell.setCellStyle(headerStyle);
 
-                            headerCell = headerRow.createCell(2);
+                            headerCell = headerRow.createCell(colNum++);
                             headerCell.setCellValue("Keterangan");
                             headerCell.setCellStyle(headerStyle);
 
-                            headerCell = headerRow.createCell(3);
+                            headerCell = headerRow.createCell(colNum++);
                             headerCell.setCellValue("Untuk acara");
                             headerCell.setCellStyle(headerStyle);
 
-                            headerCell = headerRow.createCell(4);
+                            headerCell = headerRow.createCell(colNum++);
+                            headerCell.setCellValue("User yg input");
+                            headerCell.setCellStyle(headerStyle);
+
+                            headerCell = headerRow.createCell(colNum++);
                             headerCell.setCellValue("Jenis dana masuk");
                             headerCell.setCellStyle(headerStyle);
 
-                            headerCell = headerRow.createCell(5);
+                            headerCell = headerRow.createCell(colNum++);
                             headerCell.setCellValue("Cara dana");
                             headerCell.setCellStyle(headerStyle);
 
-                            headerCell = headerRow.createCell(6);
+                            headerCell = headerRow.createCell(colNum++);
                             headerCell.setCellValue("Nama umat yg berdana");
                             headerCell.setCellStyle(headerStyle);
 
-                            headerCell = headerRow.createCell(7);
+                            headerCell = headerRow.createCell(colNum++);
                             headerCell.setCellValue("Dibayarkan kepada");
                             headerCell.setCellStyle(headerStyle);
 
                             for (int i = 1; i <= data2.size(); i++) {
                                 DtoOutputLaporanPemasukanPengeluaranHarian record = data2.get(i-1);
                                 Row row = sheet1.createRow(i+2);
-                                Cell cell = row.createCell(0);
+
+                                colNum = 0;
+                                Cell cell = row.createCell(colNum++);
                                 cell.setCellValue(record.nominalMasuk);
 
-                                cell = row.createCell(1);
+                                cell = row.createCell(colNum++);
                                 cell.setCellValue(record.nominalKeluar);
 
-                                cell = row.createCell(2);
+                                cell = row.createCell(colNum++);
                                 cell.setCellValue(record.keterangan);
 
-                                cell = row.createCell(3);
+                                cell = row.createCell(colNum++);
                                 cell.setCellValue(record.namaAcara);
 
-                                cell = row.createCell(4);
+                                cell = row.createCell(colNum++);
+                                cell.setCellValue(record.namaUser);
+
+                                cell = row.createCell(colNum++);
                                 cell.setCellValue(record.jenisDanaMasuk);
 
-                                cell = row.createCell(5);
+                                cell = row.createCell(colNum++);
                                 cell.setCellValue(record.channel);
 
-                                cell = row.createCell(6);
+                                cell = row.createCell(colNum++);
                                 cell.setCellValue(record.namaDonatur);
 
-                                cell = row.createCell(7);
+                                cell = row.createCell(colNum++);
                                 cell.setCellValue(record.dibayarkanKepada);
                             }
                         },
@@ -199,15 +212,17 @@ public class FrameLaporanPemasukanPengeluaranHarian extends JInternalFrame {
         List<DtoOutputLaporanPemasukanPengeluaranHarian> result = App.jdbi.withHandle(handle -> {
             List<DtoOutputLaporanPemasukanPengeluaranHarian> result2 = new ArrayList<>();
 
-            handle.select("select p.tipe, p.channel, u.nama as nama_umat, p.total_nominal, p.keterangan" +
+            handle.select("select p.tipe, p.channel, u.nama as nama_umat, p.total_nominal, p.keterangan, usr.nama as nama_user" +
                     " from pembayaran_samanagara_sosial_tetap p" +
                     " join umat u on u.uuid=p.umat_id" +
+                    " join `user` usr on usr.id=p.user_id" +
                     " where p.active=1 and p.tgl=?", date)
                     .map((rs, ctx) -> {
                         DtoOutputLaporanPemasukanPengeluaranHarian x = new DtoOutputLaporanPemasukanPengeluaranHarian();
                         x.nominalMasuk = rs.getInt("total_nominal");
                         x.keterangan = rs.getString("keterangan");
                         x.namaAcara = null;
+                        x.namaUser = rs.getString("nama_user");
                         x.jenisDanaMasuk = rs.getString("tipe");
                         x.channel = rs.getString("channel");
                         x.namaDonatur = rs.getString("nama_umat");
@@ -216,16 +231,18 @@ public class FrameLaporanPemasukanPengeluaranHarian extends JInternalFrame {
                     .stream()
                     .forEach(result2::add);
 
-            handle.select("select p.jenis_dana, p.channel, u.nama as nama_umat, p.nominal, p.keterangan, a.nama as nama_acara" +
+            handle.select("select p.jenis_dana, p.channel, u.nama as nama_umat, p.nominal, p.keterangan, a.nama as nama_acara, usr.nama as nama_user" +
                     " from pendapatan p" +
                     " left join umat u on u.uuid=p.umat_id" +
                     " left join acara a on a.id=p.acara_id" +
+                    " join `user` usr on usr.id=p.user_id" +
                     " where p.active=1 and p.tgl_trx=?", date)
                     .map((rs, ctx) -> {
                         DtoOutputLaporanPemasukanPengeluaranHarian x = new DtoOutputLaporanPemasukanPengeluaranHarian();
                         x.nominalMasuk = rs.getInt("nominal");
                         x.keterangan = rs.getString("keterangan");
                         x.namaAcara = rs.getString("nama_acara");
+                        x.namaUser = rs.getString("nama_user");
                         x.jenisDanaMasuk = rs.getString("jenis_dana");
                         x.channel = rs.getString("channel");
                         x.namaDonatur = rs.getString("nama_umat");
@@ -234,15 +251,17 @@ public class FrameLaporanPemasukanPengeluaranHarian extends JInternalFrame {
                     .stream()
                     .forEach(result2::add);
 
-            handle.select("select p.nominal, p.keterangan, a.nama as nama_acara, p.penerima" +
+            handle.select("select p.nominal, p.keterangan, a.nama as nama_acara, p.penerima, usr.nama as nama_user" +
                     " from pengeluaran p" +
                     " left join acara a on a.id=p.acara_id" +
+                    " join `user` usr on usr.id=p.user_id" +
                     " where p.active=1 and p.tgl_trx=?", date)
                     .map((rs, ctx) -> {
                         DtoOutputLaporanPemasukanPengeluaranHarian x = new DtoOutputLaporanPemasukanPengeluaranHarian();
                         x.nominalKeluar = rs.getInt("nominal");
                         x.keterangan = rs.getString("keterangan");
                         x.namaAcara = rs.getString("nama_acara");
+                        x.namaUser = rs.getString("nama_user");
                         x.dibayarkanKepada = rs.getString("penerima");
                         return x;
                     })

@@ -165,6 +165,10 @@ public class GridPengeluaran {
             if (acara != null) {
                 r.acara = acara;
             }
+
+            if (isCreateNew) {
+                r.user = App.currentUser;
+            }
         }
     }
 }
