@@ -13,10 +13,12 @@ import org.jdbi.v3.core.Handle;
 
 import javax.swing.*;
 import javax.swing.table.TableColumn;
+import java.awt.*;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class DialogBayarIuranSamanagara extends JDialog {
@@ -25,9 +27,6 @@ public class DialogBayarIuranSamanagara extends JDialog {
     private Umat umat;
     private List<Tuple3<LocalDate, LocalDate, Integer>> listTarifSamanagara;
     private List<DtoStatusBayarLeluhur> listStatusLeluhur;
-    private JTable tblLeluhur;
-    //    private LeluhurTableModel leluhurTableModel;
-    private BaseCrudTableModel<DtoStatusBayarLeluhur> leluhurTableModel;
     private JFormattedTextField edTotalBayarRp;
     private JDatePicker edTglTrans;
     private JComboBox<String> edChannel;
@@ -79,71 +78,135 @@ public class DialogBayarIuranSamanagara extends JDialog {
                     .collect(Collectors.toList());
         }
 
-        leluhurTableModel = new BaseCrudTableModel<>();
-        List<BaseCrudTableModel.ColumnConfig> columnConfigs = Arrays.asList(
-                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                    x.fieldName = "leluhurNama";
-                    x.label = "Nama leluhur";
-                }),
-                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                    x.fieldName = "statusBayar.strStatus";
-                    x.label = "Status bayar";
-                }),
-                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                    x.fieldName = "statusBayar.countBulan";
-                    x.label = "Berapa bulan";
-                }),
-                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                    x.fieldName = "statusBayar.nominal";
-                    x.label = "Rp";
-                }),
-                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                    x.fieldName = "mauBayarBrpBulan";
-                    x.label = "Mau bayar brp bulan?";
-                    x.editable = true;
-                }),
-                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
-                    x.fieldName = "nominalYgMauDibayarkan";
-                    x.label = "Nominal yg mau dibayarkan";
-                })
-        );
-        leluhurTableModel.setColumnConfigs(columnConfigs);
-        leluhurTableModel.setRecordType(DtoStatusBayarLeluhur.class);
-        leluhurTableModel.setData(listStatusLeluhur);
+        JPanel pnlLeluhur = new JPanel(new GridBagLayout());
+        pnlLeluhur.add(new JLabel("Nama leluhur"), ObjectHelper.apply(new GridBagConstraints(), x -> {
+            x.gridx = 0;
+            x.gridy = 0;
+            x.fill = GridBagConstraints.HORIZONTAL;
+            x.weightx = 1.0;
+            x.weighty = 1.0;
+            x.insets = new Insets(3, 3, 3, 3);
+        }));
+        pnlLeluhur.add(new JLabel("Status bayar"), ObjectHelper.apply(new GridBagConstraints(), x -> {
+            x.gridx = 1;
+            x.gridy = 0;
+            x.fill = GridBagConstraints.HORIZONTAL;
+            x.weightx = 1.0;
+            x.weighty = 1.0;
+            x.insets = new Insets(3, 3, 3, 3);
+        }));
+        pnlLeluhur.add(new JLabel("Berapa bulan"), ObjectHelper.apply(new GridBagConstraints(), x -> {
+            x.gridx = 2;
+            x.gridy = 0;
+            x.fill = GridBagConstraints.HORIZONTAL;
+            x.weightx = 1.0;
+            x.weighty = 1.0;
+            x.insets = new Insets(3, 3, 3, 3);
+        }));
+        pnlLeluhur.add(new JLabel("Rp"), ObjectHelper.apply(new GridBagConstraints(), x -> {
+            x.gridx = 3;
+            x.gridy = 0;
+            x.fill = GridBagConstraints.HORIZONTAL;
+            x.weightx = 1.0;
+            x.weighty = 1.0;
+            x.insets = new Insets(3, 3, 3, 3);
+        }));
+        pnlLeluhur.add(new JLabel("Mau bayar brp bulan?"), ObjectHelper.apply(new GridBagConstraints(), x -> {
+            x.gridx = 4;
+            x.gridy = 0;
+            x.fill = GridBagConstraints.HORIZONTAL;
+            x.weightx = 1.0;
+            x.weighty = 1.0;
+            x.insets = new Insets(3, 3, 3, 3);
+        }));
+        pnlLeluhur.add(new JLabel("Nominal yg akan dibayarkan"), ObjectHelper.apply(new GridBagConstraints(), x -> {
+            x.gridx = 5;
+            x.gridy = 0;
+            x.fill = GridBagConstraints.HORIZONTAL;
+            x.weightx = 1.0;
+            x.weighty = 1.0;
+            x.insets = new Insets(3, 3, 3, 3);
+        }));
 
-        leluhurTableModel.addTableModelListener(e -> {
-            /*
-            this if is neccessary
-            if not, will stack overflow.
-            Because fireTableCellUpdated(..., IDX_COL_NOMINAL_YG_MAU_DIBAYARKAN); (called below) will trigger this lambda (recursive)
-             */
-            if (e.getColumn() == IDX_COL_MAU_BAYAR_BRP_BULAN) {
-                // recompute edTotalBayarRp
-                int totalBayarRp = 0;
+        for (int i = 0; i < listStatusLeluhur.size(); i++) {
+            DtoStatusBayarLeluhur statusLeluhur = listStatusLeluhur.get(i);
+            int gridy = i+1;
 
-                for (int cntLeluhur = 0; cntLeluhur < listStatusLeluhur.size(); cntLeluhur++) {
-                    DtoStatusBayarLeluhur leluhur = listStatusLeluhur.get(cntLeluhur);
-                    int totalBayarUtLeluhurX = 0;
+            pnlLeluhur.add(new JLabel(statusLeluhur.leluhurNama), ObjectHelper.apply(new GridBagConstraints(), x -> {
+                x.gridx = 0;
+                x.gridy = gridy;
+                x.fill = GridBagConstraints.HORIZONTAL;
+                x.weightx = 1.0;
+                x.weighty = 1.0;
+                x.insets = new Insets(3, 3, 3, 3);
+            }));
+            pnlLeluhur.add(new JLabel(statusLeluhur.statusBayar.strStatus), ObjectHelper.apply(new GridBagConstraints(), x -> {
+                x.gridx = 1;
+                x.gridy = gridy;
+                x.fill = GridBagConstraints.HORIZONTAL;
+                x.weightx = 1.0;
+                x.weighty = 1.0;
+                x.insets = new Insets(3, 3, 3, 3);
+            }));
+            pnlLeluhur.add(new JLabel(String.valueOf(statusLeluhur.statusBayar.countBulan)), ObjectHelper.apply(new GridBagConstraints(), x -> {
+                x.gridx = 2;
+                x.gridy = gridy;
+                x.fill = GridBagConstraints.HORIZONTAL;
+                x.weightx = 1.0;
+                x.weighty = 1.0;
+                x.insets = new Insets(3, 3, 3, 3);
+            }));
+            pnlLeluhur.add(new JLabel(String.valueOf(statusLeluhur.statusBayar.nominal)), ObjectHelper.apply(new GridBagConstraints(), x -> {
+                x.gridx = 3;
+                x.gridy = gridy;
+                x.fill = GridBagConstraints.HORIZONTAL;
+                x.weightx = 1.0;
+                x.weighty = 1.0;
+                x.insets = new Insets(3, 3, 3, 3);
+            }));
 
-                    for (int cntBulan = 1; cntBulan <= leluhur.mauBayarBrpBulan; cntBulan++) {
-                        YearMonth currYm = leluhur.statusBayar.lastPaidMonth.plusMonths(cntBulan);
-                        LocalDate currDate = leluhur.leluhurTglDaftar.withYear(currYm.getYear()).withMonth(currYm.getMonthValue());
+            JSpinner edMauBayarBrpBulan = new JSpinner(new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1));
+            pnlLeluhur.add(edMauBayarBrpBulan, ObjectHelper.apply(new GridBagConstraints(), x -> {
+                x.gridx = 4;
+                x.gridy = gridy;
+                x.fill = GridBagConstraints.HORIZONTAL;
+                x.weightx = 1.0;
+                x.weighty = 1.0;
+                x.insets = new Insets(3, 3, 3, 3);
+            }));
 
-                        int nominalBulanIni = DateTimeHelper.findValueInDateRange(currDate, listTarifSamanagara).get();
-                        totalBayarUtLeluhurX += nominalBulanIni;
-                        totalBayarRp += nominalBulanIni;
-                    }
+            JFormattedTextField txtNominalYgDibayarkan = new JFormattedTextField(new DecimalFormat("###,###,##0"));
+            txtNominalYgDibayarkan.setEditable(false);
+            pnlLeluhur.add(txtNominalYgDibayarkan, ObjectHelper.apply(new GridBagConstraints(), x -> {
+                x.gridx = 5;
+                x.gridy = gridy;
+                x.fill = GridBagConstraints.HORIZONTAL;
+                x.weightx = 1.0;
+                x.weighty = 1.0;
+                x.insets = new Insets(3, 3, 3, 3);
+            }));
 
-                    leluhur.nominalYgMauDibayarkan = totalBayarUtLeluhurX;
-                    leluhurTableModel.fireTableCellUpdated(cntLeluhur, IDX_COL_NOMINAL_YG_MAU_DIBAYARKAN);
+            edMauBayarBrpBulan.addChangeListener(e -> {
+                statusLeluhur.mauBayarBrpBulan = (int) edMauBayarBrpBulan.getValue();
+                int totalBayarUtLeluhurIni = 0;
+
+                for (int cntBulan = 1; cntBulan <= statusLeluhur.mauBayarBrpBulan; cntBulan++) {
+                    YearMonth currYm = statusLeluhur.statusBayar.lastPaidMonth.plusMonths(cntBulan);
+                    LocalDate currDate = statusLeluhur.leluhurTglDaftar.withYear(currYm.getYear()).withMonth(currYm.getMonthValue());
+
+                    int nominalBulanIni = DateTimeHelper.findValueInDateRange(currDate, listTarifSamanagara).get();
+                    totalBayarUtLeluhurIni += nominalBulanIni;
                 }
 
-                edTotalBayarRp.setValue(totalBayarRp);
-            }
-        });
-        tblLeluhur = new JTable(leluhurTableModel);
-        TableColumn colMauBayarBrpBulan = tblLeluhur.getColumnModel().getColumn(IDX_COL_MAU_BAYAR_BRP_BULAN);
-        colMauBayarBrpBulan.setCellEditor(new JSpinnerCellEditor(new SpinnerNumberModel(0, 0, Integer.MAX_VALUE, 1)));
+                statusLeluhur.nominalYgMauDibayarkan = totalBayarUtLeluhurIni;
+                txtNominalYgDibayarkan.setValue(totalBayarUtLeluhurIni);
+
+                int totalBayarSemuaLeluhur = listStatusLeluhur.stream()
+                        .mapToInt(x -> x.nominalYgMauDibayarkan)
+                        .reduce(0, (left, right) -> left + right);
+                edTotalBayarRp.setValue(totalBayarSemuaLeluhur);
+            });
+        }
 
         edTotalBayarRp = new JFormattedTextField(new DecimalFormat("###,###,##0"));
         edTotalBayarRp.setColumns(9);
@@ -154,8 +217,7 @@ public class DialogBayarIuranSamanagara extends JDialog {
         pnlContent.add(new JLabel("Daftar leluhur untuk umat ini & status bayarnya"));
 
 //        JPanel pnlTable = new JPanel(new BorderLayout());
-        pnlContent.add(tblLeluhur.getTableHeader());
-        pnlContent.add(tblLeluhur);
+        pnlContent.add(pnlLeluhur);
 
         JPanel pnlFormFields = SwingHelper.buildForm1(Arrays.asList(
                 new Tuple2<>("Total Bayar (Rp)", edTotalBayarRp),
