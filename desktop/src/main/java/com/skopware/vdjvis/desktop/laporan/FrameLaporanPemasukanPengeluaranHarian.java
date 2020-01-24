@@ -8,11 +8,17 @@ import com.skopware.javautils.swing.JDatePicker;
 import com.skopware.javautils.swing.SwingHelper;
 import com.skopware.vdjvis.api.dto.laporan.DtoOutputLaporanPemasukanPengeluaranHarian;
 import com.skopware.vdjvis.desktop.App;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.SpreadsheetVersion;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.AreaReference;
+import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFTable;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTTable;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTTableColumn;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTTableColumns;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTTableStyleInfo;
 
 import javax.swing.*;
 import java.awt.*;
@@ -86,7 +92,7 @@ public class FrameLaporanPemasukanPengeluaranHarian extends JInternalFrame {
             if (jfc.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
                 ExcelHelper.saveListToXlsx(data, jfc.getSelectedFile(),
                         (data2, workbook) -> {
-                            Sheet sheet1 = workbook.createSheet();
+                            XSSFSheet sheet1 = workbook.createSheet();
 
                             CellStyle headerStyle = workbook.createCellStyle();
                             XSSFFont headerFont = workbook.createFont();
@@ -115,49 +121,39 @@ public class FrameLaporanPemasukanPengeluaranHarian extends JInternalFrame {
                             headerCell.setCellValue("Dana keluar");
                             headerCell.setCellStyle(headerStyle);
 
-                            int colNum = 0;
+
+                            List<String> headerNames = Arrays.asList("Masuk (Rp)", "Keluar (Rp)", "Keterangan",
+                                    "Untuk acara", "User yg input", "Jenis dana masuk", "Cara dana",
+                                    "Nama umat yg berdana", "Dibayarkan kepada");
+
+                            CellReference topLeft = new CellReference(2, 0);
+                            CellReference bottomRight = new CellReference(data2.size()+2, headerNames.size()-1);
+                            XSSFTable table = sheet1.createTable(new AreaReference(topLeft, bottomRight, SpreadsheetVersion.EXCEL2007));
+                            CTTable cttable = table.getCTTable();
+                            cttable.setDisplayName("Table1");
+                            cttable.setName("Table1");
+                            cttable.setTotalsRowShown(false);
+
+                            CTTableStyleInfo styleInfo = cttable.addNewTableStyleInfo();
+                            styleInfo.setName("TableStyleLight1");
+                            styleInfo.setShowColumnStripes(false);
+                            styleInfo.setShowRowStripes(true);
+
                             headerRow = sheet1.createRow(2);
-                            headerCell = headerRow.createCell(colNum++);
-                            headerCell.setCellValue("Masuk (Rp)");
-                            headerCell.setCellStyle(headerStyle);
 
-                            headerCell = headerRow.createCell(colNum++);
-                            headerCell.setCellValue("Keluar (Rp)");
-                            headerCell.setCellStyle(headerStyle);
+                            for (int i = 0; i < headerNames.size(); i++) {
+                                String columnName = headerNames.get(i);
 
-                            headerCell = headerRow.createCell(colNum++);
-                            headerCell.setCellValue("Keterangan");
-                            headerCell.setCellStyle(headerStyle);
-
-                            headerCell = headerRow.createCell(colNum++);
-                            headerCell.setCellValue("Untuk acara");
-                            headerCell.setCellStyle(headerStyle);
-
-                            headerCell = headerRow.createCell(colNum++);
-                            headerCell.setCellValue("User yg input");
-                            headerCell.setCellStyle(headerStyle);
-
-                            headerCell = headerRow.createCell(colNum++);
-                            headerCell.setCellValue("Jenis dana masuk");
-                            headerCell.setCellStyle(headerStyle);
-
-                            headerCell = headerRow.createCell(colNum++);
-                            headerCell.setCellValue("Cara dana");
-                            headerCell.setCellStyle(headerStyle);
-
-                            headerCell = headerRow.createCell(colNum++);
-                            headerCell.setCellValue("Nama umat yg berdana");
-                            headerCell.setCellStyle(headerStyle);
-
-                            headerCell = headerRow.createCell(colNum++);
-                            headerCell.setCellValue("Dibayarkan kepada");
-                            headerCell.setCellStyle(headerStyle);
+                                headerCell = headerRow.createCell(i);
+                                headerCell.setCellValue(columnName);
+                                headerCell.setCellStyle(headerStyle);
+                            }
 
                             for (int i = 1; i <= data2.size(); i++) {
                                 DtoOutputLaporanPemasukanPengeluaranHarian record = data2.get(i-1);
                                 Row row = sheet1.createRow(i+2);
 
-                                colNum = 0;
+                                int colNum = 0;
                                 Cell cell = row.createCell(colNum++);
                                 cell.setCellValue(record.nominalMasuk);
 
