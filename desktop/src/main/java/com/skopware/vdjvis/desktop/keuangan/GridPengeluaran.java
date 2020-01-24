@@ -32,6 +32,11 @@ public class GridPengeluaran {
 
         o.columnConfigs = Arrays.asList(
                 ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                    x.label = "ID Transaksi";
+                    x.fieldName = "idTrx";
+                    x.dbColumnName = "id_trx";
+                }),
+                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
                     x.label = "Tgl";
                     x.fieldName = "tglTransaksi";
                     x.dbColumnName = "tgl_trx";
@@ -78,7 +83,7 @@ public class GridPengeluaran {
 
     private static Map<String, Object> computeJasperParams(Pengeluaran x) {
         Map<String, Object> params = new HashMap<>();
-        params.put("IdTransaksi", x.getIdTransaksi());
+        params.put("IdTransaksi", x.idTrx);
         params.put("TglTransaksi", x.tglTransaksi.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
         params.put("Penerima", x.penerima);
         params.put("Nominal", x.nominal);

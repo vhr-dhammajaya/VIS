@@ -38,6 +38,11 @@ public class GridPendapatan {
 
         o.columnConfigs = Arrays.asList(
                 ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                    x.label = "ID Transaksi";
+                    x.fieldName = "idTrx";
+                    x.dbColumnName = "id_trx";
+                }),
+                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
                     x.label = "Umat yg berdana";
                     x.fieldName = "umat.nama";
                     x.dbColumnName = "umat_nama";

@@ -19,23 +19,12 @@ public class PembayaranDanaRutin extends BaseRecord<PembayaranDanaRutin> {
     public String keterangan;
     public boolean correctionStatus;
     public String correctionRequestReason;
+    public String idTrx;
 
     // relationships
     public Umat umat;
     public Map<String, DetilPembayaranDanaRutin> mapDetilPembayaran = new LinkedHashMap<>();
     public User user;
-
-    public String getIdTransaksi() {
-        String sb;
-        if (tipe == Type.samanagara) {
-            sb = ("M/F/");
-        } else {
-            sb = ("M/ST/");
-        }
-
-        sb += (String.format("%d/%02d/%06d", tgl.getYear(), tgl.getMonthValue(), noSeq));
-        return sb;
-    }
 
     public String computeKeperluanDana(Handle h) {
         if (tipe == PembayaranDanaRutin.Type.samanagara) {

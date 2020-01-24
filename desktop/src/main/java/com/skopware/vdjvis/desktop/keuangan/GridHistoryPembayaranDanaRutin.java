@@ -30,6 +30,11 @@ public class GridHistoryPembayaranDanaRutin {
 
         o.columnConfigs = Arrays.asList(
                 ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
+                    x.label = "ID Transaksi";
+                    x.fieldName = "idTrx";
+                    x.dbColumnName = "id_trx";
+                }),
+                ObjectHelper.apply(new BaseCrudTableModel.ColumnConfig(), x -> {
                     x.label = "Tanggal transaksi";
                     x.fieldName = "tgl";
                     x.dbColumnName = "tgl";

@@ -11,12 +11,9 @@ public class Pengeluaran extends BaseRecord<Pengeluaran> {
     public String penerima;
     public int nominal;
     public String keterangan;
+    public String idTrx;
 
     // relationships
     public Acara acara;
     public User user;
-
-    public String getIdTransaksi() {
-        return String.format("K/%d/%02d/%06d", tglTransaksi.getYear(), tglTransaksi.getMonthValue(), noSeq);
-    }
 }

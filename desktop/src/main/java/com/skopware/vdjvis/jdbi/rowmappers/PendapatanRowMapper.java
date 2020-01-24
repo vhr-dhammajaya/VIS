@@ -34,6 +34,7 @@ public class PendapatanRowMapper implements RowMapper<Pendapatan> {
         x.channel = rs.getString("channel");
         x.jenisDana = Pendapatan.JenisDana.valueOf(rs.getString("jenis_dana"));
         x.keterangan = rs.getString("keterangan");
+        x.idTrx = rs.getString("id_trx");
 
         String acara_id = rs.getString("acara_id");
         if (acara_id != null) {

@@ -21,6 +21,7 @@ public class PengeluaranRowMapper implements RowMapper<Pengeluaran> {
         x.penerima = rs.getString("penerima");
         x.nominal = rs.getInt("nominal");
         x.keterangan = rs.getString("keterangan");
+        x.idTrx = rs.getString("id_trx");
 
         String acara_id = rs.getString("acara_id");
         if (acara_id != null) {

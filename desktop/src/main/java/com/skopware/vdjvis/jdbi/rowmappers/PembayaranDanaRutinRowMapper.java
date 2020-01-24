@@ -28,6 +28,7 @@ public class PembayaranDanaRutinRowMapper implements RowMapper<PembayaranDanaRut
         x.totalNominal = rs.getInt("total_nominal");
         x.channel = rs.getString("channel");
         x.keterangan = rs.getString("keterangan");
+        x.idTrx = rs.getString("id_trx");
         x.correctionStatus = rs.getBoolean("correction_status");
         x.correctionRequestReason = rs.getString("corr_req_reason");
 

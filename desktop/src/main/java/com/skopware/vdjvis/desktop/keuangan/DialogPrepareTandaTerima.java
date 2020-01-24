@@ -137,7 +137,7 @@ public class DialogPrepareTandaTerima extends JDialog {
         public String keteranganTambahan;
 
         public void set(PembayaranDanaRutin x, String keperluanDana) {
-            idTransaksi = x.getIdTransaksi();
+            idTransaksi = x.idTrx;
             setTglTransaksi(x.tgl);
             namaUmat = x.umat.nama;
             setNominal(x.totalNominal);
@@ -146,7 +146,7 @@ public class DialogPrepareTandaTerima extends JDialog {
         }
 
         public void set(Pendapatan x) {
-            idTransaksi = x.getIdTransaksi();
+            idTransaksi = x.idTrx;
             setTglTransaksi(x.tglTransaksi);
             namaUmat = x.umat == null? "" : x.umat.nama;
             setNominal(x.nominal);

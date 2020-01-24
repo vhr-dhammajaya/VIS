@@ -14,16 +14,12 @@ public class Pendapatan extends BaseRecord<Pendapatan> {
     public String keterangan;
     public boolean correctionStatus;
     public String correctionRequestReason;
+    public String idTrx;
 
     // relationships
     public Umat umat;
     public Acara acara;
     public User user;
-
-    public String getIdTransaksi() {
-        String sb = String.format("M/Lain-2/%d/%02d/%06d", tglTransaksi.getYear(), tglTransaksi.getMonthValue(), noSeq);
-        return sb;
-    }
 
     public String getKeperluanDana() {
         StringBuilder sb = new StringBuilder();
