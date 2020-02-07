@@ -9,6 +9,7 @@ import com.skopware.vdjvis.api.entities.User;
 import javax.swing.*;
 import java.awt.event.ActionListener;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 public class DialogLogin extends JFrame {
     private JTextField txtUsername;
@@ -33,24 +34,31 @@ public class DialogLogin extends JFrame {
         JPanel pnlMain = builder.build();
 
         ActionListener onOk = event -> {
-            try {
+            CompletableFuture<Optional<User>> cf = CompletableFuture.supplyAsync(() -> {
                 Optional<User> user = App.jdbi.withHandle(h -> h.createQuery("select id, username, nama, tipe from user where username=? and password=md5(?)")
                         .bind(0, txtUsername.getText())
                         .bind(1, new String(txtPassword.getPassword()))
                         .mapTo(User.class)
                         .findFirst()
                 );
+                return user;
+            });
 
-                if (!user.isPresent()) {
-                    SwingHelper.showErrorMessage(this, "Username / password tidak ditemukan");
-                    return;
-                }
+            cf.thenAccept(user -> {
+                SwingUtilities.invokeLater(() -> {
+                    if (!user.isPresent()) {
+                        SwingHelper.showErrorMessage(this, "Username / password tidak ditemukan");
+                        return;
+                    }
 
-                App.login(user.get());
-            } catch (Exception ex) {
+                    App.login(user.get());
+                });
+            });
+            cf.exceptionally(ex -> {
                 ex.printStackTrace();
-                SwingHelper.showErrorMessage(DialogLogin.this, "Terjadi error saat login");
-            }
+                SwingUtilities.invokeLater(() -> SwingHelper.showErrorMessage(this, "Terjadi error. Gagal login"));
+                return Optional.empty();
+            });
         };
 
 

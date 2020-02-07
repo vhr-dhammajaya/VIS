@@ -7,6 +7,7 @@ import com.skopware.javautils.swing.SwingHelper;
 
 import javax.swing.*;
 import java.awt.event.ActionListener;
+import java.util.concurrent.CompletableFuture;
 
 public class FrameGantiPassword extends JInternalFrame {
     private JPasswordField txtPassword1;
@@ -47,22 +48,23 @@ public class FrameGantiPassword extends JInternalFrame {
             }
 
             SwingHelper.setEnabled(false, btnOk, btnCancel);
-            try {
+            CompletableFuture<Void> cf = CompletableFuture.runAsync(() -> {
                 App.jdbi.useHandle(h -> h.createUpdate("update user set password=md5(?) where id=?")
                         .bind(0, password1)
                         .bind(1, App.currentUser.uuid)
                         .execute()
                 );
+            });
 
-                this.dispose();
-            }
-            catch (Exception ex) {
-                SwingHelper.setEnabled(true, btnOk, btnCancel);
-
+            cf.thenRun(() -> this.dispose());
+            cf.exceptionally(ex -> {
                 ex.printStackTrace();
-                SwingHelper.showErrorMessage(FrameGantiPassword.this, "Gagal mengganti password. Terjadi error");
-            }
-
+                SwingUtilities.invokeLater(() -> {
+                    SwingHelper.setEnabled(true, btnOk, btnCancel);
+                    SwingHelper.showErrorMessage(FrameGantiPassword.this, "Gagal mengganti password. Terjadi error");
+                });
+                return null;
+            });
         };
 
         ActionListener onCancel = e -> {
